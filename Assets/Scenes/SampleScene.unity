@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 44835674}
   - component: {fileID: 44835673}
   - component: {fileID: 44835672}
+  - component: {fileID: 44835676}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -166,6 +167,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Player.PlayerMovement
   movementSpeed: 5
   rotationSpeed: 720
+  acceleration: 25
+  deceleration: 35
+  jumpHeight: 1.5
   gravity: -25
   terminalSpeed: 50
 --- !u!143 &44835674
@@ -209,6 +213,19 @@ Transform:
   - {fileID: 1138512756}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &44835676
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 44835671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c3cf21b1e19e60745be88898b6bd934d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Stats.CharacterStats
+  configuration: {fileID: 11400000, guid: 2aae5ec736242554e802248ada66afa8, type: 2}
 --- !u!1 &330585543
 GameObject:
   m_ObjectHideFlags: 0

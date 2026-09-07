@@ -17,6 +17,8 @@ namespace HeroesOfDragonland.Player
         [SerializeField, Min(0.01f)] private float collisionRadius = 0.25f;
         [SerializeField] private LayerMask obstructionMask = ~0;
         private float yaw;
+        // Optional orientation supplied by a future camera mode; no target selection here.
+        public Quaternion? OrientationOverride { get; set; }
 
         private void OnEnable()
         {
@@ -25,6 +27,14 @@ namespace HeroesOfDragonland.Player
 
         public void ApplyLook(Vector2 look, bool pointerInput, float deltaTime)
         {
+            if (OrientationOverride.HasValue)
+            {
+                Vector3 angles = OrientationOverride.Value.eulerAngles;
+                yaw = angles.y;
+                pitch = Mathf.Clamp(Mathf.DeltaAngle(0f, angles.x), minimumPitch, maximumPitch);
+                transform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+                return;
+            }
             // Pointer delta is already per frame; sticks represent a rate.
             float scale = pointerInput ? mouseSensitivity : stickSensitivity * deltaTime;
             yaw = Mathf.Repeat(yaw + look.x * scale, 360f);

@@ -13,6 +13,7 @@ namespace HeroesOfDragonland.Player
         private InputActionAsset runtimeActions;
         private InputAction moveAction;
         private InputAction lookAction;
+        private InputAction jumpAction;
 
         private void Awake()
         {
@@ -27,6 +28,7 @@ namespace HeroesOfDragonland.Player
             runtimeActions = Instantiate(inputActions);
             moveAction = runtimeActions.FindAction("Player/Move", true);
             lookAction = runtimeActions.FindAction("Player/Look", true);
+            jumpAction = runtimeActions.FindAction("Player/Jump", true);
         }
 
         private void OnEnable()
@@ -34,6 +36,7 @@ namespace HeroesOfDragonland.Player
             if (runtimeActions == null) return;
             moveAction.Enable();
             lookAction.Enable();
+            jumpAction.Enable();
             SetCursorCaptured(true);
         }
 
@@ -47,8 +50,10 @@ namespace HeroesOfDragonland.Player
             bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
             Vector2 look = captured ? lookAction.ReadValue<Vector2>() : Vector2.zero;
             followCamera.ApplyLook(look, lookAction.activeControl?.device is Pointer, Time.deltaTime);
-            movement.Tick(captured ? moveAction.ReadValue<Vector2>() : Vector2.zero,
-                followCamera.transform, Time.deltaTime);
+            Vector2 input = captured ? moveAction.ReadValue<Vector2>() : Vector2.zero;
+            Quaternion yaw = Quaternion.Euler(0f, followCamera.transform.eulerAngles.y, 0f);
+            Vector3 direction = yaw * new Vector3(input.x, 0f, input.y);
+            movement.Tick(direction, captured && jumpAction.WasPressedThisFrame(), Time.deltaTime);
         }
 
         private void OnApplicationFocus(bool focused)
@@ -60,6 +65,7 @@ namespace HeroesOfDragonland.Player
         {
             moveAction?.Disable();
             lookAction?.Disable();
+            jumpAction?.Disable();
             SetCursorCaptured(false);
         }
 
