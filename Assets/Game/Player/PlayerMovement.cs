@@ -29,7 +29,7 @@ namespace HeroesOfDragonland.Player
         // Directions are world-space; input and camera policy belong to the caller.
         // A future targeting coordinator can supply facing without changing locomotion.
         public void Tick(Vector3 desiredDirection, bool jumpRequested, float deltaTime,
-            Vector3? facingOverride = null)
+            Vector3? facingOverride = null, Vector3? velocityOverride = null)
         {
             if (deltaTime <= 0f || !characterController.enabled) return;
 
@@ -38,6 +38,8 @@ namespace HeroesOfDragonland.Player
             float rate = desiredDirection.sqrMagnitude > 0.0001f ? acceleration : deceleration;
             planarVelocity = Vector3.MoveTowards(planarVelocity,
                 desiredDirection * movementSpeed, rate * deltaTime);
+            // Scripted actions use the same collision/gravity motor without residual drift.
+            if (velocityOverride.HasValue) planarVelocity = Vector3.zero;
             Vector3 facing = facingOverride ?? desiredDirection;
             facing.y = 0f;
             if (facing.sqrMagnitude > 0.0001f)
@@ -45,15 +47,16 @@ namespace HeroesOfDragonland.Player
                     Quaternion.LookRotation(facing), rotationSpeed * deltaTime);
 
             bool grounded = IsGrounded && verticalSpeed <= 0f;
-            Vector3 surfaceVelocity = planarVelocity;
+            Vector3 actionVelocity = velocityOverride ?? planarVelocity;
+            Vector3 surfaceVelocity = actionVelocity;
             Vector3 feet = transform.TransformPoint(characterController.center)
                 - Vector3.up * (characterController.height * 0.5f);
             bool walkable = Physics.Raycast(feet + Vector3.up * 0.2f, Vector3.down,
                 out RaycastHit ground, 0.4f, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore)
                 && Vector3.Angle(ground.normal, Vector3.up) <= characterController.slopeLimit;
             if (grounded && walkable)
-                surfaceVelocity = Vector3.ProjectOnPlane(planarVelocity, ground.normal).normalized
-                    * planarVelocity.magnitude;
+                surfaceVelocity = Vector3.ProjectOnPlane(actionVelocity, ground.normal).normalized
+                    * actionVelocity.magnitude;
 
             if (grounded) verticalSpeed = -2f;
             if (jumpRequested && grounded && walkable)

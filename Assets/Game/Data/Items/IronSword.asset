@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e25f76f027638a048bbe2f85703244f6, type: 3}
+  m_Name: IronSword
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.ItemDefinition
+  id: b4d4a0612c1acd74d98f66ef3969959f
+  displayName: Iron Sword
+  description: A dependable iron training sword.
+  icon: {fileID: 0}
+  category: 0
+  rarity: 0
+  equipmentSlot: 1
+  maximumStackSize: 1
+  value: 40
+  equipmentRequirements:
+  - stat: 3
+    minimumValue: 8
+  statModifiers:
+  - stat: 7
+    operation: 0
+    value: 10

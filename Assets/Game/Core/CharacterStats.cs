@@ -27,6 +27,17 @@ namespace HeroesOfDragonland.Stats
 
         private void Awake() => EnsureInitialized();
 
+        // Explicit spawn initialization for data-driven actors. This resets resources;
+        // never call it for an ordinary equipment change or during combat.
+        public void ConfigureForSpawn(CharacterStatsConfig config)
+        {
+            configuration = config;
+            health = null;
+            stamina = null;
+            mana = null;
+            ResetToFull();
+        }
+
         private void EnsureInitialized()
         {
             if (health != null) return;
@@ -43,6 +54,8 @@ namespace HeroesOfDragonland.Stats
         public float ApplyDamage(float amount)
         {
             if (IsDead) return 0f;
+            foreach (var provider in GetComponents<HeroesOfDragonland.Combat.IInvulnerabilityProvider>())
+                if (provider.IsInvulnerable) return 0f;
             float removed = health.Remove(amount);
             if (removed <= 0f) return 0f;
             bool died = health.Current == 0f;

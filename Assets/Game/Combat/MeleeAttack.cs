@@ -30,6 +30,8 @@ namespace HeroesOfDragonland.Combat
         public bool TryAttack(Vector3? facing = null)
         {
             if (!isActiveAndEnabled || IsBusy || definition == null || stats.IsDead) return false;
+            var dodge = GetComponent<HeroesOfDragonland.Player.PlayerDodge>();
+            if (dodge != null && dodge.IsBusy) return false;
             if (!stats.TrySpendStamina(definition.StaminaCost)) return false;
             committedFacing = facing ?? transform.forward;
             committedFacing.y = 0f;
@@ -83,7 +85,11 @@ namespace HeroesOfDragonland.Combat
                 }
                 if (blocked) continue;
                 hitTargets.Add(receiver);
-                receiver.TakeDamage(definition.Damage, gameObject);
+                var equipment = GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>();
+                float damage = equipment != null
+                    ? equipment.GetModifiedStat(HeroesOfDragonland.Items.ItemStat.AttackDamage, definition.Damage)
+                    : definition.Damage;
+                receiver.TakeDamage(damage, gameObject);
             }
         }
 

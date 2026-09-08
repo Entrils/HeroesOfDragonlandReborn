@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e25f76f027638a048bbe2f85703244f6, type: 3}
+  m_Name: Dragonblade
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.ItemDefinition
+  id: f0f5377d2b04bb04aa6e4185d75fa693
+  displayName: Dragonblade
+  description: A legendary blade carrying the heat of dragonfire.
+  icon: {fileID: 0}
+  category: 0
+  rarity: 4
+  equipmentSlot: 1
+  maximumStackSize: 1
+  value: 1000
+  equipmentRequirements:
+  - stat: 3
+    minimumValue: 20
+  statModifiers:
+  - stat: 7
+    operation: 1
+    value: 0.2

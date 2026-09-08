@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 124ef0522d310e149abdb3f9e3f0de28, type: 3}
+  m_Name: TestNeutralCamp
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.Camps.CampDefinition
+  enemies:
+  - prefab: {fileID: 5563719331977966615, guid: 871d40e0c1b888c4abeddf71ad436655, type: 3}
+    definition: {fileID: 11400000, guid: 7e91b8d77a110054abaaf2ff6a4f8838, type: 2}
+    count: 2
+  - prefab: {fileID: 5563719331977966615, guid: 871d40e0c1b888c4abeddf71ad436655, type: 3}
+    definition: {fileID: 11400000, guid: 4e12d414e78224346941f3ff42bbfb92, type: 2}
+    count: 1
+  experienceReward: 150
+  chestPrefab: {fileID: 4977025822557411674, guid: 67128028cde8f464e82886d62e66287c, type: 3}
+  lootTable: {fileID: 11400000, guid: ff0abe030696eb64e9d7a6ac27db0669, type: 2}

@@ -1,0 +1,63 @@
+using System;
+using HeroesOfDragonland.Combat;
+using HeroesOfDragonland.Stats;
+using UnityEngine;
+
+namespace HeroesOfDragonland.AI
+{
+    [DisallowMultipleComponent, RequireComponent(typeof(CharacterStats), typeof(EnemyPerception))]
+    public sealed class EnemyMeleeAttack : MonoBehaviour
+    {
+        private EnemyDefinition definition;
+        private EnemyThreatTarget target;
+        private float elapsed;
+        private float cooldown;
+        private Vector3 facing;
+        public bool IsBusy { get; private set; }
+        public float CooldownRemaining => cooldown;
+        public event Action AttackStarted;
+        public event Action AttackFinished;
+        public void Configure(EnemyDefinition value) => definition = value;
+
+        public bool TryStart(EnemyThreatTarget value)
+        {
+            if (!isActiveAndEnabled || definition == null || IsBusy || cooldown > 0
+                || GetComponent<CharacterStats>().IsDead || !CanHit(value)) return false;
+            target = value;
+            facing = (value.transform.position - transform.position).normalized;
+            elapsed = 0;
+            cooldown = definition.AttackCooldown;
+            IsBusy = true;
+            AttackStarted?.Invoke();
+            return true;
+        }
+
+        // Driven exclusively by EnemyBrain. A long frame still resolves at most one hit.
+        public void Tick(float deltaTime)
+        {
+            if (deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
+            cooldown = Mathf.Max(0, cooldown - deltaTime);
+            if (!IsBusy) return;
+            if (GetComponent<CharacterStats>().IsDead) { Cancel(); return; }
+            elapsed += deltaTime;
+            if (elapsed < definition.AttackWindup) return;
+            if (CanHit(target) && Vector3.Angle(facing, target.transform.position - transform.position) <= 60)
+            {
+                IDamageable receiver = target.Receiver;
+                receiver.TakeDamage(definition.Damage, gameObject);
+            }
+            Cancel();
+        }
+        private bool CanHit(EnemyThreatTarget value) => value != null && value.IsAlive
+            && Vector3.Distance(transform.position, value.transform.position) <= definition.AttackRange
+            && GetComponent<EnemyPerception>().CanSee(value);
+        public void Cancel()
+        {
+            if (!IsBusy) return;
+            IsBusy = false;
+            target = null;
+            AttackFinished?.Invoke();
+        }
+        private void OnDisable() => Cancel();
+    }
+}

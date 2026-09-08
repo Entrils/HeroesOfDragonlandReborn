@@ -13,6 +13,9 @@ namespace HeroesOfDragonland.Player
         private PlayerMovement movement;
         private TargetLock targetLock;
         private MeleeAttack meleeAttack;
+        private PlayerDodge dodge;
+        private HeroesOfDragonland.Interaction.PlayerInteractor interactor;
+        private InputAction dodgeAction;
         private InputActionAsset runtimeActions;
         private InputAction moveAction;
         private InputAction lookAction;
@@ -24,6 +27,8 @@ namespace HeroesOfDragonland.Player
             movement = GetComponent<PlayerMovement>();
             targetLock = GetComponent<TargetLock>();
             meleeAttack = GetComponent<MeleeAttack>();
+            dodge = GetComponent<PlayerDodge>();
+            interactor = GetComponent<HeroesOfDragonland.Interaction.PlayerInteractor>();
             if (inputActions == null || followCamera == null)
             {
                 Debug.LogError("PlayerController requires Input Actions and Follow Camera references.", this);
@@ -36,6 +41,7 @@ namespace HeroesOfDragonland.Player
             lookAction = runtimeActions.FindAction("Player/Look", true);
             jumpAction = runtimeActions.FindAction("Player/Jump", true);
             attackAction = runtimeActions.FindAction("Player/Attack", true);
+            dodgeAction = runtimeActions.FindAction("Player/Dodge", true);
         }
 
         private void OnEnable()
@@ -45,6 +51,7 @@ namespace HeroesOfDragonland.Player
             lookAction.Enable();
             jumpAction.Enable();
             attackAction.Enable();
+            dodgeAction.Enable();
             SetCursorCaptured(true);
         }
 
@@ -66,9 +73,17 @@ namespace HeroesOfDragonland.Player
             Quaternion yaw = Quaternion.Euler(0f, followCamera.transform.eulerAngles.y, 0f);
             Vector3 direction = yaw * new Vector3(input.x, 0f, input.y);
             Vector3? facing = targetLock != null ? targetLock.FacingDirection : null;
+            if (dodge != null && captured && wasCaptured && dodgeAction.WasPressedThisFrame())
+                dodge.TryDodge(direction, facing);
+            if (dodge != null && dodge.IsBusy)
+            {
+                dodge.TickDodge(Time.deltaTime, facing);
+                return;
+            }
             if (meleeAttack != null && captured && wasCaptured && attackAction.WasPressedThisFrame())
                 meleeAttack.TryAttack(facing);
             bool attacking = meleeAttack != null && meleeAttack.IsBusy;
+            if (interactor != null) interactor.Tick(captured && wasCaptured && !attacking);
             movement.Tick(direction * (attacking ? meleeAttack.MovementMultiplier : 1f),
                 captured && !attacking && jumpAction.WasPressedThisFrame(), Time.deltaTime,
                 attacking ? meleeAttack.FacingDirection : facing);
@@ -85,6 +100,8 @@ namespace HeroesOfDragonland.Player
             lookAction?.Disable();
             jumpAction?.Disable();
             attackAction?.Disable();
+            dodgeAction?.Disable();
+            if (dodge != null) dodge.Cancel();
             if (targetLock != null) targetLock.Unlock();
             if (followCamera != null) followCamera.SetFocusPoint(null);
             SetCursorCaptured(false);
