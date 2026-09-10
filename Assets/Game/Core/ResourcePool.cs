@@ -7,7 +7,7 @@ namespace HeroesOfDragonland.Stats
     internal sealed class ResourcePool
     {
         public float Current { get; private set; }
-        public float Maximum { get; }
+        public float Maximum { get; private set; }
         private readonly float regenerationRate;
         private readonly float regenerationDelay;
         private float delayRemaining;
@@ -23,6 +23,13 @@ namespace HeroesOfDragonland.Stats
         }
 
         public static bool ValidAmount(float amount) => amount >= 0f && !float.IsNaN(amount) && !float.IsInfinity(amount);
+
+        public void SetMaximum(float maximum)
+        {
+            if (!ValidAmount(maximum)) throw new ArgumentOutOfRangeException(nameof(maximum));
+            Maximum = maximum;
+            Current = Mathf.Min(Current, maximum);
+        }
 
         public float Remove(float amount)
         {
@@ -61,6 +68,15 @@ namespace HeroesOfDragonland.Stats
         {
             Current = Maximum;
             delayRemaining = 0f;
+        }
+
+        internal bool ApplySnapshot(float current, float maximum)
+        {
+            if (!ValidAmount(current) || !ValidAmount(maximum) || current > maximum) return false;
+            if (Current == current && Maximum == maximum) return false;
+            Maximum = maximum;
+            Current = current;
+            return true;
         }
     }
 }

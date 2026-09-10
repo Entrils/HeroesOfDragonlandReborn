@@ -62,7 +62,7 @@ namespace HeroesOfDragonland.EquipmentSystem
                     || float.IsNaN(value) || float.IsInfinity(value))
                 { reason = "Missing attribute: " + requirement.Stat + "."; return false; }
                 if (value < requirement.MinimumValue)
-                { reason = "Requires " + requirement.Stat + " " + requirement.MinimumValue + " (base value " + value + ")."; return false; }
+                { reason = "Requires " + requirement.Stat + " " + requirement.MinimumValue + " (base + allocated " + value + ")."; return false; }
             }
             reason = null;
             return true;

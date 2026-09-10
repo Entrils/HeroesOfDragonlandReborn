@@ -17,6 +17,7 @@ namespace HeroesOfDragonland.Combat
         private float elapsed;
         private Vector3 committedFacing;
         public bool IsBusy { get; private set; }
+        public MeleeAttackDefinition Definition => definition;
         public bool IsSwinging => IsBusy && elapsed < definition.AttackDuration;
         public float SwingProgress => definition != null ? Mathf.Clamp01(elapsed / definition.AttackDuration) : 0f;
         public float MovementMultiplier => IsBusy ? definition.MovementMultiplier : 1f;
@@ -29,7 +30,7 @@ namespace HeroesOfDragonland.Combat
         // Input/AI supply an intent. This component owns cost, timing and damage.
         public bool TryAttack(Vector3? facing = null)
         {
-            if (!isActiveAndEnabled || IsBusy || definition == null || stats.IsDead) return false;
+            if (!isActiveAndEnabled || !stats.CanMutate || IsBusy || definition == null || stats.IsDead) return false;
             var dodge = GetComponent<HeroesOfDragonland.Player.PlayerDodge>();
             if (dodge != null && dodge.IsBusy) return false;
             if (!stats.TrySpendStamina(definition.StaminaCost)) return false;
@@ -44,12 +45,12 @@ namespace HeroesOfDragonland.Combat
         }
 
         // After player movement, so overlap uses the current character pose.
-        private void LateUpdate() => TickAttack(Time.deltaTime);
+        private void LateUpdate() { if (!stats.UsesNetworkClock) TickAttack(Time.deltaTime); }
 
         // Manual ticking is useful for deterministic checks; don't also tick from another frame loop.
         public void TickAttack(float deltaTime)
         {
-            if (!IsBusy || deltaTime <= 0f || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
+            if (!stats.CanMutate || !IsBusy || deltaTime <= 0f || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
             if (stats.IsDead) { Cancel(); return; }
             float previous = elapsed;
             elapsed += deltaTime;

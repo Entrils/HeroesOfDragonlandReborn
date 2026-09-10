@@ -2,8 +2,7 @@ using HeroesOfDragonland.Items;
 
 namespace HeroesOfDragonland.EquipmentSystem
 {
-    // Future progression systems can supply attributes without changing equipment.
-    // Requirements deliberately use base values, never bonuses from gear itself.
+    // Requirements use innate base plus allocated session points, excluding gear.
     public interface IEquipmentRequirementSource
     {
         bool TryGetBaseValue(ItemStat stat, out float value);

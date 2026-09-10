@@ -449,6 +449,7 @@ MonoBehaviour:
     value: 10
   - stat: 8
     value: 1
+  definition: {fileID: 0}
 --- !u!114 &44835687
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -539,6 +540,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Progression.SessionProgressionDebug
   debugXP: 500
+  attribute: 9
 --- !u!1 &79132240
 GameObject:
   m_ObjectHideFlags: 0

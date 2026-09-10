@@ -19,7 +19,9 @@ namespace HeroesOfDragonland.Combat
 
         public float TakeDamage(float amount, GameObject source)
         {
-            if (!IsAlive) return 0f;
+            if (!IsAlive || !HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject)) return 0f;
+            foreach (var policy in GetComponents<IDamagePolicy>())
+                if (!policy.AllowsDamage(source)) return 0f;
             float applied = stats.ApplyDamage(amount);
             if (applied > 0f) DamageTaken?.Invoke(applied, source);
             return applied;

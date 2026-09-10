@@ -20,6 +20,7 @@ namespace HeroesOfDragonland.Player
         public event Action<Targetable> TargetChanged;
         public Vector3? FacingDirection => CurrentTarget != null
             ? CurrentTarget.AimPosition - transform.position : (Vector3?)null;
+        public void SetViewCamera(Camera value) => viewCamera = value;
 
         private void OnEnable() { toggleLock.Enable(); switchLeft.Enable(); switchRight.Enable(); }
         private void OnDisable() { toggleLock.Disable(); switchLeft.Disable(); switchRight.Disable(); Unlock(); }
@@ -78,6 +79,7 @@ namespace HeroesOfDragonland.Player
         }
 
         private bool InRange(Targetable value) => value != null && value.IsValid
+            && HeroesOfDragonland.Teams.TeamIdentity.CanDamage(gameObject, value.gameObject)
             && value.transform != transform && !value.transform.IsChildOf(transform)
             && (value.AimPosition - transform.position).sqrMagnitude <= maximumDistance * maximumDistance;
 

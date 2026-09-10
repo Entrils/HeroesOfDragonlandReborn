@@ -5,9 +5,21 @@ namespace HeroesOfDragonland.AI
     [DisallowMultipleComponent]
     public sealed class EnemyPerception : MonoBehaviour
     {
+        public bool CanTarget(EnemyThreatTarget target)
+        {
+            if (target == null || !target.IsAlive || target.transform == transform
+                || target.transform.IsChildOf(transform)) return false;
+            if (HeroesOfDragonland.Teams.TeamIdentity.AreAllies(
+                HeroesOfDragonland.Teams.TeamIdentity.Find(gameObject),
+                HeroesOfDragonland.Teams.TeamIdentity.Find(target.gameObject))) return false;
+            foreach (var policy in GetComponents<IEnemyTargetPolicy>())
+                if (!policy.AllowsTarget(target)) return false;
+            return true;
+        }
+
         public bool CanSee(EnemyThreatTarget target)
         {
-            if (target == null || !target.IsAlive) return false;
+            if (!CanTarget(target)) return false;
             Vector3 origin = transform.position + Vector3.up;
             Vector3 ray = target.AimPosition - origin;
             foreach (var hit in Physics.RaycastAll(origin, ray.normalized, ray.magnitude,

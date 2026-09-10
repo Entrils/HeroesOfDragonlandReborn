@@ -9,7 +9,8 @@ namespace HeroesOfDragonland.Items
     public enum ItemStat
     {
         MaxHealth = 0, MaxStamina = 1, MaxMana = 2,
-        Strength = 3, Dexterity = 4, Intelligence = 5, Armor = 6, AttackDamage = 7, Level = 8
+        Strength = 3, Dexterity = 4, Intelligence = 5, Armor = 6, AttackDamage = 7, Level = 8,
+        Vitality = 9, Endurance = 10, Mind = 11
     }
     public enum StatModifierOperation { Flat = 0, AdditivePercent = 1 }
 

@@ -81,7 +81,7 @@ namespace HeroesOfDragonland.AI
             if (stats.IsDead) { Die(); return; }
             stateTime += deltaTime;
             navigationTimer -= deltaTime;
-            if (State != EnemyState.Return && AggroTarget != null && (!AggroTarget.IsAlive
+            if (State != EnemyState.Return && AggroTarget != null && (!perception.CanTarget(AggroTarget)
                 || Vector3.Distance(AggroTarget.transform.position, SpawnPosition) > definition.LeashDistance
                 || Vector3.Distance(transform.position, SpawnPosition) > definition.LeashDistance)) BeginReturn();
             if (State == EnemyState.Return)
@@ -139,7 +139,7 @@ namespace HeroesOfDragonland.AI
             if (!isActiveAndEnabled || !hasAuthority || definition == null || stats.IsDead
                 || State == EnemyState.Return || source == null) return;
             var target = source.GetComponentInParent<EnemyThreatTarget>();
-            if (target != null && target.IsAlive && Vector3.Distance(target.transform.position, SpawnPosition) <= definition.LeashDistance) Acquire(target);
+            if (perception.CanTarget(target) && Vector3.Distance(target.transform.position, SpawnPosition) <= definition.LeashDistance) Acquire(target);
         }
         private void Acquire(EnemyThreatTarget target)
         {

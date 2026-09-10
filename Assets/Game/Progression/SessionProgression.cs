@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using UnityEngine;
+using HeroesOfDragonland.Items;
 
 namespace HeroesOfDragonland.Progression
 {
@@ -13,6 +14,32 @@ namespace HeroesOfDragonland.Progression
         private int[] thresholds;
         private int[] pointRewards;
         private bool processing;
+        private readonly Dictionary<ItemStat, int> allocatedAttributes = new Dictionary<ItemStat, int>();
+        public static bool IsProgressionAttribute(ItemStat stat) => stat == ItemStat.Vitality
+            || stat == ItemStat.Endurance || stat == ItemStat.Mind
+            || stat == ItemStat.Strength || stat == ItemStat.Dexterity;
+        public int GetAllocatedPoints(ItemStat stat) => allocatedAttributes.TryGetValue(stat, out int points) ? points : 0;
+
+        public bool TryIncreaseAttribute(ItemStat stat, string sessionId, out string reason)
+        {
+            reason = null;
+            if (!isActiveAndEnabled || !hasAuthority || processing) reason = "Attribute allocation requires available authority.";
+            else if (!IsInitialized || sessionId != SessionId) reason = "Allocation belongs to an inactive session.";
+            else if (!IsProgressionAttribute(stat)) reason = "Invalid progression attribute.";
+            else if (ProgressionPoints <= 0) reason = "No progression points available.";
+            else if (GetAllocatedPoints(stat) == int.MaxValue) reason = "Attribute allocation limit reached.";
+            if (reason != null) return false;
+            processing = true;
+            try
+            {
+                allocatedAttributes[stat] = GetAllocatedPoints(stat) + 1;
+                ProgressionPoints--;
+                Revision++;
+                Notify(Changed);
+                return true;
+            }
+            finally { processing = false; }
+        }
         public bool HasAuthority => hasAuthority;
         public bool IsInitialized => thresholds != null;
         public string SessionId { get; private set; }
@@ -57,6 +84,7 @@ namespace HeroesOfDragonland.Progression
                 SessionId = sessionId;
                 Level = 1; CurrentXP = 0; ProgressionPoints = 0; Revision = 0;
                 rewardedIds.Clear();
+                allocatedAttributes.Clear();
                 Notify(SessionStarted, sessionId);
                 Notify(Changed);
                 return true;

@@ -7,6 +7,15 @@ namespace HeroesOfDragonland.Progression
     public sealed class SessionProgressionDebug : MonoBehaviour
     {
         [SerializeField, Min(1)] private int debugXP = 500;
+        [SerializeField] private HeroesOfDragonland.Items.ItemStat attribute = HeroesOfDragonland.Items.ItemStat.Vitality;
+        [ContextMenu("Progression/Spend Point On Attribute")]
+        private void SpendAttributePoint()
+        {
+            if (!Application.isPlaying) return;
+            if (!Progression.TryIncreaseAttribute(attribute, Progression.SessionId, out string reason))
+                Debug.LogWarning(reason, this);
+            LogProgression();
+        }
         private SessionProgression Progression => GetComponent<SessionProgression>();
         private void OnEnable() => Progression.LeveledUp += OnLevelUp;
         private void OnDisable() => Progression.LeveledUp -= OnLevelUp;
