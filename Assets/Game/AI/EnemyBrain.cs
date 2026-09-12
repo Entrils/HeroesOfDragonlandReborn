@@ -23,6 +23,7 @@ namespace HeroesOfDragonland.AI
         private float stateTime;
         private float navigationTimer;
         private float unseenTime;
+        private float perceptionTimer;
         private int patrolIndex;
         private bool initialized;
         // Camp/factory configures an inactive instance before Awake initializes stats.
@@ -34,7 +35,7 @@ namespace HeroesOfDragonland.AI
             return true;
         }
         public EnemyDefinition Definition => definition;
-        public bool HasAuthority => hasAuthority;
+        public bool HasAuthority => GetComponent<IEnemyAuthority>()?.CanSimulateEnemy ?? hasAuthority;
         public EnemyState State { get; private set; }
         public EnemyThreatTarget AggroTarget { get; private set; }
         public Vector3 SpawnPosition { get; private set; }
@@ -72,17 +73,26 @@ namespace HeroesOfDragonland.AI
             navigation.Stop();
             attack.Cancel();
         }
-        private void Update() => Tick(Time.deltaTime);
+        // Network adapters own the simulation clock; never double-tick in Update.
+        private void Update() { if (GetComponent<IEnemyAuthority>() == null) Tick(Time.deltaTime); }
+        internal void InitializeNetworkSpawn()
+        {
+            if (!HasAuthority) return;
+            SpawnPosition = transform.position;
+            stats.ConfigureForSpawn(definition.Stats);
+            attack.Configure(definition);
+        }
         // Manual ticking is for deterministic checks; don't also run Update that frame.
         public void Tick(float deltaTime)
         {
-            if (!isActiveAndEnabled || !hasAuthority || definition == null || deltaTime <= 0
+            if (!isActiveAndEnabled || !HasAuthority || definition == null || deltaTime <= 0
                 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) || State == EnemyState.Dead) return;
             if (stats.IsDead) { Die(); return; }
             stateTime += deltaTime;
             navigationTimer -= deltaTime;
+            perceptionTimer -= deltaTime;
             if (State != EnemyState.Return && AggroTarget != null && (!perception.CanTarget(AggroTarget)
-                || Vector3.Distance(AggroTarget.transform.position, SpawnPosition) > definition.LeashDistance
+                || Vector3.Distance(AggroTarget.NavigationPosition, SpawnPosition) > definition.LeashDistance
                 || Vector3.Distance(transform.position, SpawnPosition) > definition.LeashDistance)) BeginReturn();
             if (State == EnemyState.Return)
             {
@@ -101,10 +111,10 @@ namespace HeroesOfDragonland.AI
                 attack.Tick(deltaTime);
                 if (State == EnemyState.Alert && stateTime < definition.AlertDuration) return;
                 if (attack.IsBusy) return;
-                if (visible && Vector3.Distance(transform.position, AggroTarget.transform.position) <= definition.AttackRange)
+                if (visible && Vector3.Distance(transform.position, AggroTarget.NavigationPosition) <= definition.AttackRange)
                 {
                     navigation.Stop();
-                    navigation.Face(AggroTarget.transform.position, deltaTime);
+                    navigation.Face(AggroTarget.NavigationPosition, deltaTime);
                     SetState(EnemyState.Attack);
                     attack.TryStart(AggroTarget);
                 }
@@ -113,15 +123,18 @@ namespace HeroesOfDragonland.AI
                     SetState(EnemyState.Chase);
                     if (navigationTimer <= 0)
                     {
-                        if (!navigation.MoveTo(AggroTarget.transform.position, definition.ChaseSpeed, definition.AttackRange * 0.8f)) { BeginReturn(); return; }
+                        if (!navigation.MoveTo(AggroTarget.NavigationPosition, definition.ChaseSpeed, definition.AttackRange * 0.8f)) { BeginReturn(); return; }
                         navigationTimer = 0.25f;
                     }
                 }
                 return;
             }
             attack.Tick(deltaTime);
-            if (definition.AggroOnSight)
+            if (definition.AggroOnSight && perceptionTimer <= 0)
             {
+                // Acquisition at 5 Hz is sufficient for a handful of enemies/six players.
+                // Visibility and impact legality of an existing target still run each tick.
+                perceptionTimer = GetComponent<IEnemyAuthority>() != null ? 0.2f : 0f;
                 var target = perception.FindTarget(definition.DetectionRadius, SpawnPosition, definition.LeashDistance);
                 if (target != null) { Acquire(target); return; }
             }
@@ -136,10 +149,10 @@ namespace HeroesOfDragonland.AI
         }
         private void OnDamaged(float amount, GameObject source)
         {
-            if (!isActiveAndEnabled || !hasAuthority || definition == null || stats.IsDead
+            if (!isActiveAndEnabled || !HasAuthority || definition == null || stats.IsDead
                 || State == EnemyState.Return || source == null) return;
             var target = source.GetComponentInParent<EnemyThreatTarget>();
-            if (perception.CanTarget(target) && Vector3.Distance(target.transform.position, SpawnPosition) <= definition.LeashDistance) Acquire(target);
+            if (perception.CanTarget(target) && Vector3.Distance(target.NavigationPosition, SpawnPosition) <= definition.LeashDistance) Acquire(target);
         }
         private void Acquire(EnemyThreatTarget target)
         {
@@ -155,6 +168,7 @@ namespace HeroesOfDragonland.AI
         }
         private void Die()
         {
+            if (!EnemyAuthority.CanSimulate(this)) return;
             if (State == EnemyState.Dead) return;
             AggroTarget = null; attack.Cancel(); navigation.Die();
             foreach (var collider in GetComponentsInChildren<Collider>()) collider.enabled = false;

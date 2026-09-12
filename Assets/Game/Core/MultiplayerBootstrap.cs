@@ -21,11 +21,14 @@ namespace HeroesOfDragonland.Multiplayer
         public bool Running => runner != null && runner.IsRunning;
         public string Status { get; private set; } = "Not connected";
         public event Action<string> StatusChanged;
+        public event Action<NetworkRunner> SessionStarted;
         public NetworkRunner Runner => runner;
+        public string SessionId { get; private set; }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         internal Vector2? TestInput { get; set; }
         internal bool? TestAttack { get; set; }
         internal bool? TestDodge { get; set; }
+        internal Vector2? TestFacing { get; set; }
 #endif
 
         private void Start()
@@ -61,6 +64,7 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 Application.runInBackground = true;
                 roster.Clear(); players.Clear(); nextParticipant = 0;
+                SessionId = mode == GameMode.Client ? null : Guid.NewGuid().ToString("N");
                 var runnerObject = new GameObject("Multiplayer Runner");
                 runnerObject.transform.SetParent(transform);
                 runner = runnerObject.AddComponent<NetworkRunner>();
@@ -82,7 +86,11 @@ namespace HeroesOfDragonland.Multiplayer
                     SetStatus("Start failed: " + started.ShutdownReason);
                     await ReleaseRunner();
                 }
-                else SetStatus(mode + " connected / " + sessionName.Trim());
+                else
+                {
+                    SessionStarted?.Invoke(runner);
+                    SetStatus(mode + " connected / " + sessionName.Trim());
+                }
             }
             catch (Exception exception)
             {
@@ -188,6 +196,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (TestInput.HasValue) move = TestInput.Value;
             if (TestAttack.HasValue) attack = TestAttack.Value;
             if (TestDodge.HasValue) dodge = TestDodge.Value;
+            if (TestFacing.HasValue) facing = TestFacing.Value;
 #endif
             input.Set(new NetworkPlayerInput { Move = Vector2.ClampMagnitude(move, 1), Attack = attack, Dodge = dodge, Facing = facing });
         }

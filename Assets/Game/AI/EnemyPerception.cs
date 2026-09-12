@@ -7,7 +7,7 @@ namespace HeroesOfDragonland.AI
     {
         public bool CanTarget(EnemyThreatTarget target)
         {
-            if (target == null || !target.IsAlive || target.transform == transform
+            if (!EnemyAuthority.CanSimulate(this) || target == null || !target.IsAlive || target.transform == transform
                 || target.transform.IsChildOf(transform)) return false;
             if (HeroesOfDragonland.Teams.TeamIdentity.AreAllies(
                 HeroesOfDragonland.Teams.TeamIdentity.Find(gameObject),
@@ -34,6 +34,7 @@ namespace HeroesOfDragonland.AI
 
         public EnemyThreatTarget FindTarget(float radius, Vector3 home, float leash)
         {
+            if (!EnemyAuthority.CanSimulate(this)) return null;
             EnemyThreatTarget best = null;
             float distance = radius * radius;
             foreach (var collider in Physics.OverlapSphere(transform.position, radius,
@@ -41,8 +42,8 @@ namespace HeroesOfDragonland.AI
             {
                 var target = collider.GetComponentInParent<EnemyThreatTarget>();
                 if (target == null || target.transform == transform
-                    || (target.transform.position - home).sqrMagnitude > leash * leash) continue;
-                float candidateDistance = (target.transform.position - transform.position).sqrMagnitude;
+                    || (target.NavigationPosition - home).sqrMagnitude > leash * leash) continue;
+                float candidateDistance = (target.NavigationPosition - transform.position).sqrMagnitude;
                 if (candidateDistance > distance || !CanSee(target)) continue;
                 best = target;
                 distance = candidateDistance;

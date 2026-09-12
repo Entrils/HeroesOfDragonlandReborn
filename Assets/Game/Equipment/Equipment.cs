@@ -47,6 +47,8 @@ namespace HeroesOfDragonland.EquipmentSystem
             reason = null;
             if (!isActiveAndEnabled) reason = "Equipment is disabled.";
             else if (!Inventory.HasAuthority) reason = "Only the session authority may change equipment.";
+            else if (GetComponent<IEquipmentChangePolicy>() is IEquipmentChangePolicy policy && !policy.CanChangeEquipment)
+                reason = "Equipment cannot change in the current character state.";
             else if (transferring) reason = "An equipment transfer is already in progress.";
             else if (!ValidSlot(slot)) reason = "Invalid equipment slot.";
             return reason == null;
@@ -81,6 +83,21 @@ namespace HeroesOfDragonland.EquipmentSystem
                 return true;
             }
             finally { transferring = false; }
+        }
+
+        // Trusted replication adapter only; validate and commit all slots before events.
+        internal bool ApplyNetworkSnapshot(long revision, string[] ids)
+        {
+            if (Inventory.HasAuthority || revision <= Revision || ids == null || ids.Length != equippedIds.Length) return false;
+            for (int i = 0; i < ids.Length; i++)
+                if (ids[i] != null && (!Inventory.TryResolveItem(ids[i], out var item)
+                    || !item.TryValidate(out _) || item.EquipmentSlot != (EquipmentSlot)(i + 1))) return false;
+            var previous = (string[])equippedIds.Clone();
+            Array.Copy(ids, equippedIds, ids.Length);
+            Revision = revision;
+            for (int i = 0; i < ids.Length; i++)
+                if (previous[i] != ids[i]) Changed?.Invoke((EquipmentSlot)(i + 1), previous[i], ids[i]);
+            return true;
         }
 
         // Recomputed from current gear: no accumulating bonuses or asset mutation.

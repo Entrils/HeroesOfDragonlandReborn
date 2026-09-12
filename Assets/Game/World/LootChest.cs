@@ -19,7 +19,7 @@ namespace HeroesOfDragonland.World
         private bool processing;
         public bool IsOpen { get; private set; }
         public long Revision { get; private set; }
-        public bool HasAuthority => hasAuthority;
+        public bool HasAuthority => GetComponent<ILootChestAuthority>()?.CanMutateChest ?? hasAuthority;
         public LootTable Table => lootTable;
         // Factories configure inactive, unopened instances; never replaces rolled rewards.
         public bool TryConfigureSpawn(LootTable table, bool authority)
@@ -34,11 +34,20 @@ namespace HeroesOfDragonland.World
         public event Action Changed;
         public void SetAuthority(bool authority) => hasAuthority = authority;
 
+        internal void ApplyReplicatedOpen(bool value)
+        {
+            if (GetComponent<ILootChestAuthority>() == null || HasAuthority || IsOpen == value) return;
+            IsOpen = value;
+            Changed?.Invoke();
+        }
+
         public bool TryInteract(Inventory player, out string message)
         {
             message = null;
             if (!isActiveAndEnabled || processing) message = "Chest is unavailable.";
-            else if (!hasAuthority || player == null || !player.HasAuthority) message = "Only authority can grant chest loot.";
+            else if (!HasAuthority || player == null || !player.HasAuthority
+                || (GetComponent<ILootChestAuthority>() is ILootChestAuthority policy && !policy.AllowsClaimant(player)))
+                message = "Only authority can grant chest loot.";
             else if (!player.isActiveAndEnabled || (player.TryGetComponent<CharacterStats>(out var stats) && stats.IsDead)) message = "Player cannot loot now.";
             else if (!InteractionReach.CanReach(player.transform, transform, InteractionPoint, interactionRange)) message = "Chest is out of reach or obstructed.";
             else if (IsOpen && pending.Length == 0) message = "Chest has already been looted.";

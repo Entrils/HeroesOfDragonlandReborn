@@ -99,6 +99,15 @@ namespace HeroesOfDragonland.InventorySystem
             return true;
         }
 
+        public bool TryRemoveAt(int index, int amount)
+        {
+            if (index < 0 || index >= slots.Length || amount <= 0 || slots[index].Amount < amount) return false;
+            var old = slots[index];
+            slots[index] = old.Amount == amount ? default : new InventorySlot(old.ItemId, old.Amount - amount);
+            Publish(Revision + 1);
+            return true;
+        }
+
         public InventorySnapshot CaptureSnapshot() => new InventorySnapshot(Revision, slots);
 
         // Chest reward transfer: preserve overflow, commit both owners before notifying.

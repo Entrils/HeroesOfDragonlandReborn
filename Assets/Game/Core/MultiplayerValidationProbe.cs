@@ -26,7 +26,7 @@ namespace HeroesOfDragonland.Multiplayer
             var args = Environment.GetCommandLineArgs();
             active = args.Contains("-hodrProbe");
             moving = args.Contains("-hodrMove");
-            combatScenario = args.Contains("-hodrCombat");
+            combatScenario = args.Contains("-hodrCombat") || args.Contains("-hodrPve") || args.Contains("-hodrCamps");
             for (int i = 0; i + 1 < args.Length; i++)
             {
                 if (args[i] == "-hodrDisconnect") float.TryParse(args[i + 1], NumberStyles.Float, CultureInfo.InvariantCulture, out disconnectAfter);

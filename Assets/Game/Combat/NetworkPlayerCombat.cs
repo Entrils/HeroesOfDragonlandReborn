@@ -61,6 +61,8 @@ namespace HeroesOfDragonland.Multiplayer
         public bool AllowsDamage(GameObject source)
         {
             if (!IsAdmitted() || stats.IsDead || source == null || source == gameObject) return false;
+            var enemy = source.GetComponent<NetworkEnemy>();
+            if (enemy != null) return enemy.Runner == Runner && enemy.IsResolvingAttack;
             var attacker = source.GetComponent<NetworkPlayerCombat>();
             return attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
                 && attacker.ResolvingAttack && !attacker.stats.IsDead

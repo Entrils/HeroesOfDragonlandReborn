@@ -29,6 +29,11 @@ internal class CommandScript : IRunCommand {
  bool badSlots=false; try {new InventoryState(catalog,0);} catch(ArgumentOutOfRangeException) {badSlots=true;} Check(badSlots,"invalid capacity");
  var random=new System.Random(7); var test=new InventoryState(catalog,3); long expected=0;
  for(int n=0;n<300;n++) {int amount=random.Next(1,35); bool add=random.Next(2)==0; bool should=add?expected+amount<=30:expected>=amount; bool actual=add?test.TryAdd(potion,amount):test.TryRemove(potion,amount); Check(actual==should,"random operation result"); if(actual)expected+=add?amount:-amount; Check(test.GetAmount(potion)==expected,"random quantity conservation"); for(int i=0;i<3;i++)Check(test.GetSlot(i).Amount>=0&&test.GetSlot(i).Amount<=10,"stack invariant");}
+ var indexed=new InventoryState(catalog,2); indexed.TryAdd(potion,17); long indexedRevision=indexed.Revision;
+ Check(!indexed.TryRemoveAt(-1,1)&&!indexed.TryRemoveAt(2,1)&&!indexed.TryRemoveAt(0,0)&&!indexed.TryRemoveAt(1,8)
+     &&indexed.Revision==indexedRevision,"indexed remove rejects invalid input atomically");
+ Check(indexed.TryRemoveAt(1,3)&&indexed.GetSlot(0).Amount==10&&indexed.GetSlot(1).Amount==4,"indexed remove preserves other stacks");
+ Check(indexed.TryRemoveAt(1,4)&&indexed.GetSlot(1).IsEmpty,"indexed remove clears depleted slot");
  Check(!EditorUtility.scriptCompilationFailed,"compilation");
  result.Log("PASS: stacking, capacity/full, atomic add/remove, events, clear, isolation, ID JSON snapshots, stale/invalid rejection, unstackable equipment, 300 randomized quantity checks.");
  } }

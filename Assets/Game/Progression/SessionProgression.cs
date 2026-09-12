@@ -23,7 +23,7 @@ namespace HeroesOfDragonland.Progression
         public bool TryIncreaseAttribute(ItemStat stat, string sessionId, out string reason)
         {
             reason = null;
-            if (!isActiveAndEnabled || !hasAuthority || processing) reason = "Attribute allocation requires available authority.";
+            if (!isActiveAndEnabled || !HasAuthority || processing) reason = "Attribute allocation requires available authority.";
             else if (!IsInitialized || sessionId != SessionId) reason = "Allocation belongs to an inactive session.";
             else if (!IsProgressionAttribute(stat)) reason = "Invalid progression attribute.";
             else if (ProgressionPoints <= 0) reason = "No progression points available.";
@@ -40,7 +40,7 @@ namespace HeroesOfDragonland.Progression
             }
             finally { processing = false; }
         }
-        public bool HasAuthority => hasAuthority;
+        public bool HasAuthority => GetComponent<IProgressionAuthority>()?.CanMutateProgression ?? hasAuthority;
         public bool IsInitialized => thresholds != null;
         public string SessionId { get; private set; }
         public int Level { get; private set; } = 1;
@@ -64,7 +64,7 @@ namespace HeroesOfDragonland.Progression
         public bool CanBeginSession(out string reason)
         {
             reason = null;
-            if (!hasAuthority || processing) reason = "Session reset requires available authority.";
+            if (!HasAuthority || processing) reason = "Session reset requires available authority.";
             else if (definition == null) reason = "Assign a level progression definition.";
             else if (!definition.TryValidate(out reason)) return false;
             return reason == null;
@@ -98,7 +98,7 @@ namespace HeroesOfDragonland.Progression
         public bool TryAddExperience(long amount, string sessionId, string rewardId, out string reason)
         {
             reason = null;
-            if (!hasAuthority || processing) reason = "XP grants require available authority.";
+            if (!HasAuthority || processing) reason = "XP grants require available authority.";
             else if (!IsInitialized || sessionId != SessionId) reason = "XP reward belongs to an inactive session.";
             else if (amount <= 0 || string.IsNullOrWhiteSpace(rewardId)) reason = "Provide positive XP and a unique reward ID.";
             else if (rewardedIds.Contains(rewardId)) reason = "This reward was already received in this session.";
@@ -134,6 +134,20 @@ namespace HeroesOfDragonland.Progression
                 return true;
             }
             finally { processing = false; }
+        }
+
+        // Only the transport adapter applies accepted snapshots. No XP/level reward events on replicas.
+        internal void ApplyNetworkState(string sessionId, int level, long xp, long points, long revision, int[] allocated)
+        {
+            if (GetComponent<IProgressionAuthority>() == null || HasAuthority || definition == null
+                || !definition.TryValidate(out _) || allocated == null || allocated.Length != 5) return;
+            if (SessionId == sessionId && IsInitialized && revision <= Revision) return;
+            definition.CopyCurve(out thresholds, out pointRewards);
+            SessionId = sessionId; Level = level; CurrentXP = xp; ProgressionPoints = points; Revision = revision;
+            var attributes = new[] { ItemStat.Vitality, ItemStat.Endurance, ItemStat.Mind, ItemStat.Strength, ItemStat.Dexterity };
+            allocatedAttributes.Clear();
+            for (int i = 0; i < attributes.Length; i++) allocatedAttributes[attributes[i]] = allocated[i];
+            Notify(Changed);
         }
 
         private void Notify(Action handlers)

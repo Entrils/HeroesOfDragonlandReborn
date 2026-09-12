@@ -388,6 +388,14 @@ GameObject:
   - component: {fileID: 1104799151413909611}
   - component: {fileID: 6712513256730679354}
   - component: {fileID: 4484891653252182046}
+  - component: {fileID: 7539457091577252611}
+  - component: {fileID: 5418488738723425371}
+  - component: {fileID: 5699070918685010748}
+  - component: {fileID: 6964569406919525378}
+  - component: {fileID: 4488618273864493367}
+  - component: {fileID: 760463302403210719}
+  - component: {fileID: 4927017529766288764}
+  - component: {fileID: 6067493059469046303}
   m_Layer: 0
   m_Name: NetworkTestPlayer
   m_TagString: Untagged
@@ -437,6 +445,8 @@ MonoBehaviour:
   - {fileID: 4250338020735220577}
   - {fileID: 5008680302653925543}
   - {fileID: 9055720066618718665}
+  - {fileID: 6964569406919525378}
+  - {fileID: 4488618273864493367}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &6370806309770207683
 MonoBehaviour:
@@ -773,3 +783,122 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkActionPresentation
   body: {fileID: 6571138153239207144}
   swingPivot: {fileID: 3593645514804794027}
+--- !u!114 &7539457091577252611
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d50efb3122f93fd488f54bbd1f414e4f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.InventorySystem.Inventory
+  catalog: {fileID: 11400000, guid: e94698e02e0c1fa47948fc40112b9c8f, type: 2}
+  slotCount: 16
+  hasAuthority: 0
+--- !u!114 &5418488738723425371
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 801cfb0a9c68e9141acb94dc20bcda9d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.EquipmentSystem.Equipment
+  requirementSource: {fileID: 0}
+--- !u!114 &5699070918685010748
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 39ed88e896864574293510d052ed69df, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.EquipmentSystem.CharacterAttributes
+  baseAttributes:
+  - stat: 3
+    value: 10
+  - stat: 4
+    value: 10
+  - stat: 5
+    value: 10
+  - stat: 8
+    value: 1
+  definition: {fileID: 0}
+--- !u!114 &6964569406919525378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b0d2ded6fc408a745961718519f649f8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkInventory
+  _SnapshotRevision: 0
+  _SlotCount: 0
+--- !u!114 &4488618273864493367
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b23dadd4c610b9c40949b109430fd457, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkEquipment
+  _EquippedIds: []
+  _SnapshotRevision: 0
+--- !u!114 &760463302403210719
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3b62055ceb131304999bcdd4815a11d9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.EquipmentVisualHooks
+--- !u!114 &4927017529766288764
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8f103375f44fea24c8c4b1556985e447, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.MultiplayerInventoryProbe
+  sword: {fileID: 11400000, guid: b4d4a0612c1acd74d98f66ef3969959f, type: 2}
+  potion: {fileID: 11400000, guid: bb91086ec56a7424d92d32beaf281860, type: 2}
+  dragon: {fileID: 11400000, guid: f0f5377d2b04bb04aa6e4185d75fa693, type: 2}
+  armor: {fileID: 11400000, guid: 7c3f6239de33cab4d94641a03e925f76, type: 2}
+--- !u!114 &6067493059469046303
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23568cc7ce4bb9547b3c417ae57fb3b5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyThreatTarget
+  navigationOffset: {x: 0, y: -1, z: 0}

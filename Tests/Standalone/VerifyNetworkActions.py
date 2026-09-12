@@ -1,9 +1,14 @@
 """Check real peer action timelines, duplicate-hit protection and server dodge windows."""
 import pathlib
 import re
-import sys
+import argparse
 
-root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else 'Builds/MultiplayerActionValidation')
+available_scenarios = ['host_hits', 'client_hits', 'friendly', 'disconnect', 'abrupt', 'dodge']
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('root', nargs='?', default='Builds/MultiplayerActionValidation')
+parser.add_argument('--scenarios', nargs='+', choices=available_scenarios, default=available_scenarios)
+args = parser.parse_args()
+root = pathlib.Path(args.root)
 pattern = re.compile(r'\[ActionProbe\] owner=\[Player:(\d+)\] attack=(\d+) attackTick=(\d+) attacking=(true|false) dodge=(\d+) dodgeTick=(\d+) dodging=(true|false) x=([-\d.]+) z=([-\d.]+) dt=([\d.]+)', re.I)
 checks = 0
 
@@ -13,7 +18,7 @@ def check(ok, message):
         raise AssertionError(message)
     checks += 1
 
-for scenario in ['host_hits', 'client_hits', 'friendly', 'disconnect', 'abrupt', 'dodge']:
+for scenario in args.scenarios:
     logs = {p.stem: p.read_text(encoding='utf-8', errors='replace') for p in (root / scenario).glob('*.log')}
     check('host' in logs and 'client1' in logs, scenario + ': both peers')
     records = {}
@@ -69,4 +74,4 @@ for scenario in ['host_hits', 'client_hits', 'friendly', 'disconnect', 'abrupt',
         times = sorted({r['dodge_tick'] for r in records['host'] if r['owner'] == 2 and r['dodge']})
         check(any((b - a) * records['host'][0]['dt'] > 1.0 for a, b in zip(times, times[1:])),
             'dodge: held spam waits for stamina regeneration')
-print(f'PASS: {checks} network action checks across six scenarios.')
+print(f'PASS: {checks} network action checks across {len(args.scenarios)} scenarios: {", ".join(args.scenarios)}.')

@@ -1,9 +1,14 @@
 """Validate records produced by RunMultiplayerCombat.ps1; never infers success from exit codes alone."""
 import pathlib
 import re
-import sys
+import argparse
 
-root = pathlib.Path(sys.argv[1] if len(sys.argv) > 1 else 'Builds/MultiplayerCombatValidation')
+available_scenarios = ['host_hits', 'client_hits', 'friendly', 'disconnect', 'abrupt']
+parser = argparse.ArgumentParser(description=__doc__)
+parser.add_argument('root', nargs='?', default='Builds/MultiplayerCombatValidation')
+parser.add_argument('--scenarios', nargs='+', choices=available_scenarios, default=available_scenarios)
+args = parser.parse_args()
+root = pathlib.Path(args.root)
 pattern = re.compile(r'\[CombatProbe\] local=\[Player:(\d+)\] owner=\[Player:(\d+)\] id=\[Id:(\d+)\] hp=([\d.]+) max=([\d.]+) dead=(true|false) stamina=([\d.]+) mana=([\d.]+) privateMax=([\d.]+) attacks=(\d+)', re.I)
 checks = 0
 def check(ok, message):
@@ -12,7 +17,7 @@ def check(ok, message):
         raise AssertionError(message)
     checks += 1
 
-for scenario in ['host_hits', 'client_hits', 'friendly', 'disconnect', 'abrupt']:
+for scenario in args.scenarios:
     logs = {p.stem: p.read_text(encoding='utf-8', errors='replace') for p in (root / scenario).glob('*.log')}
     check('host' in logs and 'client1' in logs, scenario + ': required logs')
     parsed = {}
@@ -71,4 +76,4 @@ for scenario in ['host_hits', 'client_hits', 'friendly', 'disconnect', 'abrupt']
         tail = logs['host'].split(marker, 1)[1]
         check(not re.search(r'\[CombatProbe\].*owner=\[Player:2\]', tail), scenario + ': departed object absent')
         check('[CombatProbe]' in tail, scenario + ': server continues simulation')
-print(f'PASS: {checks} multiplayer combat log checks across five scenarios.')
+print(f'PASS: {checks} multiplayer combat log checks across {len(args.scenarios)} scenarios: {", ".join(args.scenarios)}.')

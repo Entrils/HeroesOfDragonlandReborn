@@ -13,6 +13,7 @@ namespace HeroesOfDragonland.AI
         public bool HasArrived => IsReady && !Agent.pathPending && (!Agent.hasPath || Agent.remainingDistance <= Agent.stoppingDistance + 0.1f);
         public bool MoveTo(Vector3 destination, float speed, float stoppingDistance)
         {
+            if (!EnemyAuthority.CanSimulate(this)) return false;
             if (path == null) path = new NavMeshPath();
             if (!IsReady || !NavMesh.SamplePosition(destination, out var hit, 1.5f, Agent.areaMask)
                 || !Agent.CalculatePath(hit.position, path) || path.status != NavMeshPathStatus.PathComplete) return false;
@@ -30,6 +31,7 @@ namespace HeroesOfDragonland.AI
         }
         public void Face(Vector3 point, float deltaTime)
         {
+            if (!EnemyAuthority.CanSimulate(this)) return;
             Vector3 direction = point - transform.position;
             direction.y = 0;
             if (direction.sqrMagnitude > 0.001f)

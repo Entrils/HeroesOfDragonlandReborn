@@ -14,6 +14,7 @@ namespace HeroesOfDragonland.AI
         private float cooldown;
         private Vector3 facing;
         public bool IsBusy { get; private set; }
+        public bool ResolvingHit { get; private set; }
         public float CooldownRemaining => cooldown;
         public event Action AttackStarted;
         public event Action AttackFinished;
@@ -21,10 +22,11 @@ namespace HeroesOfDragonland.AI
 
         public bool TryStart(EnemyThreatTarget value)
         {
-            if (!isActiveAndEnabled || definition == null || IsBusy || cooldown > 0
+            if (!EnemyAuthority.CanSimulate(this) || !GetComponent<CharacterStats>().CanMutate
+                || !isActiveAndEnabled || definition == null || IsBusy || cooldown > 0
                 || GetComponent<CharacterStats>().IsDead || !CanHit(value)) return false;
             target = value;
-            facing = (value.transform.position - transform.position).normalized;
+            facing = (value.NavigationPosition - transform.position).normalized;
             elapsed = 0;
             cooldown = definition.AttackCooldown;
             IsBusy = true;
@@ -35,21 +37,24 @@ namespace HeroesOfDragonland.AI
         // Driven exclusively by EnemyBrain. A long frame still resolves at most one hit.
         public void Tick(float deltaTime)
         {
-            if (deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
+            if (!EnemyAuthority.CanSimulate(this) || !GetComponent<CharacterStats>().CanMutate
+                || !isActiveAndEnabled || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
             cooldown = Mathf.Max(0, cooldown - deltaTime);
             if (!IsBusy) return;
             if (GetComponent<CharacterStats>().IsDead) { Cancel(); return; }
             elapsed += deltaTime;
             if (elapsed < definition.AttackWindup) return;
-            if (CanHit(target) && Vector3.Angle(facing, target.transform.position - transform.position) <= 60)
+            if (CanHit(target) && Vector3.Angle(facing, target.NavigationPosition - transform.position) <= 60)
             {
                 IDamageable receiver = target.Receiver;
-                receiver.TakeDamage(definition.Damage, gameObject);
+                ResolvingHit = true;
+                try { receiver.TakeDamage(definition.Damage, gameObject); }
+                finally { ResolvingHit = false; }
             }
             Cancel();
         }
         private bool CanHit(EnemyThreatTarget value) => value != null && value.IsAlive
-            && Vector3.Distance(transform.position, value.transform.position) <= definition.AttackRange
+            && Vector3.Distance(transform.position, value.NavigationPosition) <= definition.AttackRange
             && GetComponent<EnemyPerception>().CanSee(value);
         public void Cancel()
         {
