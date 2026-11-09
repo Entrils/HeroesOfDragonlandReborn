@@ -5,7 +5,9 @@ namespace HeroesOfDragonland.Combat
     [CreateAssetMenu(menuName = "Heroes of Dragonland/Melee Attack")]
     public sealed class MeleeAttackDefinition : ScriptableObject
     {
+        [Tooltip("Unarmed fallback damage. An equipped weapon supplies its own base damage.")]
         [SerializeField, Min(0f)] private float damage = 25f;
+        [Tooltip("Unarmed fallback cost. An equipped weapon supplies its own stamina cost.")]
         [SerializeField, Min(0f)] private float staminaCost = 25f;
         [SerializeField, Min(0.05f)] private float attackDuration = 0.55f;
         [SerializeField, Min(0f)] private float recoveryDuration = 0.35f;
@@ -15,6 +17,16 @@ namespace HeroesOfDragonland.Combat
         [SerializeField] private Vector3 hitCenter = new Vector3(0f, 1f, 1.2f);
         [SerializeField] private Vector3 hitHalfExtents = new Vector3(0.8f, 0.8f, 0.9f);
 
+        [SerializeField, Min(0)] private float staggerPower = 20f;
+        [SerializeField, Min(1.01f)] private float heavyDamageMultiplier = 1.8f;
+        [SerializeField, Min(1.01f)] private float heavyStaminaMultiplier = 1.6f;
+        [SerializeField, Min(1.01f)] private float heavyTimingMultiplier = 1.6f;
+        [SerializeField, Min(1.01f)] private float heavyStaggerMultiplier = 3f;
+        public float StaggerPower => Mathf.Max(0, staggerPower);
+        public float HeavyDamageMultiplier => Mathf.Max(1.01f, heavyDamageMultiplier);
+        public float HeavyStaminaMultiplier => Mathf.Max(1.01f, heavyStaminaMultiplier);
+        public float HeavyTimingMultiplier => Mathf.Max(1.01f, heavyTimingMultiplier);
+        public float HeavyStaggerMultiplier => Mathf.Max(1.01f, heavyStaggerMultiplier);
         public float Damage => damage;
         public float StaminaCost => staminaCost;
         public float AttackDuration => attackDuration;

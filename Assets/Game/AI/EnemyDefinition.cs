@@ -20,6 +20,8 @@ namespace HeroesOfDragonland.AI
         [SerializeField, Min(0)] private float damage = 12;
         [SerializeField, Min(0.05f)] private float attackWindup = 0.4f;
         [SerializeField, Min(0.05f)] private float attackCooldown = 1.2f;
+        [SerializeField, Min(0)] private float staggerPower = 20f;
+        public float StaggerPower => Mathf.Max(0, staggerPower);
         public CharacterStatsConfig Stats => stats;
         public bool AggroOnSight => aggroOnSight;
         public float DetectionRadius => Mathf.Max(0.1f, detectionRadius);

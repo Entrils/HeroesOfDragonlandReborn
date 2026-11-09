@@ -135,7 +135,7 @@ namespace HeroesOfDragonland.UI
             if (!NetworkMatch.AllowsGameplay(actor.Runner)) return "Equipment can change only while the match is playing.";
             if (stats == null || stats.IsDead) return "Cannot change equipment while dead.";
             var combat = actor.GetComponent<NetworkPlayerCombat>(); var dodge = actor.GetComponent<NetworkPlayerDodge>();
-            if ((combat != null && combat.IsBusy) || (dodge != null && dodge.Busy)) return "Finish your current action before changing equipment.";
+            if ((combat != null && (combat.IsBusy || combat.ActionsBlocked)) || (dodge != null && dodge.Busy)) return "Finish your current action before changing equipment.";
             if (pending) return "Waiting for server...";
             if (Time.unscaledTime < nextRequestAt) return "Please wait...";
             return "";

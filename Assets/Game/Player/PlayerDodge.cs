@@ -35,6 +35,7 @@ namespace HeroesOfDragonland.Player
         {
             if (!isActiveAndEnabled || IsBusy || definition == null || stats.IsDead
                 || !movement.isActiveAndEnabled || !movement.IsGrounded || (attack != null && attack.IsBusy)) return false;
+            if (GetComponent<CombatDefense>() is { ActionsBlocked: true }) return false;
             movementDirection.y = 0f;
             Vector3 fallback = lockFacing.HasValue ? -lockFacing.Value : transform.forward;
             fallback.y = 0f;

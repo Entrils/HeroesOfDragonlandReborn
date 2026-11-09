@@ -11,6 +11,7 @@ namespace HeroesOfDragonland.Multiplayer
     [RequireComponent(typeof(EnemyBrain), typeof(NetworkCharacterStats), typeof(NetworkTransform))]
     public sealed class NetworkEnemy : NetworkBehaviour, IAfterTick, IEnemyAuthority, IEnemyTargetPolicy, IDamagePolicy
     {
+        [Networked] public NetworkBool Staggered { get; private set; }
         [Networked] public EnemyState State { get; private set; }
         [Networked] public NetworkId TargetId { get; private set; }
         [Networked] public int AttackSequence { get; private set; }
@@ -104,6 +105,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void Publish()
         {
+            Staggered = GetComponent<CombatDefense>() is { IsStaggered: true };
             State = brain.State;
             var target = brain.AggroTarget != null ? brain.AggroTarget.GetComponent<NetworkObject>() : null;
             TargetId = target != null && target.IsValid ? target.Id : default;

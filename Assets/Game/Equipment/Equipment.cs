@@ -23,6 +23,8 @@ namespace HeroesOfDragonland.EquipmentSystem
         public ItemDefinition GetItem(EquipmentSlot slot)
             => Inventory.TryResolveItem(GetItemId(slot), out var item) ? item : null;
 
+        public WeaponDefinition EquippedWeapon => GetItem(EquipmentSlot.MainHand)?.Weapon;
+
         public bool TryEquip(int inventorySlot, EquipmentSlot slot, out string reason)
         {
             if (!CanChange(slot, out reason)) return false;
@@ -52,6 +54,13 @@ namespace HeroesOfDragonland.EquipmentSystem
             else if (transferring) reason = "An equipment transfer is already in progress.";
             else if (!ValidSlot(slot)) reason = "Invalid equipment slot.";
             return reason == null;
+        }
+
+        public bool CanUseEquippedWeapon(out string reason)
+        {
+            reason = null;
+            var item = GetItem(EquipmentSlot.MainHand);
+            return item == null || (item.TryValidate(out reason) && MeetsRequirements(item, out reason));
         }
 
         private bool MeetsRequirements(ItemDefinition item, out string reason)

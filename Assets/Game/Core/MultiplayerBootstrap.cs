@@ -30,6 +30,8 @@ namespace HeroesOfDragonland.Multiplayer
         internal Vector2? TestInput { get; set; }
         internal bool? TestAttack { get; set; }
         internal bool? TestDodge { get; set; }
+        internal bool? TestHeavyAttack { get; set; }
+        internal bool? TestBlock { get; set; }
         internal Vector2? TestFacing { get; set; }
 #endif
 
@@ -226,6 +228,7 @@ namespace HeroesOfDragonland.Multiplayer
             Vector2 move = Vector2.zero;
             bool attack = false;
             bool dodge = false;
+            bool heavy = false, block = false;
             Vector2 facing = Vector2.zero;
             if (source.ProvideInput && Application.isFocused && Keyboard.current != null)
             {
@@ -234,6 +237,8 @@ namespace HeroesOfDragonland.Multiplayer
                 move.y = (keys.wKey.isPressed ? 1 : 0) - (keys.sKey.isPressed ? 1 : 0);
                 attack = keys.spaceKey.isPressed || (Mouse.current != null && Mouse.current.leftButton.isPressed);
                 dodge = keys.leftShiftKey.isPressed;
+                heavy = keys.rKey.isPressed;
+                block = Mouse.current != null && Mouse.current.rightButton.isPressed;
             }
             if (source.TryGetPlayerObject(source.LocalPlayer, out var local) && local != null)
             {
@@ -244,9 +249,11 @@ namespace HeroesOfDragonland.Multiplayer
             if (TestInput.HasValue) move = TestInput.Value;
             if (TestAttack.HasValue) attack = TestAttack.Value;
             if (TestDodge.HasValue) dodge = TestDodge.Value;
+            if (TestHeavyAttack.HasValue) heavy = TestHeavyAttack.Value;
+            if (TestBlock.HasValue) block = TestBlock.Value;
             if (TestFacing.HasValue) facing = TestFacing.Value;
 #endif
-            input.Set(new NetworkPlayerInput { Move = Vector2.ClampMagnitude(move, 1), Attack = attack, Dodge = dodge, Facing = facing });
+            input.Set(new NetworkPlayerInput { Move = Vector2.ClampMagnitude(move, 1), Attack = attack, HeavyAttack = heavy, Block = block, Dodge = dodge, Facing = facing });
         }
 
         public void OnInputMissing(NetworkRunner source, PlayerRef player, NetworkInput input)

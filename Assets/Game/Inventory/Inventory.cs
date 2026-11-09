@@ -16,7 +16,11 @@ namespace HeroesOfDragonland.InventorySystem
         public ItemCatalog Catalog => catalog;
         internal bool TryDeposit(InventorySlot[] rewards, Action<InventorySlot[]> commitRemainder, bool requireAll = false)
             => HasAuthority && State.TryDeposit(rewards, commitRemainder, requireAll);
-        public bool TryResolveItem(string id, out ItemDefinition item) => catalog.TryGet(id, out item);
+        public bool TryResolveItem(string id, out ItemDefinition item)
+        {
+            item = null;
+            return catalog != null && catalog.TryGet(id, out item);
+        }
         internal bool TryExchange(int sourceIndex, string returnedId, Action commitEquipment)
             => HasAuthority && State.TryExchange(sourceIndex, returnedId, commitEquipment);
         public int SlotCount => State.SlotCount;

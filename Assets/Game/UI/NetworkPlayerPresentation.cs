@@ -39,6 +39,8 @@ namespace HeroesOfDragonland.Multiplayer
                 label.text = "P" + player.ParticipantNumber + " / " + shownTeam
                     + (player.HasInputAuthority ? " (you)" : "")
                     + (state.Dead ? " / DEAD" : " / HP " + Mathf.CeilToInt(state.Health));
+            var combat = GetComponent<NetworkPlayerCombat>();
+            if (label != null && combat != null) label.text += combat.Staggered ? " / STAGGERED" : combat.Blocking ? " / BLOCK" : "";
         }
     }
 }

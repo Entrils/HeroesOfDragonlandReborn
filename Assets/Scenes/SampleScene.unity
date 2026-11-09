@@ -147,6 +147,7 @@ GameObject:
   - component: {fileID: 44835688}
   - component: {fileID: 44835690}
   - component: {fileID: 44835691}
+  - component: {fileID: 44835692}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -542,6 +543,25 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Progression.SessionProgressionDebug
   debugXP: 500
   attribute: 9
+--- !u!114 &44835692
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 44835671}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf2fff08ea618148b177914c6950a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CombatDefense
+  blockedDamageMultiplier: 0.25
+  blockStaminaPerDamage: 1
+  blockStaminaPerSecond: 10
+  staggerDuration: 0.45
+  guardBreakDuration: 1
+  recoveryImmunity: 1
+  staggerDecayPerSecond: 20
 --- !u!1 &79132240
 GameObject:
   m_ObjectHideFlags: 0
@@ -636,6 +656,7 @@ GameObject:
   - component: {fileID: 108441376}
   - component: {fileID: 108441375}
   - component: {fileID: 108441381}
+  - component: {fileID: 108441382}
   m_Layer: 0
   m_Name: Target Dummy Left
   m_TagString: Untagged
@@ -779,6 +800,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.DamageReceiver
   deactivateOnDeath: 1
+--- !u!114 &108441382
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 108441374}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf2fff08ea618148b177914c6950a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CombatDefense
+  blockedDamageMultiplier: 0.25
+  blockStaminaPerDamage: 1
+  blockStaminaPerSecond: 10
+  staggerDuration: 0.45
+  guardBreakDuration: 1
+  recoveryImmunity: 1
+  staggerDecayPerSecond: 20
 --- !u!1 &219095348
 GameObject:
   m_ObjectHideFlags: 0
@@ -873,6 +913,7 @@ GameObject:
   - component: {fileID: 230789495}
   - component: {fileID: 230789494}
   - component: {fileID: 230789500}
+  - component: {fileID: 230789501}
   m_Layer: 0
   m_Name: Target Dummy Right
   m_TagString: Untagged
@@ -1016,6 +1057,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.DamageReceiver
   deactivateOnDeath: 1
+--- !u!114 &230789501
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 230789493}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf2fff08ea618148b177914c6950a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CombatDefense
+  blockedDamageMultiplier: 0.25
+  blockStaminaPerDamage: 1
+  blockStaminaPerSecond: 10
+  staggerDuration: 0.45
+  guardBreakDuration: 1
+  recoveryImmunity: 1
+  staggerDecayPerSecond: 20
 --- !u!1 &256997638
 GameObject:
   m_ObjectHideFlags: 0
@@ -1558,6 +1618,7 @@ GameObject:
   - component: {fileID: 426293465}
   - component: {fileID: 426293464}
   - component: {fileID: 426293470}
+  - component: {fileID: 426293471}
   m_Layer: 0
   m_Name: Target Dummy Center
   m_TagString: Untagged
@@ -1701,6 +1762,25 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.DamageReceiver
   deactivateOnDeath: 1
+--- !u!114 &426293471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 426293463}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf2fff08ea618148b177914c6950a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CombatDefense
+  blockedDamageMultiplier: 0.25
+  blockStaminaPerDamage: 1
+  blockStaminaPerSecond: 10
+  staggerDuration: 0.45
+  guardBreakDuration: 1
+  recoveryImmunity: 1
+  staggerDecayPerSecond: 20
 --- !u!1 &590124308
 GameObject:
   m_ObjectHideFlags: 0

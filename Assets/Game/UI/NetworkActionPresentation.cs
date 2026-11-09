@@ -31,15 +31,16 @@ namespace HeroesOfDragonland.Multiplayer
             }
             double time = combat.HasStateAuthority ? combat.Runner.LocalRenderTime : combat.Runner.RemoteRenderTime;
             float attackAge = (float)(time - combat.AttackStartTick * (double)combat.Runner.DeltaTime);
-            bool swinging = !stats.Dead && combat.AttackBusy && combat.AttackSequence > 0 && combat.Definition != null
-                && attackAge >= 0f && attackAge < combat.Definition.AttackDuration;
+            float duration = combat.AttackSwingDuration;
+            bool swinging = !stats.Dead && combat.AttackBusy && combat.AttackSequence > 0
+                && duration > 0 && attackAge >= 0f && attackAge < duration;
             SwingVisible = swinging && swingPivot != null;
             if (swingPivot != null)
             {
                 swingPivot.gameObject.SetActive(swinging);
                 if (swinging)
                     swingPivot.rotation = Quaternion.LookRotation(combat.AttackFacing)
-                        * Quaternion.Euler(0, Mathf.Lerp(-65, 65, attackAge / combat.Definition.AttackDuration), 0);
+                        * Quaternion.Euler(0, Mathf.Lerp(-65, 65, attackAge / duration), 0);
             }
             float dodgeAge = (float)(time - dodge.StartTick * (double)combat.Runner.DeltaTime);
             bool rolling = !stats.Dead && dodge.Busy && dodge.DodgeSequence > 0 && dodge.Definition != null

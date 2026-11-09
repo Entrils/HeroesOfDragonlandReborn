@@ -14,14 +14,21 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public int AttackSequence { get; private set; }
         [Networked] public int AttackStartTick { get; private set; }
         [Networked] public NetworkBool AttackBusy { get; private set; }
+        [Networked] public float AttackSwingDuration { get; private set; }
         [Networked] public Vector3 AttackFacing { get; private set; }
+        [Networked] public NetworkBool HeavyAttack { get; private set; }
+        [Networked] public NetworkBool Blocking { get; private set; }
+        [Networked] public NetworkBool Staggered { get; private set; }
+        [Networked] public int GuardBreakSequence { get; private set; }
+        private CombatDefense Defense => GetComponent<CombatDefense>();
+        public bool ActionsBlocked => Defense != null && Defense.ActionsBlocked;
         private MeleeAttack melee;
         private CharacterStats stats;
         private NetworkTestPlayer player;
         public bool ResolvingAttack { get; private set; }
         public MeleeAttackDefinition Definition => melee.Definition;
         public bool IsBusy => melee.IsBusy;
-        public float MovementMultiplier => melee.MovementMultiplier;
+        public float MovementMultiplier => melee.MovementMultiplier * (Defense != null ? Defense.MovementMultiplier : 1f);
         private void Awake()
         {
             melee = GetComponent<MeleeAttack>();
@@ -40,7 +47,13 @@ namespace HeroesOfDragonland.Multiplayer
         // after the full recovery and another successful server stamina payment.
         internal void TickIntent(NetworkPlayerInput input, Vector3 facing, bool dodgeBusy)
         {
-            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || dodgeBusy || !input.Attack || !melee.TryAttack(facing)) return;
+            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner)) return;
+            Defense?.SetBlockIntent(input.Block, dodgeBusy || melee.IsBusy);
+            PublishDefense();
+            if (dodgeBusy || ActionsBlocked || (!input.Attack && !input.HeavyAttack)) return;
+            if (!(input.HeavyAttack ? melee.TryHeavyAttack(facing) : melee.TryAttack(facing))) return;
+            HeavyAttack = melee.IsHeavy;
+            AttackSwingDuration = melee.SwingDuration;
             AttackSequence++;
             AttackStartTick = Runner.Tick.Raw;
             AttackFacing = facing;
@@ -50,6 +63,8 @@ namespace HeroesOfDragonland.Multiplayer
         internal bool TryStartSkillStrike(float multiplier, float manaCost)
         {
             if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || !melee.TrySkillAttack(multiplier, manaCost)) return false;
+            HeavyAttack = false;
+            AttackSwingDuration = melee.SwingDuration;
             AttackSequence++; AttackStartTick = Runner.Tick.Raw;
             AttackFacing = transform.forward; AttackBusy = true; return true;
         }
@@ -57,19 +72,27 @@ namespace HeroesOfDragonland.Multiplayer
         public void AfterTick()
         {
             if (!IsAdmitted()) return;
-            if (!NetworkMatch.AllowsGameplay(Runner)) { melee.Cancel(); AttackBusy = false; return; }
+            if (!NetworkMatch.AllowsGameplay(Runner)) { melee.Cancel(); Defense?.ResetState(); PublishDefense(); AttackBusy = false; return; }
             // Every player's movement tick has completed before server hit geometry is sampled.
             Physics.SyncTransforms();
             ResolvingAttack = true;
             try { melee.TickAttack(Runner.DeltaTime); }
             finally { ResolvingAttack = false; }
             AttackBusy = melee.IsBusy && !stats.IsDead;
+            PublishDefense();
         }
 
         internal void CancelForRespawn()
         {
             if (!IsAdmitted()) return;
-            melee.Cancel(); AttackBusy = false;
+            melee.Cancel(); Defense?.ResetState(); PublishDefense(); AttackBusy = false;
+        }
+
+        private void PublishDefense()
+        {
+            Blocking = Defense != null && Defense.IsBlocking && !stats.IsDead;
+            Staggered = Defense != null && Defense.IsStaggered && !stats.IsDead;
+            GuardBreakSequence = Defense != null ? Defense.GuardBreakSequence : 0;
         }
 
         public bool AllowsDamage(GameObject source)

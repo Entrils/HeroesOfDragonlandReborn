@@ -13,6 +13,8 @@ namespace HeroesOfDragonland.Stats
         [SerializeField, Min(0f)] private float manaRegenPerSecond = 5f;
         [SerializeField, Min(0f)] private float manaRegenDelay = 2f;
 
+        [SerializeField, Min(1)] private float staggerResistance = 50f;
+        public float StaggerResistance => Mathf.Max(1, staggerResistance);
         public float MaxHealth => maxHealth;
         public float MaxStamina => maxStamina;
         public float StaminaRegenPerSecond => staminaRegenPerSecond;

@@ -25,6 +25,18 @@ namespace HeroesOfDragonland.Items.Editor
                     throw new BuildFailedException(path + ": Duplicate or mismatched item identity; reimport the asset.");
                 count++;
             }
+            foreach (string guid in AssetDatabase.FindAssets("t:WeaponDefinition"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!AssetDatabase.LoadAssetAtPath<WeaponDefinition>(path).TryValidate(out string error))
+                    throw new BuildFailedException(path + ": " + error);
+            }
+            foreach (string guid in AssetDatabase.FindAssets("t:WeaponAttackAnimationSet"))
+            {
+                string path = AssetDatabase.GUIDToAssetPath(guid);
+                if (!AssetDatabase.LoadAssetAtPath<WeaponAttackAnimationSet>(path).TryValidate(out string error))
+                    throw new BuildFailedException(path + ": " + error);
+            }
             foreach (string guid in AssetDatabase.FindAssets("t:ItemCatalog"))
             {
                 string path = AssetDatabase.GUIDToAssetPath(guid);

@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa7c2c30ba8704498d7dd6e310bc682, type: 3}
+  m_Name: Staff
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.WeaponDefinition
+  archetype: 3
+  baseDamage: 18
+  staminaCost: 18
+  attackSpeed: 0.9
+  range: 2.5
+  statRequirements:
+  - stat: 5
+    minimumValue: 12
+  scalingPlaceholders:
+  - stat: 5
+    coefficient: 0
+  attackAnimationSet: {fileID: 11400000, guid: dad31d320da9c4a4ebe2c2a4b43db511, type: 2}
+  weaponPrefab: {fileID: 3784835372409220985, guid: 13e19c79cb00bf14a838cdc2bebdd605, type: 3}

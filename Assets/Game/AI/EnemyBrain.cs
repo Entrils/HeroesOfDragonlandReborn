@@ -88,6 +88,7 @@ namespace HeroesOfDragonland.AI
             if (!isActiveAndEnabled || !HasAuthority || definition == null || deltaTime <= 0
                 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) || State == EnemyState.Dead) return;
             if (stats.IsDead) { Die(); return; }
+            if (GetComponent<CombatDefense>() is { IsStaggered: true }) { navigation.Stop(); attack.Cancel(); return; }
             stateTime += deltaTime;
             navigationTimer -= deltaTime;
             perceptionTimer -= deltaTime;

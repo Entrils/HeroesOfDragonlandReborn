@@ -34,15 +34,30 @@ namespace HeroesOfDragonland.Multiplayer
             if (string.IsNullOrEmpty(scenario) || bootstrap == null) return;
             var runner = bootstrap.Runner;
             if (runner == null || !runner.IsRunning) return;
+            if (scenario == "weapon" && runner.IsServer)
+                foreach (var peer in runner.ActivePlayers)
+                {
+                    if (!runner.TryGetPlayerObject(peer, out var actor) || actor.GetComponent<NetworkTestPlayer>().ParticipantNumber != 2) continue;
+                    var equipment = actor.GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>();
+                    var inventory = actor.GetComponent<HeroesOfDragonland.InventorySystem.Inventory>();
+                    if (equipment == null || equipment.EquippedWeapon != null || actor.GetComponent<NetworkPlayerCombat>().IsBusy) continue;
+                    var sword = inventory.Catalog.Items.First(item => item.name == "IronSword");
+                    if (inventory.GetAmount(sword.Id) == 0) actor.GetComponent<NetworkInventory>().TryAddItem(sword.Id);
+                    for (int i = 0; i < inventory.SlotCount; i++)
+                        if (inventory.GetSlot(i).ItemId == sword.Id && equipment.TryEquip(i, HeroesOfDragonland.Items.EquipmentSlot.MainHand, out _))
+                        { Debug.Log("[WeaponCheck] server equipped client sword"); break; }
+                }
             if (runner.TryGetPlayerObject(runner.LocalPlayer, out var obj) && obj != null)
             {
                 var local = obj.GetComponent<NetworkTestPlayer>();
                 var state = obj.GetComponent<NetworkCharacterStats>();
-                int attacker = scenario == "client_hits" ? 2 : 1;
+                int attacker = scenario == "client_hits" || scenario == "weapon" ? 2 : 1;
                 int victim = scenario == "friendly" ? 3 : (attacker == 1 ? 2 : 1);
                 bootstrap.TestInput = Vector2.zero;
                 bootstrap.TestAttack = false;
                 bootstrap.TestDodge = false;
+                bootstrap.TestHeavyAttack = false;
+                bootstrap.TestBlock = scenario == "block" && local.ParticipantNumber == victim;
                 if (scenario == "dodge" && local.ParticipantNumber == 2)
                 {
                     // Holding both requests exercises action priority and exhausted-resource rejection.
@@ -60,7 +75,8 @@ namespace HeroesOfDragonland.Multiplayer
                         Vector2 direction = new Vector2(delta.x, delta.z);
                         if (direction.magnitude > 1.65f) bootstrap.TestInput = direction.normalized;
                         // Also exercises repeated/out-of-range intent: server owns costs and hits.
-                        bootstrap.TestAttack = true;
+                        bootstrap.TestAttack = scenario != "heavy";
+                        bootstrap.TestHeavyAttack = scenario == "heavy";
                     }
                 }
                 if (scenario == "disconnect" && local.ParticipantNumber == victim && state.Health < state.MaxHealth && !disconnectIssued)
@@ -70,7 +86,8 @@ namespace HeroesOfDragonland.Multiplayer
                     _ = bootstrap.Disconnect();
                     return;
                 }
-                if (!runner.IsServer && ((!tamperChecked && state.Health < state.MaxHealth && !state.Dead)
+                if (!runner.IsServer && ((!tamperChecked && !state.Dead && (state.Health < state.MaxHealth
+                        || (scenario == "weapon" && obj.GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>()?.EquippedWeapon != null)))
                     || (!deathTamperChecked && state.Dead)))
                 {
                     if (state.Dead) deathTamperChecked = true; else tamperChecked = true;
@@ -81,6 +98,8 @@ namespace HeroesOfDragonland.Multiplayer
                     stats.TickRegeneration(10000);
                     bool safe = hp == stats.CurrentHealth && sp == stats.CurrentStamina && mp == stats.CurrentMana
                         && !staminaSpent && !manaSpent;
+                    if (scenario == "weapon") safe = safe && !obj.GetComponent<MeleeAttack>().TryAttack()
+                        && !obj.GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>().TryUnequip(HeroesOfDragonland.Items.EquipmentSlot.MainHand, out _);
                     Debug.Log("[CombatProbe] client-mutations-blocked=" + safe + " dead=" + state.Dead);
                 }
             }
@@ -124,6 +143,9 @@ namespace HeroesOfDragonland.Multiplayer
                 var actionView = actor.GetComponent<NetworkActionPresentation>();
                 Debug.Log(FormattableString.Invariant($"[CombatProbe] local={runner.LocalPlayer} owner={actor.InputAuthority} id={actor.Id} hp={state.Health:F2} max={state.MaxHealth:F2} dead={state.Dead} stamina={resources.Stamina:F2} mana={resources.Mana:F2} privateMax={resources.MaxStamina:F2} attacks={combat.AttackSequence}"));
                 Debug.Log(FormattableString.Invariant($"[ActionProbe] owner={actor.InputAuthority} attack={combat.AttackSequence} attackTick={combat.AttackStartTick} attacking={combat.AttackBusy} dodge={dodgeState.DodgeSequence} dodgeTick={dodgeState.StartTick} dodging={dodgeState.Busy} x={actor.transform.position.x:F3} z={actor.transform.position.z:F3} dt={runner.DeltaTime:F6}"));
+                var equipmentState = actor.GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>();
+                Debug.Log(FormattableString.Invariant($"[WeaponProbe] owner={actor.InputAuthority} item={equipmentState?.GetItemId(HeroesOfDragonland.Items.EquipmentSlot.MainHand) ?? "none"} archetype={equipmentState?.EquippedWeapon?.Archetype.ToString() ?? "Unarmed"} duration={combat.AttackSwingDuration:F3}"));
+                Debug.Log($"[DefenseProbe] owner={actor.InputAuthority} heavy={combat.HeavyAttack} block={combat.Blocking} stagger={combat.Staggered} breaks={combat.GuardBreakSequence}");
                 Debug.Log($"[ActionView] owner={actor.InputAuthority} swing={actionView.SwingVisible} roll={actionView.RollVisible}");
             }
         }

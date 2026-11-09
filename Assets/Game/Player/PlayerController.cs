@@ -73,6 +73,16 @@ namespace HeroesOfDragonland.Player
             Quaternion yaw = Quaternion.Euler(0f, followCamera.transform.eulerAngles.y, 0f);
             Vector3 direction = yaw * new Vector3(input.x, 0f, input.y);
             Vector3? facing = targetLock != null ? targetLock.FacingDirection : null;
+            var defense = GetComponent<CombatDefense>();
+            defense?.SetBlockIntent(captured && wasCaptured && Mouse.current != null && Mouse.current.rightButton.isPressed,
+                (meleeAttack != null && meleeAttack.IsBusy) || (dodge != null && dodge.IsBusy));
+            if (defense != null && defense.IsStaggered)
+            {
+                movement.Tick(Vector3.zero, false, Time.deltaTime, facing);
+                return;
+            }
+            if (meleeAttack != null && captured && wasCaptured && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+                meleeAttack.TryHeavyAttack(facing);
             if (dodge != null && captured && wasCaptured && dodgeAction.WasPressedThisFrame())
                 dodge.TryDodge(direction, facing);
             if (dodge != null && dodge.IsBusy)
@@ -83,9 +93,9 @@ namespace HeroesOfDragonland.Player
             if (meleeAttack != null && captured && wasCaptured && attackAction.WasPressedThisFrame())
                 meleeAttack.TryAttack(facing);
             bool attacking = meleeAttack != null && meleeAttack.IsBusy;
-            if (interactor != null) interactor.Tick(captured && wasCaptured && !attacking);
-            movement.Tick(direction * (attacking ? meleeAttack.MovementMultiplier : 1f),
-                captured && !attacking && jumpAction.WasPressedThisFrame(), Time.deltaTime,
+            if (interactor != null) interactor.Tick(captured && wasCaptured && !attacking && !(defense != null && defense.ActionsBlocked));
+            movement.Tick(direction * (attacking ? meleeAttack.MovementMultiplier : 1f) * (defense != null ? defense.MovementMultiplier : 1f),
+                captured && !attacking && !(defense != null && defense.ActionsBlocked) && jumpAction.WasPressedThisFrame(), Time.deltaTime,
                 attacking ? meleeAttack.FacingDirection : facing);
         }
 

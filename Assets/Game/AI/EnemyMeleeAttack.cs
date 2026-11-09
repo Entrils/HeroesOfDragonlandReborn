@@ -13,6 +13,7 @@ namespace HeroesOfDragonland.AI
         private float elapsed;
         private float cooldown;
         private Vector3 facing;
+        public float StaggerPower => definition != null ? definition.StaggerPower : 0;
         public bool IsBusy { get; private set; }
         public bool ResolvingHit { get; private set; }
         public float CooldownRemaining => cooldown;
@@ -25,6 +26,7 @@ namespace HeroesOfDragonland.AI
             if (!EnemyAuthority.CanSimulate(this) || !GetComponent<CharacterStats>().CanMutate
                 || !isActiveAndEnabled || definition == null || IsBusy || cooldown > 0
                 || GetComponent<CharacterStats>().IsDead || !CanHit(value)) return false;
+            if (GetComponent<CombatDefense>() is { ActionsBlocked: true }) return false;
             target = value;
             facing = (value.NavigationPosition - transform.position).normalized;
             elapsed = 0;

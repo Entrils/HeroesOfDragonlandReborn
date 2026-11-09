@@ -14,6 +14,15 @@ namespace HeroesOfDragonland.UI
             text.AppendLine(item.DisplayName).AppendLine(item.Rarity + " | " + item.Category)
                 .AppendLine("Quantity: " + quantity).AppendLine(item.Description);
             if (item.EquipmentSlot != EquipmentSlot.None) text.AppendLine("Slot: " + item.EquipmentSlot);
+            if (item.Weapon != null)
+            {
+                var weapon = item.Weapon;
+                text.AppendLine().AppendLine(weapon.Archetype.ToString())
+                    .AppendLine("Base damage: " + weapon.BaseDamage.ToString("0.##"))
+                    .AppendLine("Stamina: " + weapon.StaminaCost.ToString("0.##"))
+                    .AppendLine("Attack speed: " + weapon.AttackSpeed.ToString("0.##") + "x")
+                    .AppendLine("Reach: " + weapon.Range.ToString("0.##") + " m");
+            }
             text.AppendLine().AppendLine("Requirements (base + allocated):");
             if (item.EquipmentRequirements.Count == 0) text.AppendLine("None");
             foreach (var requirement in item.EquipmentRequirements)

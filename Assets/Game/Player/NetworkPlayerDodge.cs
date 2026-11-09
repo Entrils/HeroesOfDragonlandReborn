@@ -36,7 +36,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (!NetworkMatch.AllowsGameplay(Runner)) { Busy = false; return; }
             if (!isActiveAndEnabled || stats.IsDead) { Busy = false; return; }
             if (Busy && Elapsed >= definition.Duration + definition.Recovery) Busy = false;
-            if (Busy || !input.Dodge || combat.IsBusy || definition == null) return;
+            if (Busy || !input.Dodge || combat.IsBusy || combat.ActionsBlocked || definition == null) return;
             if (!stats.TrySpendStamina(definition.StaminaCost)) return;
             Direction = move.sqrMagnitude > 0.0001f ? move.normalized
                 : (input.Facing.sqrMagnitude > 0.0001f ? -facing : facing);

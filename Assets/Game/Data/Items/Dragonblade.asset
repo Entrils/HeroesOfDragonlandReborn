@@ -28,3 +28,4 @@ MonoBehaviour:
   - stat: 7
     operation: 1
     value: 0.2
+  weapon: {fileID: 11400000, guid: f1e7a930db915ac4b85e19eb20bf28c0, type: 2}

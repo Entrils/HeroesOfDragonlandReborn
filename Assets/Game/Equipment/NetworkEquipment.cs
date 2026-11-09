@@ -16,7 +16,7 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkPlayerCombat combat;
         private NetworkPlayerDodge dodge;
         public bool CanChangeEquipment => isActiveAndEnabled && inventory.CanMutateInventory
-            && (combat == null || !combat.IsBusy) && (dodge == null || !dodge.Busy);
+            && (combat == null || (!combat.IsBusy && !combat.ActionsBlocked)) && (dodge == null || !dodge.Busy);
         public event Action<bool, string> RequestResolved;
 
         private void Awake()

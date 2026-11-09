@@ -28,6 +28,7 @@ namespace HeroesOfDragonland.Stats
         public float MaxStamina { get { EnsureInitialized(); return stamina.Maximum; } }
         public float CurrentMana { get { EnsureInitialized(); return mana.Current; } }
         public float MaxMana { get { EnsureInitialized(); return mana.Maximum; } }
+        public float StaggerResistance => configuration != null ? configuration.StaggerResistance : 50f;
         public bool IsDead => CurrentHealth <= 0f;
 
         private void Awake() => EnsureInitialized();
@@ -138,6 +139,7 @@ namespace HeroesOfDragonland.Stats
             if (!CanMutate || IsDead) return;
             float oldStamina = stamina.Current;
             float oldMana = mana.Current;
+            GetComponent<HeroesOfDragonland.Combat.CombatDefense>()?.Tick(deltaTime);
             stamina.Tick(deltaTime);
             mana.Tick(deltaTime);
             if (stamina.Current != oldStamina) StaminaChanged?.Invoke(stamina.Current, stamina.Maximum);

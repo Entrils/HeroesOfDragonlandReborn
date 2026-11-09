@@ -1,5 +1,5 @@
 param(
-    [ValidateSet('host_hits','client_hits','friendly','disconnect','abrupt','dodge')]
+    [ValidateSet('host_hits','client_hits','friendly','disconnect','abrupt','dodge','heavy','block','weapon')]
     [string]$Scenario = 'host_hits',
     [string]$Executable = 'Builds/MultiplayerActions/DragonlandActions.exe',
     [string]$ValidationRoot = 'Builds/MultiplayerActionValidation'

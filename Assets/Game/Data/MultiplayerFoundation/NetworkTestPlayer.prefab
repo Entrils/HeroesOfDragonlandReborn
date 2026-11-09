@@ -396,6 +396,7 @@ GameObject:
   - component: {fileID: 760463302403210719}
   - component: {fileID: 4927017529766288764}
   - component: {fileID: 6067493059469046303}
+  - component: {fileID: 1087429863972279791}
   m_Layer: 0
   m_Name: NetworkTestPlayer
   m_TagString: Untagged
@@ -627,7 +628,15 @@ MonoBehaviour:
   _AttackStartTick: 0
   _AttackBusy:
     RawValue: 0
+  _AttackSwingDuration: 0
   _AttackFacing: {x: 0, y: 0, z: 0}
+  _HeavyAttack:
+    RawValue: 0
+  _Blocking:
+    RawValue: 0
+  _Staggered:
+    RawValue: 0
+  _GuardBreakSequence: 0
 --- !u!114 &9055720066618718665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -902,3 +911,22 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyThreatTarget
   navigationOffset: {x: 0, y: -1, z: 0}
+--- !u!114 &1087429863972279791
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf2fff08ea618148b177914c6950a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CombatDefense
+  blockedDamageMultiplier: 0.25
+  blockStaminaPerDamage: 1
+  blockStaminaPerSecond: 10
+  staggerDuration: 0.45
+  guardBreakDuration: 1
+  recoveryImmunity: 1
+  staggerDecayPerSecond: 20

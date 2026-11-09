@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 6497356690209957552}
   - component: {fileID: 640264133303128441}
   - component: {fileID: 4658928340434380134}
+  - component: {fileID: 8325430441423688355}
   m_Layer: 0
   m_Name: TeamBKing
   m_TagString: Untagged
@@ -305,6 +306,25 @@ MonoBehaviour:
   team: 2
   _MatchId:
     Raw: 0
+--- !u!114 &8325430441423688355
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3484319679107121321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: cbf2fff08ea618148b177914c6950a1d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CombatDefense
+  blockedDamageMultiplier: 0.25
+  blockStaminaPerDamage: 1
+  blockStaminaPerSecond: 10
+  staggerDuration: 0.45
+  guardBreakDuration: 1
+  recoveryImmunity: 1
+  staggerDecayPerSecond: 20
 --- !u!1 &3757412353808363801
 GameObject:
   m_ObjectHideFlags: 0
