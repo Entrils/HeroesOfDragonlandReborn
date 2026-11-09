@@ -32,7 +32,8 @@ namespace HeroesOfDragonland.Multiplayer
             targetLock.enabled = active;
             if (!active) return;
             targetLock.SetViewCamera(Camera.main);
-            targetLock.Tick(Application.isFocused);
+            var gate = player.Runner.GetComponentInParent<LocalGameplayInputGate>();
+            targetLock.Tick(Application.isFocused && (gate == null || !gate.IsBlocked));
         }
         private void OnDisable() { if (targetLock != null) targetLock.enabled = false; }
     }

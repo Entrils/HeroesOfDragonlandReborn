@@ -16,6 +16,7 @@ namespace HeroesOfDragonland.Combat
         private readonly HashSet<IDamageable> hitTargets = new HashSet<IDamageable>();
         private float elapsed;
         private Vector3 committedFacing;
+        private float damageMultiplier = 1f;
         public bool IsBusy { get; private set; }
         public MeleeAttackDefinition Definition => definition;
         public bool IsSwinging => IsBusy && elapsed < definition.AttackDuration;
@@ -29,11 +30,23 @@ namespace HeroesOfDragonland.Combat
 
         // Input/AI supply an intent. This component owns cost, timing and damage.
         public bool TryAttack(Vector3? facing = null)
+            => TryBeginAttack(facing, 1f, true);
+
+        // Skill authority pays Mana. Geometry, timing, obstruction and hit deduplication
+        // remain identical to ordinary melee attacks.
+        internal bool TrySkillAttack(float multiplier, float manaCost) => TryBeginAttack(null, multiplier, false, manaCost);
+
+        private bool TryBeginAttack(Vector3? facing, float multiplier, bool spendStamina, float manaCost = 0)
         {
             if (!isActiveAndEnabled || !stats.CanMutate || IsBusy || definition == null || stats.IsDead) return false;
             var dodge = GetComponent<HeroesOfDragonland.Player.PlayerDodge>();
             if (dodge != null && dodge.IsBusy) return false;
-            if (!stats.TrySpendStamina(definition.StaminaCost)) return false;
+            var networkDodge = GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerDodge>();
+            if (networkDodge != null && networkDodge.Busy) return false;
+            if (multiplier < 0 || float.IsNaN(multiplier) || float.IsInfinity(multiplier)) return false;
+            if (spendStamina && !stats.TrySpendStamina(definition.StaminaCost)) return false;
+            if (!spendStamina && !stats.TrySpendMana(manaCost)) return false;
+            damageMultiplier = multiplier;
             committedFacing = facing ?? transform.forward;
             committedFacing.y = 0f;
             committedFacing = committedFacing.sqrMagnitude > 0.001f ? committedFacing.normalized : transform.forward;
@@ -90,12 +103,14 @@ namespace HeroesOfDragonland.Combat
                 float damage = equipment != null
                     ? equipment.GetModifiedStat(HeroesOfDragonland.Items.ItemStat.AttackDamage, definition.Damage)
                     : definition.Damage;
-                receiver.TakeDamage(damage, gameObject);
+                var skills = GetComponent<HeroesOfDragonland.Skills.SessionSkills>();
+                if (skills != null) damage = skills.ModifyMeleeDamage(damage);
+                receiver.TakeDamage(damage * damageMultiplier, gameObject);
             }
         }
 
         private void OnDisable() => Cancel();
-        private void Cancel()
+        internal void Cancel()
         {
             if (!IsBusy) return;
             IsBusy = false;

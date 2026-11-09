@@ -398,6 +398,7 @@ GameObject:
   - component: {fileID: 6067493059469046303}
   - component: {fileID: 4135685861569988425}
   - component: {fileID: 7824982661674417898}
+  - component: {fileID: 4898679217837982876}
   m_Layer: 0
   m_Name: NetworkCampPlayer
   m_TagString: Untagged
@@ -940,3 +941,15 @@ MonoBehaviour:
   _Points: 0
   _Revision: 0
   _Attributes: 
+--- !u!114 &4898679217837982876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 09371f40d6923ae45b3f00eb074f93fd, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkChestInteractor

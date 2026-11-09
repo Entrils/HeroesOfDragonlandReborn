@@ -54,6 +54,7 @@ namespace HeroesOfDragonland.Multiplayer
                 : direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
             // Dodge wins simultaneous idle requests; neither action interrupts the other.
             if (dodge != null) dodge.TickIntent(input, direction, facing);
+            if (!NetworkMatch.AllowsGameplay(Runner)) return;
             if (networkStats != null && networkStats.Dead) return;
             combat.TickIntent(input, facing, dodge != null && dodge.Busy);
             Vector3 offset = dodge != null && dodge.Busy ? dodge.StepDisplacement()
@@ -61,6 +62,8 @@ namespace HeroesOfDragonland.Multiplayer
             Vector3 position = transform.position + Sweep(offset);
             position.x = Mathf.Clamp(position.x, -arenaHalfExtent, arenaHalfExtent);
             position.z = Mathf.Clamp(position.z, -arenaHalfExtent, arenaHalfExtent);
+            var spawnService = Runner.GetComponentInParent<TeamSpawnService>();
+            if (spawnService != null) position = spawnService.ConstrainPlayerMovement(Team, transform.position, position);
             transform.position = position;
             facing = dodge != null && dodge.Busy ? dodge.Facing : combat.IsBusy ? combat.AttackFacing : facing;
             transform.rotation = Quaternion.LookRotation(facing);

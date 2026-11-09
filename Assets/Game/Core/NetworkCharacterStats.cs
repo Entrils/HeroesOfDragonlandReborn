@@ -11,7 +11,9 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public float MaxHealth { get; private set; }
         [Networked] public NetworkBool Dead { get; private set; }
         private CharacterStats stats;
-        public bool CanMutateStats => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority;
+        private bool initializing;
+        private bool IsServerOwner => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority;
+        public bool CanMutateStats => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
 
         private void Awake() => stats = GetComponent<CharacterStats>();
         public override void Spawned()
@@ -19,10 +21,21 @@ namespace HeroesOfDragonland.Multiplayer
             if (HasStateAuthority)
             {
                 stats.HealthChanged += PublishHealth;
-                stats.ResetToFull();
+                InitializeForSpawn();
                 PublishHealth(stats.CurrentHealth, stats.MaxHealth);
             }
             else ApplySnapshot();
+        }
+        internal void InitializeForSpawn(CharacterStatsConfig configuration = null)
+        {
+            if (!IsServerOwner) return;
+            initializing = true;
+            try
+            {
+                if (configuration != null) stats.ConfigureForSpawn(configuration);
+                else stats.ResetToFull();
+            }
+            finally { initializing = false; }
         }
         public void BeforeTick()
         {
@@ -30,7 +43,8 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void PublishHealth(float current, float maximum)
         {
-            if (!CanMutateStats) return;
+            // The lethal health snapshot must still publish after its death event ends the match.
+            if (!IsServerOwner) return;
             Health = current; MaxHealth = maximum; Dead = stats.IsDead;
         }
         private void ApplySnapshot()

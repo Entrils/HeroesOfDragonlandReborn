@@ -248,6 +248,7 @@ GameObject:
   - component: {fileID: 863030325}
   - component: {fileID: 863030328}
   - component: {fileID: 863030327}
+  - component: {fileID: 863030329}
   m_Layer: 0
   m_Name: Multiplayer Bootstrap
   m_TagString: Untagged
@@ -382,6 +383,19 @@ MonoBehaviour:
   - prefab: {fileID: 2336667061911295415, guid: 95ffac6f58f647e4ca28026bbb28922c, type: 3}
     localPosition: {x: 0, y: 0, z: 0}
     yaw: 0
+--- !u!114 &863030329
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863030319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fb681ff7c81f64b459a55f0b2b1de467, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.MultiplayerLootProbe
+  chestPrefab: {fileID: 5472945512594405666, guid: 6426d5314c258fe408992fdf64ad53c6, type: 3}
 --- !u!1 &1130054949
 GameObject:
   m_ObjectHideFlags: 0

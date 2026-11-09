@@ -12,6 +12,17 @@ namespace HeroesOfDragonland.Multiplayer
         private void OnGUI()
         {
             if (Application.isBatchMode) return;
+            if (bootstrap.Running && GetComponentInChildren<HeroesOfDragonland.UI.GameplayHudPresenter>() != null)
+            {
+                GUILayout.BeginArea(new Rect(12, 12, 250, 115), GUI.skin.box);
+                GUI.enabled = !bootstrap.Busy;
+                if (GUILayout.Button("Disconnect")) _ = bootstrap.Disconnect();
+                GUI.enabled = true;
+                GUILayout.Label("WASD move · LMB attack · Shift dodge");
+                GUILayout.Label("MMB lock · Q / E switch target");
+                GUILayout.EndArea();
+                return;
+            }
             GUILayout.BeginArea(new Rect(12, 12, 400, 310), GUI.skin.box);
             GUILayout.Label("Dragonland / Network melee combat");
             GUILayout.Label(bootstrap.Status);

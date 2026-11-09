@@ -14,6 +14,8 @@ namespace HeroesOfDragonland.Multiplayer
         [SerializeField] private NetworkObject playerPrefab;
         private readonly NetworkTeamRoster roster = new NetworkTeamRoster();
         private readonly Dictionary<PlayerRef, NetworkObject> players = new Dictionary<PlayerRef, NetworkObject>();
+        private readonly HashSet<PlayerRef> pendingSpawns = new HashSet<PlayerRef>();
+        private float nextSpawnRetry;
         private NetworkRunner runner;
         private bool busy;
         private int nextParticipant;
@@ -63,7 +65,7 @@ namespace HeroesOfDragonland.Multiplayer
             try
             {
                 Application.runInBackground = true;
-                roster.Clear(); players.Clear(); nextParticipant = 0;
+                roster.Clear(); players.Clear(); pendingSpawns.Clear(); nextParticipant = 0;
                 SessionId = mode == GameMode.Client ? null : Guid.NewGuid().ToString("N");
                 var runnerObject = new GameObject("Multiplayer Runner");
                 runnerObject.transform.SetParent(transform);
@@ -120,7 +122,36 @@ namespace HeroesOfDragonland.Multiplayer
                     if (runner == previous) runner = null;
                 }
             }
-            players.Clear(); roster.Clear();
+            players.Clear(); roster.Clear(); pendingSpawns.Clear();
+        }
+
+        private void Update()
+        {
+            if (runner == null || !runner.IsServer || pendingSpawns.Count == 0 || Time.unscaledTime < nextSpawnRetry) return;
+            nextSpawnRetry = Time.unscaledTime + .25f;
+            foreach (var player in new List<PlayerRef>(pendingSpawns)) OnPlayerJoined(runner, player);
+        }
+
+        internal bool TryGetTeam(PlayerRef player, out HeroesOfDragonland.Teams.TeamId team)
+            => roster.TryGetTeam(player.RawEncoded, out team);
+
+        internal void ResetRoundPlayers()
+        {
+            if (runner == null || !runner.IsServer) return;
+            // A new identity also invalidates old reward IDs and delayed avatar RPCs.
+            SessionId = Guid.NewGuid().ToString("N");
+            var previous = new List<NetworkObject>(players.Values);
+            players.Clear(); pendingSpawns.Clear();
+            foreach (var avatar in previous)
+                if (avatar != null && avatar.IsValid)
+                {
+                    // Unity destroys the old object at frame end; release its spawn
+                    // obstruction now, before choosing poses for the new avatars.
+                    foreach (var collider in avatar.GetComponentsInChildren<Collider>()) collider.enabled = false;
+                    runner.Despawn(avatar);
+                }
+            GetComponent<TeamSpawnService>()?.ResetReservations();
+            foreach (var player in runner.ActivePlayers) OnPlayerJoined(runner, player);
         }
 
         public void OnPlayerJoined(NetworkRunner source, PlayerRef player)
@@ -143,19 +174,30 @@ namespace HeroesOfDragonland.Multiplayer
                     if (!occupied) break;
                 }
                 var position = new Vector3(team == HeroesOfDragonland.Teams.TeamId.TeamA ? -8 : 8, 1, (lane - 1) * 4);
+                var rotation = Quaternion.identity;
+                var spawnService = GetComponent<TeamSpawnService>();
+                if (spawnService != null || GetComponent<NetworkFortressSpawner>() != null)
+                {
+                    if (spawnService == null || !spawnService.TryChooseSpawn(source, team, null, out position, out rotation))
+                    {
+                        if (pendingSpawns.Add(player)) SetStatus("Waiting for a free " + team + " fortress spawn point.");
+                        return;
+                    }
+                }
                 int number = ++nextParticipant;
-                avatar = source.Spawn(playerPrefab, position, Quaternion.identity, player,
+                avatar = source.Spawn(playerPrefab, position, rotation, player,
                     (r, obj) => obj.GetComponent<NetworkTestPlayer>().Initialize(team, number, lane));
                 if (avatar == null) throw new InvalidOperationException("Player spawn returned null.");
                 players.Add(player, avatar);
                 source.SetPlayerObject(player, avatar);
+                pendingSpawns.Remove(player);
                 SetStatus("Joined P" + number + " owner=" + player + " team=" + team
                     + " count=" + roster.Count + "/6");
             }
             catch (Exception exception)
             {
                 if (avatar != null) source.Despawn(avatar);
-                players.Remove(player); roster.Remove(player.RawEncoded);
+                players.Remove(player); roster.Remove(player.RawEncoded); pendingSpawns.Remove(player);
                 source.Disconnect(player);
                 SetStatus("Spawn failed: " + exception.Message);
             }
@@ -164,6 +206,7 @@ namespace HeroesOfDragonland.Multiplayer
         public void OnPlayerLeft(NetworkRunner source, PlayerRef player)
         {
             if (!source.IsServer) return;
+            pendingSpawns.Remove(player);
             if (players.TryGetValue(player, out var avatar))
             {
                 players.Remove(player);
@@ -175,6 +218,11 @@ namespace HeroesOfDragonland.Multiplayer
 
         public void OnInput(NetworkRunner source, NetworkInput input)
         {
+            if (GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>() is { IsBlocked: true })
+            {
+                input.Set(new NetworkPlayerInput());
+                return;
+            }
             Vector2 move = Vector2.zero;
             bool attack = false;
             bool dodge = false;
@@ -213,7 +261,7 @@ namespace HeroesOfDragonland.Multiplayer
         public void OnShutdown(NetworkRunner source, ShutdownReason reason)
         {
             if (source != runner) return;
-            players.Clear(); roster.Clear();
+            players.Clear(); roster.Clear(); pendingSpawns.Clear();
             runner = null;
             source.RemoveCallbacks(this);
             Destroy(source.gameObject);

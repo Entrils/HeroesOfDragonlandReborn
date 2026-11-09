@@ -33,22 +33,46 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkLootChest rewardPrefab;
         private Vector3 chestPosition;
         private int rewardExperience;
+        private float experienceRadius;
         private TickTimer chestRetry;
+        [Networked] public TickTimer NextSpawnTimer { get; private set; }
+        private bool scheduleStarted;
         public NetworkCampDefinition Definition => definition;
         public bool CanMutateCamp => isActiveAndEnabled && Object != null && Object.IsValid
-            && Runner.IsServer && HasStateAuthority && Object.InputAuthority == PlayerRef.None;
+            && Runner.IsServer && HasStateAuthority && Object.InputAuthority == PlayerRef.None && NetworkMatch.AllowsGameplay(Runner);
         public event Action<NetworkCamp> Cleared;
 
         public override void FixedUpdateNetwork()
         {
             if (!CanMutateCamp) return;
-            if (State == NetworkCampState.Pending) TryInitialize();
+            if (!scheduleStarted)
+            {
+                scheduleStarted = true;
+                if (definition != null && definition.InitialSpawnDelay > 0)
+                    NextSpawnTimer = TickTimer.CreateFromSeconds(Runner, definition.InitialSpawnDelay);
+            }
+            if (State == NetworkCampState.Pending && NextSpawnTimer.ExpiredOrNotRunning(Runner)) TryInitialize();
             else if (State == NetworkCampState.Active) TryComplete();
-            else if (State == NetworkCampState.Cleared && ChestId == default && chestRetry.ExpiredOrNotRunning(Runner)) SpawnChest();
+            else if (State == NetworkCampState.Cleared)
+            {
+                if (definition.RespawnDelay > 0 && NextSpawnTimer.Expired(Runner)) BeginNextCycle();
+                else if (ChestId == default && chestRetry.ExpiredOrNotRunning(Runner)) SpawnChest();
+            }
+        }
+        private void BeginNextCycle()
+        {
+            ReleaseMembers(true);
+            if (ChestId != default && Runner.TryFindObject(ChestId, out var chest)) Runner.Despawn(chest);
+            ChestId = default;
+            DeadCount = 0; EnemyCount = 0; AwardedExperience = 0; RewardedPlayers = 0;
+            chestRetry = TickTimer.None; NextSpawnTimer = TickTimer.None;
+            State = NetworkCampState.Pending;
         }
         public bool TryInitialize()
         {
-            if (!CanMutateCamp || State != NetworkCampState.Pending || processing) return false;
+            if (!CanMutateCamp || State != NetworkCampState.Pending || processing
+                || (!scheduleStarted && definition != null && definition.InitialSpawnDelay > 0)
+                || !NextSpawnTimer.ExpiredOrNotRunning(Runner)) return false;
             processing = true;
             try
             {
@@ -63,9 +87,12 @@ namespace HeroesOfDragonland.Multiplayer
                     if (!NavMesh.SamplePosition(transform.TransformPoint(entry.Offset), out var hit, 1f, filter))
                         throw new InvalidOperationException("Camp enemy spawn is off its compatible NavMesh.");
                     positions[i] = hit.position;
+                    if (!TeamSpawnService.AllowsNpcSpawn(Runner, entry.Prefab.gameObject, positions[i]))
+                        throw new InvalidOperationException("Camp enemy spawn overlaps a protected opposing spawn zone.");
                 }
                 rewardPrefab = definition.ChestPrefab;
                 rewardExperience = definition.ExperienceReward;
+                experienceRadius = definition.ExperienceRadius;
                 chestPosition = transform.TransformPoint(definition.ChestOffset);
                 for (int i = 0; i < positions.Length; i++)
                 {
@@ -114,13 +141,20 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 // Commit the one-way transition before any reward or observer can re-enter.
                 State = NetworkCampState.Cleared;
-                CompletionCount = 1;
+                CompletionCount++;
+                NextSpawnTimer = definition.RespawnDelay > 0 ? TickTimer.CreateFromSeconds(Runner, definition.RespawnDelay) : TickTimer.None;
                 AwardedExperience = rewardExperience;
-                string rewardId = "camp:" + Object.Id;
+                string rewardId = "camp:" + Object.Id + ":" + CompletionCount;
                 // Snapshot recipients at completion. No late-join replay or distance/client claims.
                 foreach (var player in Runner.ActivePlayers)
                     if (Runner.TryGetPlayerObject(player, out var avatar) && avatar != null)
                     {
+                        if (experienceRadius > 0)
+                        {
+                            var stats = avatar.GetComponent<CharacterStats>();
+                            Vector3 distance = avatar.transform.position - transform.position; distance.y = 0;
+                            if (stats == null || stats.IsDead || distance.sqrMagnitude > experienceRadius * experienceRadius) continue;
+                        }
                         var progression = avatar.GetComponent<NetworkSessionProgression>();
                         if (progression != null && progression.TryGrantExperience(rewardExperience, rewardId)) RewardedPlayers++;
                     }

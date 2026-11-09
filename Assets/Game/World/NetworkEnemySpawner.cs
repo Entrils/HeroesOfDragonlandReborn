@@ -28,6 +28,10 @@ namespace HeroesOfDragonland.Multiplayer
         private void OnDisable() => bootstrap.SessionStarted -= Spawn;
         private void Spawn(NetworkRunner runner)
         {
+            if (GetComponent<NetworkFortressSpawner>() == null) SpawnRound(runner);
+        }
+        internal void SpawnRound(NetworkRunner runner)
+        {
             enemies.Clear();
             if (!runner.IsServer) return;
             // Validate all points before spawning any enemy. No client spawn request exists.
@@ -42,6 +46,8 @@ namespace HeroesOfDragonland.Multiplayer
                 if (!NavMesh.SamplePosition(transform.TransformPoint(entries[i].LocalPosition), out var hit, 1f, filter))
                     throw new InvalidOperationException("Network enemy spawn is off the compatible NavMesh.");
                 positions[i] = hit.position;
+                if (!TeamSpawnService.AllowsNpcSpawn(runner, prefab.gameObject, positions[i]))
+                    throw new InvalidOperationException("Network enemy spawn overlaps a protected opposing spawn zone.");
             }
             for (int i = 0; i < entries.Length; i++)
             {

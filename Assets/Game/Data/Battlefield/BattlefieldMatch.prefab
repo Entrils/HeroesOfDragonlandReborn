@@ -1,0 +1,94 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &2488257776114685532
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 5180749836792205273}
+  - component: {fileID: 9135981848501712677}
+  - component: {fileID: 6383800148502305765}
+  m_Layer: 0
+  m_Name: BattlefieldMatch
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &5180749836792205273
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2488257776114685532}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &9135981848501712677
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2488257776114685532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: -1552182283, guid: e725a070cec140c4caffb81624c8c787, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Fusion.Runtime.dll::Fusion.NetworkObject
+  SortKey: 4120222815
+  SendPriority: 1
+  EnableInterpolation: 1
+  Flags: 262146
+  NestedObjects: []
+  NetworkedBehaviours:
+  - {fileID: 6383800148502305765}
+  ForceRemoteRenderTimeframe: 0
+--- !u!114 &6383800148502305765
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2488257776114685532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 481a0c28fb26ea94ea39dc18ccf4fe0a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkMatch
+  lifecycle: {fileID: 11400000, guid: 1835323b602702c459c0572fd4d0279b, type: 2}
+  teamAKingPrefab: {fileID: 6988759492962262306, guid: e22178f07ca733e489c0b1faf35a876e, type: 3}
+  teamBKingPrefab: {fileID: 4658928340434380134, guid: 24d0d748cd2187140b823428ba3741bd, type: 3}
+  teamAGuardPrefab: {fileID: 7774775507930950904, guid: b61fe7523dadfcd4a8d6d57548a3f2f6, type: 3}
+  teamBGuardPrefab: {fileID: 7774775507930950904, guid: 072be2a1bb8133c4180f473197ecaf5d, type: 3}
+  teamAKingPosition: {x: -36, y: 0, z: 0}
+  teamBKingPosition: {x: 36, y: 0, z: 0}
+  teamAGuardPosition: {x: -27, y: 0, z: 0}
+  teamBGuardPosition: {x: 27, y: 0, z: 0}
+  _State: 0
+  _RoundNumber: 0
+  _StateSequence: 0
+  _RequiredPlayers: 0
+  _TeamACount: 0
+  _TeamBCount: 0
+  _PreparationError:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000u
+  _MatchEnded:
+    RawValue: 0
+  _Winner: 0
+  _FinishCount: 0
+  _TeamAKingId:
+    Raw: 0
+  _TeamBKingId:
+    Raw: 0

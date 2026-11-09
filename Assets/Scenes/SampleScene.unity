@@ -513,6 +513,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 23568cc7ce4bb9547b3c417ae57fb3b5, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyThreatTarget
+  navigationOffset: {x: 0, y: 0, z: 0}
 --- !u!114 &44835690
 MonoBehaviour:
   m_ObjectHideFlags: 0

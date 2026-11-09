@@ -25,7 +25,7 @@ namespace HeroesOfDragonland.Multiplayer
         private int nextRequestTick;
         public bool IsAdmitted => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority
             && Runner.TryGetPlayerObject(Object.InputAuthority, out var avatar) && avatar == Object;
-        public bool CanMutateInventory => isActiveAndEnabled && IsAdmitted && !stats.IsDead;
+        public bool CanMutateInventory => isActiveAndEnabled && IsAdmitted && !stats.IsDead && NetworkMatch.AllowsGameplay(Runner);
         public bool CanRequest => isActiveAndEnabled && Object != null && Object.IsValid && HasInputAuthority;
         public event Action<bool, string> RemoveResolved;
 

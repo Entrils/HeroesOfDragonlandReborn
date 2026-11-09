@@ -22,9 +22,16 @@ namespace HeroesOfDragonland.Multiplayer
         private void LateUpdate()
         {
             if (combat.Object == null || !combat.Object.IsValid) return;
+            if (!NetworkMatch.AllowsGameplay(combat.Runner))
+            {
+                SwingVisible = false; RollVisible = false;
+                if (swingPivot != null) swingPivot.gameObject.SetActive(false);
+                if (body != null) body.localRotation = Quaternion.identity;
+                return;
+            }
             double time = combat.HasStateAuthority ? combat.Runner.LocalRenderTime : combat.Runner.RemoteRenderTime;
             float attackAge = (float)(time - combat.AttackStartTick * (double)combat.Runner.DeltaTime);
-            bool swinging = !stats.Dead && combat.AttackSequence > 0 && combat.Definition != null
+            bool swinging = !stats.Dead && combat.AttackBusy && combat.AttackSequence > 0 && combat.Definition != null
                 && attackAge >= 0f && attackAge < combat.Definition.AttackDuration;
             SwingVisible = swinging && swingPivot != null;
             if (swingPivot != null)
@@ -35,7 +42,7 @@ namespace HeroesOfDragonland.Multiplayer
                         * Quaternion.Euler(0, Mathf.Lerp(-65, 65, attackAge / combat.Definition.AttackDuration), 0);
             }
             float dodgeAge = (float)(time - dodge.StartTick * (double)combat.Runner.DeltaTime);
-            bool rolling = !stats.Dead && dodge.DodgeSequence > 0 && dodge.Definition != null
+            bool rolling = !stats.Dead && dodge.Busy && dodge.DodgeSequence > 0 && dodge.Definition != null
                 && dodgeAge >= 0 && dodgeAge < dodge.Definition.Duration;
             RollVisible = rolling && body != null;
             if (body != null)

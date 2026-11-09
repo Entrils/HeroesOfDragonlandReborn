@@ -24,6 +24,10 @@ namespace HeroesOfDragonland.Multiplayer
         private void OnDisable() => bootstrap.SessionStarted -= Spawn;
         private void Spawn(NetworkRunner runner)
         {
+            if (GetComponent<NetworkFortressSpawner>() == null) SpawnRound(runner);
+        }
+        internal void SpawnRound(NetworkRunner runner)
+        {
             if (!runner.IsServer) return;
             foreach (var entry in entries)
                 if (entry.Prefab == null || entry.Prefab.Definition == null || !entry.Prefab.Definition.TryValidate(out _))

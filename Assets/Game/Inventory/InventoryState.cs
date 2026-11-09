@@ -111,7 +111,7 @@ namespace HeroesOfDragonland.InventorySystem
         public InventorySnapshot CaptureSnapshot() => new InventorySnapshot(Revision, slots);
 
         // Chest reward transfer: preserve overflow, commit both owners before notifying.
-        internal bool TryDeposit(InventorySlot[] rewards, Action<InventorySlot[]> commitRemainder)
+        internal bool TryDeposit(InventorySlot[] rewards, Action<InventorySlot[]> commitRemainder, bool requireAll = false)
         {
             var staged = new InventoryState(catalog, SlotCount);
             staged.slots = (InventorySlot[])slots.Clone();
@@ -124,7 +124,7 @@ namespace HeroesOfDragonland.InventorySystem
                 if (accepted > 0) { staged.TryAdd(reward.ItemId, accepted); changed = true; }
                 if (accepted < reward.Amount) remaining.Add(new InventorySlot(reward.ItemId, reward.Amount - accepted));
             }
-            if (!changed) return false;
+            if (!changed || (requireAll && remaining.Count != 0)) return false;
             slots = staged.slots;
             commitRemainder(remaining.ToArray());
             Publish(Revision + 1);

@@ -31,6 +31,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
 
         public bool Remove(int connectionId) => teams.Remove(connectionId);
+        public bool TryGetTeam(int connectionId, out TeamId team) => teams.TryGetValue(connectionId, out team);
         public void Clear() => teams.Clear();
     }
 }

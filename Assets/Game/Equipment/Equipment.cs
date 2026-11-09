@@ -56,18 +56,25 @@ namespace HeroesOfDragonland.EquipmentSystem
 
         private bool MeetsRequirements(ItemDefinition item, out string reason)
         {
-            var source = requirementSource != null ? requirementSource as IEquipmentRequirementSource
-                : GetComponent<IEquipmentRequirementSource>();
             foreach (var requirement in item.EquipmentRequirements)
             {
-                if (source == null || !source.TryGetBaseValue(requirement.Stat, out float value)
-                    || float.IsNaN(value) || float.IsInfinity(value))
+                if (!TryGetRequirementValue(requirement.Stat, out float value))
                 { reason = "Missing attribute: " + requirement.Stat + "."; return false; }
                 if (value < requirement.MinimumValue)
                 { reason = "Requires " + requirement.Stat + " " + requirement.MinimumValue + " (base + allocated " + value + ")."; return false; }
             }
             reason = null;
             return true;
+        }
+
+        // Read-only preview uses the exact same configured source as authoritative equip.
+        public bool TryGetRequirementValue(ItemStat stat, out float value)
+        {
+            value = 0;
+            var source = requirementSource != null ? requirementSource as IEquipmentRequirementSource
+                : GetComponent<IEquipmentRequirementSource>();
+            return source != null && source.TryGetBaseValue(stat, out value)
+                && !float.IsNaN(value) && !float.IsInfinity(value);
         }
 
         private bool Transfer(int inventorySlot, EquipmentSlot slot, string newId, out string reason)

@@ -40,16 +40,24 @@ namespace HeroesOfDragonland.Multiplayer
         // after the full recovery and another successful server stamina payment.
         internal void TickIntent(NetworkPlayerInput input, Vector3 facing, bool dodgeBusy)
         {
-            if (!IsAdmitted() || dodgeBusy || !input.Attack || !melee.TryAttack(facing)) return;
+            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || dodgeBusy || !input.Attack || !melee.TryAttack(facing)) return;
             AttackSequence++;
             AttackStartTick = Runner.Tick.Raw;
             AttackFacing = facing;
             AttackBusy = true;
         }
 
+        internal bool TryStartSkillStrike(float multiplier, float manaCost)
+        {
+            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || !melee.TrySkillAttack(multiplier, manaCost)) return false;
+            AttackSequence++; AttackStartTick = Runner.Tick.Raw;
+            AttackFacing = transform.forward; AttackBusy = true; return true;
+        }
+
         public void AfterTick()
         {
             if (!IsAdmitted()) return;
+            if (!NetworkMatch.AllowsGameplay(Runner)) { melee.Cancel(); AttackBusy = false; return; }
             // Every player's movement tick has completed before server hit geometry is sampled.
             Physics.SyncTransforms();
             ResolvingAttack = true;
@@ -58,11 +66,21 @@ namespace HeroesOfDragonland.Multiplayer
             AttackBusy = melee.IsBusy && !stats.IsDead;
         }
 
+        internal void CancelForRespawn()
+        {
+            if (!IsAdmitted()) return;
+            melee.Cancel(); AttackBusy = false;
+        }
+
         public bool AllowsDamage(GameObject source)
         {
-            if (!IsAdmitted() || stats.IsDead || source == null || source == gameObject) return false;
+            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || stats.IsDead || source == null || source == gameObject) return false;
             var enemy = source.GetComponent<NetworkEnemy>();
-            if (enemy != null) return enemy.Runner == Runner && enemy.IsResolvingAttack;
+            if (enemy != null)
+            {
+                var guard = enemy.GetComponent<NetworkFortressGuard>();
+                return enemy.Runner == Runner && enemy.IsResolvingAttack && (guard == null || guard.IsEnemy(player));
+            }
             var attacker = source.GetComponent<NetworkPlayerCombat>();
             return attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
                 && attacker.ResolvingAttack && !attacker.stats.IsDead

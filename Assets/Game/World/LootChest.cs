@@ -17,10 +17,12 @@ namespace HeroesOfDragonland.World
         private Inventory claimant;
         private InventorySlot[] pending = Array.Empty<InventorySlot>();
         private bool processing;
+        private bool networkLootRolled;
         public bool IsOpen { get; private set; }
         public long Revision { get; private set; }
         public bool HasAuthority => GetComponent<ILootChestAuthority>()?.CanMutateChest ?? hasAuthority;
         public LootTable Table => lootTable;
+        public float InteractionRange => interactionRange;
         // Factories configure inactive, unopened instances; never replaces rolled rewards.
         public bool TryConfigureSpawn(LootTable table, bool authority)
         {
@@ -56,6 +58,39 @@ namespace HeroesOfDragonland.World
             processing = true;
             try
             {
+                // Network chests transfer the complete roll once. Capacity failures keep
+                // the same server-only roll available to either team, without claiming it.
+                if (GetComponent<ILootChestAuthority>() != null)
+                {
+                    if (IsOpen) { message = "Chest has already been looted."; return false; }
+                    if (lootTable == null) { message = "Chest has no loot table."; return false; }
+                    if (!lootTable.TryValidate(player.Catalog, out message)) return false;
+                    if (!networkLootRolled)
+                    {
+                        if (!lootTable.TryRoll(new System.Random(Guid.NewGuid().GetHashCode()), out pending, out message)) return false;
+                        networkLootRolled = true;
+                    }
+                    if (pending.Length == 0)
+                    {
+                        claimant = player;
+                        IsOpen = true;
+                        Revision++;
+                        Changed?.Invoke();
+                        message = "Chest opened. No loot.";
+                        return true;
+                    }
+                    bool granted = player.TryDeposit(pending, remainder =>
+                    {
+                        pending = remainder;
+                        claimant = player;
+                        IsOpen = true;
+                        Revision++;
+                        // Commit replicated state before inventory observers can reenter.
+                        Changed?.Invoke();
+                    }, requireAll: true);
+                    message = granted ? "Chest looted." : "Make room for all chest rewards and try again.";
+                    return granted;
+                }
                 bool openedNow = false;
                 if (!IsOpen)
                 {

@@ -16,25 +16,32 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public long Revision { get; private set; }
         [Networked, Capacity(5)] public NetworkArray<int> Attributes => default;
         private SessionProgression progression;
+        private bool initializing;
         private static readonly ItemStat[] attributeKinds = { ItemStat.Vitality, ItemStat.Endurance, ItemStat.Mind, ItemStat.Strength, ItemStat.Dexterity };
-        public bool CanMutateProgression => isActiveAndEnabled && Object != null && Object.IsValid
+        private bool IsServerOwner => isActiveAndEnabled && Object != null && Object.IsValid
             && Runner.IsServer && HasStateAuthority && Object.InputAuthority != PlayerRef.None;
+        public bool CanMutateProgression => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
         public bool IsAdmitted => CanMutateProgression
             && Runner.TryGetPlayerObject(Object.InputAuthority, out var player) && player == Object;
         private void Awake() => progression = GetComponent<SessionProgression>();
         public override void Spawned()
         {
-            if (!CanMutateProgression) return;
+            if (!IsServerOwner) return;
             var bootstrap = Runner.GetComponentInParent<MultiplayerBootstrap>();
-            if (bootstrap == null || !progression.TryBeginSession(bootstrap.SessionId, out _))
-                throw new InvalidOperationException("Network player needs a valid server progression session/curve.");
+            initializing = true;
+            try
+            {
+                if (bootstrap == null || !progression.TryBeginSession(bootstrap.SessionId, out _))
+                    throw new InvalidOperationException("Network player needs a valid server progression session/curve.");
+            }
+            finally { initializing = false; }
             SessionId = progression.SessionId;
             progression.Changed += Publish;
             Publish();
         }
         private void Publish()
         {
-            if (!CanMutateProgression) return;
+            if (!IsServerOwner) return;
             Level = progression.Level; CurrentXP = progression.CurrentXP; Points = progression.ProgressionPoints;
             for (int i = 0; i < attributeKinds.Length; i++) Attributes.Set(i, progression.GetAllocatedPoints(attributeKinds[i]));
             Revision = progression.Revision + 1;

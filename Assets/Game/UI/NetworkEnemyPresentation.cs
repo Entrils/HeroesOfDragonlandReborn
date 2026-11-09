@@ -25,7 +25,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (enemy.Object == null || !enemy.Object.IsValid) return;
             double time = enemy.HasStateAuthority ? enemy.Runner.LocalRenderTime : enemy.Runner.RemoteRenderTime;
             float age = (float)(time - enemy.AttackStartTick * (double)enemy.Runner.DeltaTime);
-            AttackVisible = !stats.Dead && enemy.AttackSequence > 0 && age >= 0 && age < enemy.Definition.AttackWindup
+            AttackVisible = NetworkMatch.AllowsGameplay(enemy.Runner) && !stats.Dead && enemy.AttackSequence > 0 && age >= 0 && age < enemy.Definition.AttackWindup
                 && (enemy.AttackEndTick == 0 || time < enemy.AttackEndTick * (double)enemy.Runner.DeltaTime);
             DisplayedState = stats.Dead ? EnemyState.Dead : enemy.State;
             if (body != null)

@@ -156,6 +156,24 @@ namespace HeroesOfDragonland.Stats
             ManaChanged?.Invoke(mana.Current, mana.Maximum);
         }
 
+        public void RestoreForRespawn(HeroesOfDragonland.Multiplayer.RespawnResourcePolicy manaPolicy,
+            HeroesOfDragonland.Multiplayer.RespawnResourcePolicy staminaPolicy)
+        {
+            if (!CanMutate || !IsDead) return;
+            RestoreResource(mana, manaPolicy);
+            RestoreResource(stamina, staminaPolicy);
+            health.ResetToFull();
+            HealthChanged?.Invoke(health.Current, health.Maximum);
+            StaminaChanged?.Invoke(stamina.Current, stamina.Maximum);
+            ManaChanged?.Invoke(mana.Current, mana.Maximum);
+        }
+        private static void RestoreResource(ResourcePool pool, HeroesOfDragonland.Multiplayer.RespawnResourcePolicy policy)
+        {
+            if (policy == HeroesOfDragonland.Multiplayer.RespawnResourcePolicy.Preserve) return;
+            pool.ResetToFull();
+            if (policy == HeroesOfDragonland.Multiplayer.RespawnResourcePolicy.Empty) pool.Remove(pool.Maximum);
+        }
+
         // Passive replica hydration never emits Died or executes damage/reward logic.
         // The authoritative instance rejects this path, even if called locally.
         internal void ApplyReplicatedHealth(float current, float maximum)

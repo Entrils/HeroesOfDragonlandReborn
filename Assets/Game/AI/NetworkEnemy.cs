@@ -24,10 +24,12 @@ namespace HeroesOfDragonland.Multiplayer
         private NavMeshAgent agent;
         private Collider[] colliders;
         private bool replicaDeathApplied;
+        private bool initializing;
         public int SimulationTicks { get; private set; }
         public EnemyDefinition Definition => brain.Definition;
-        public bool CanSimulateEnemy => isActiveAndEnabled && Object != null && Object.IsValid
+        private bool IsServerOwner => isActiveAndEnabled && Object != null && Object.IsValid
             && Runner.IsServer && HasStateAuthority && Object.InputAuthority == PlayerRef.None;
+        public bool CanSimulateEnemy => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
         public bool IsResolvingAttack => CanSimulateEnemy && !stats.IsDead && attack.ResolvingHit;
 
         private void Awake()
@@ -44,7 +46,7 @@ namespace HeroesOfDragonland.Multiplayer
         public override void Spawned()
         {
             Object.ForceRemoteRenderTimeframe = !HasStateAuthority;
-            if (!CanSimulateEnemy)
+            if (!IsServerOwner)
             {
                 brain.enabled = false;
                 attack.enabled = false;
@@ -53,7 +55,14 @@ namespace HeroesOfDragonland.Multiplayer
                 agent.enabled = false;
                 return;
             }
-            brain.InitializeNetworkSpawn();
+            // Authoring initialization is allowed during Starting; gameplay remains gated.
+            initializing = true;
+            try
+            {
+                GetComponent<NetworkCharacterStats>().InitializeForSpawn(brain.Definition.Stats);
+                brain.InitializeNetworkSpawn();
+            }
+            finally { initializing = false; }
             attack.AttackStarted += OnAttackStarted;
             attack.AttackFinished += OnAttackFinished;
             stats.Died += OnDeath;
@@ -70,6 +79,14 @@ namespace HeroesOfDragonland.Multiplayer
         }
         public override void FixedUpdateNetwork()
         {
+            if (IsServerOwner && !NetworkMatch.AllowsGameplay(Runner))
+            {
+                GetComponent<EnemyNavigation>().Stop();
+                attack.Cancel();
+                AttackBusy = false;
+                TargetId = default;
+                return;
+            }
             if (!CanSimulateEnemy || stats.IsDead || !brain.enabled || !agent.enabled || !agent.isOnNavMesh) return;
             transform.position = agent.nextPosition;
             if (!attack.IsBusy && agent.velocity.sqrMagnitude > 0.0001f)

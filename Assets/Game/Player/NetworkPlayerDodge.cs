@@ -33,6 +33,7 @@ namespace HeroesOfDragonland.Multiplayer
         internal void TickIntent(NetworkPlayerInput input, Vector3 move, Vector3 facing)
         {
             if (combat == null || !combat.IsAdmitted()) return;
+            if (!NetworkMatch.AllowsGameplay(Runner)) { Busy = false; return; }
             if (!isActiveAndEnabled || stats.IsDead) { Busy = false; return; }
             if (Busy && Elapsed >= definition.Duration + definition.Recovery) Busy = false;
             if (Busy || !input.Dodge || combat.IsBusy || definition == null) return;
@@ -43,6 +44,11 @@ namespace HeroesOfDragonland.Multiplayer
             StartTick = Runner.Tick.Raw;
             DodgeSequence++;
             Busy = true;
+        }
+
+        internal void CancelForRespawn()
+        {
+            if (combat != null && combat.IsAdmitted()) Busy = false;
         }
 
         internal Vector3 StepDisplacement()
