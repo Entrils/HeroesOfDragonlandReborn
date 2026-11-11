@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 476d16442a32f5d469f1268e7f623f68, type: 3}
   m_Name: HighCamp
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.Camps.NetworkCampDefinition
+  difficulty: 2
   enemies:
   - prefab: {fileID: 7774775507930950904, guid: 1b669d9090fc7f943ba5cbcbb1440314, type: 3}
     offset: {x: -2, y: 0, z: 1.5}
@@ -22,9 +23,9 @@ MonoBehaviour:
   - prefab: {fileID: 762619340280149128, guid: 37b26662a126f604280a4190d58d9de7, type: 3}
     offset: {x: 2, y: 0, z: 1.5}
     yaw: 0
-  experienceReward: 90
+  experienceReward: 100
   experienceRadius: 9
   chestPrefab: {fileID: 5472945512594405666, guid: 61e3539aa377b134ebb099040306f007, type: 3}
   chestOffset: {x: 0, y: 0, z: -1.5}
-  initialSpawnDelay: 150
-  respawnDelay: 165
+  initialSpawnDelay: 0
+  respawnDelay: 150

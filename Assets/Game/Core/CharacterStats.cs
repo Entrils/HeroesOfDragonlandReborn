@@ -92,6 +92,9 @@ namespace HeroesOfDragonland.Stats
             if (!CanMutate || IsDead) return 0f;
             foreach (var provider in GetComponents<HeroesOfDragonland.Combat.IInvulnerabilityProvider>())
                 if (provider.IsInvulnerable) return 0f;
+            if (amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
+            var gear = GetComponent<Equipment>();
+            if (gear != null) amount = gear.ReducePhysicalDamage(amount);
             float removed = health.Remove(amount);
             if (removed <= 0f) return 0f;
             bool died = health.Current == 0f;

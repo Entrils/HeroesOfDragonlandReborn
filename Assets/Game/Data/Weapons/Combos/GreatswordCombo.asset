@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43ae7410f723e0445a17f5470ea7612b, type: 3}
+  m_Name: GreatswordCombo
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.WeaponComboDefinition
+  lightSteps:
+  - nextLightIndex: 1
+    allowHeavy: 0
+    bufferStart: 0.45
+    bufferEnd: 0.92
+    minimumRecovery: 0.5
+    allowDodgeCancel: 0
+    dodgeCancelRecovery: 0.85
+  - nextLightIndex: -1
+    allowHeavy: 0
+    bufferStart: 0.45
+    bufferEnd: 0.92
+    minimumRecovery: 0.5
+    allowDodgeCancel: 0
+    dodgeCancelRecovery: 0.85
+  heavyStep:
+    nextLightIndex: -1
+    allowHeavy: 0
+    bufferStart: 0.45
+    bufferEnd: 0.92
+    minimumRecovery: 0.5
+    allowDodgeCancel: 0
+    dodgeCancelRecovery: 0.85
+  bufferLifetime: 0.6
+  restartDelay: 0.3
+  maximumChainAttacks: 3

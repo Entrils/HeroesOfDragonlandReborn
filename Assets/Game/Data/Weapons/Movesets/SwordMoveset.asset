@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 326dd15ef2d7b574fbba0cf38b544482, type: 3}
+  m_Name: SwordMoveset
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.WeaponMoveset
+  archetype: 0
+  animationSet: {fileID: 11400000, guid: bcb6142839da4254ca0bd5f23c77dac5, type: 2}
+  lightAttacks:
+  - profile: {fileID: 11400000, guid: bbce15b7be6d56549a54d70b4dc5595a, type: 2}
+    animation: {fileID: -623603649343465320, guid: cfa2d4b0890c453498c59c6cb6749523, type: 3}
+    attackSpeed: 1
+    staminaCost: 25
+    range: 2.1
+    movementMultiplier: 0.25
+    staggerPower: 20
+    damageMultiplier: 1
+  - profile: {fileID: 11400000, guid: 906b5f87370feb2448591e8c497396fe, type: 2}
+    animation: {fileID: -623603649343465320, guid: b60a3da0567c53e41a34b3fff7da9273, type: 3}
+    attackSpeed: 1
+    staminaCost: 25
+    range: 2.1
+    movementMultiplier: 0.25
+    staggerPower: 23
+    damageMultiplier: 1.1
+  - profile: {fileID: 11400000, guid: 599b54f3846f83942a43d07801ed16e3, type: 2}
+    animation: {fileID: -623603649343465320, guid: cfa2d4b0890c453498c59c6cb6749523, type: 3}
+    attackSpeed: 1
+    staminaCost: 25
+    range: 2.1
+    movementMultiplier: 0.25
+    staggerPower: 26
+    damageMultiplier: 1.2
+  heavyAttack:
+    profile: {fileID: 11400000, guid: c8ea2cbd9acf1e34585a31926393ec7a, type: 2}
+    animation: {fileID: -623603649343465320, guid: 4935de8c7b5f2a142b1ddeae8a9df4f5, type: 3}
+    attackSpeed: 1
+    staminaCost: 40
+    range: 2.1
+    movementMultiplier: 0.125
+    staggerPower: 60
+    damageMultiplier: 1.8
+  combo: {fileID: 11400000, guid: c174096cc5809b246b2ba879d2ac7657, type: 2}
+  comboResetDelay: 0.8

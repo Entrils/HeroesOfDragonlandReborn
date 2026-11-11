@@ -14,6 +14,8 @@ namespace HeroesOfDragonland.UI
             text.AppendLine(item.DisplayName).AppendLine(item.Rarity + " | " + item.Category)
                 .AppendLine("Quantity: " + quantity).AppendLine(item.Description);
             if (item.EquipmentSlot != EquipmentSlot.None) text.AppendLine("Slot: " + item.EquipmentSlot);
+            text.AppendLine("Weight: " + item.Weight.ToString("0.##"));
+            if (equipment != null) text.AppendLine("Equipped weight: " + equipment.TotalWeight.ToString("0.##") + " (" + equipment.WeightClass + ")");
             if (item.Weapon != null)
             {
                 var weapon = item.Weapon;
@@ -42,7 +44,7 @@ namespace HeroesOfDragonland.UI
                 foreach (var modifier in item.StatModifiers)
                 {
                     float value = modifier.Operation == StatModifierOperation.AdditivePercent ? modifier.Value * 100 : modifier.Value;
-                    text.Append(modifier.Stat).Append(' ').Append(value >= 0 ? "+" : "").Append(value.ToString("0.##"))
+                    text.Append(modifier.Stat == ItemStat.Armor ? "Physical defense" : modifier.Stat.ToString()).Append(' ').Append(value >= 0 ? "+" : "").Append(value.ToString("0.##"))
                         .AppendLine(modifier.Operation == StatModifierOperation.AdditivePercent ? "%" : "");
                 }
             }

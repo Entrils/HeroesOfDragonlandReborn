@@ -22,6 +22,9 @@ namespace HeroesOfDragonland.Multiplayer
         private void LateUpdate()
         {
             if (Application.isBatchMode || player.Object == null || !player.Object.IsValid) return;
+            if (label != null && label.TryGetComponent<Renderer>(out var labelRenderer))
+                labelRenderer.enabled = !(player.HasInputAuthority && Camera.main != null
+                    && Camera.main.GetComponent<HeroesOfDragonland.World.BattlefieldCamera>() != null);
             if (!initialized || shownTeam != player.Team)
             {
                 initialized = true;
@@ -36,7 +39,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (label != null && Camera.main != null) label.transform.rotation = Camera.main.transform.rotation;
             var state = GetComponent<NetworkCharacterStats>();
             if (state != null && label != null)
-                label.text = "P" + player.ParticipantNumber + " / " + shownTeam
+                label.text = (player.IsBot ? "BOT " : "P") + player.ParticipantNumber + " / " + shownTeam
                     + (player.HasInputAuthority ? " (you)" : "")
                     + (state.Dead ? " / DEAD" : " / HP " + Mathf.CeilToInt(state.Health));
             var combat = GetComponent<NetworkPlayerCombat>();

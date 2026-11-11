@@ -1,0 +1,25 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 476d16442a32f5d469f1268e7f623f68, type: 3}
+  m_Name: BossCamp
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.Camps.NetworkCampDefinition
+  difficulty: 3
+  enemies:
+  - prefab: {fileID: 7774775507930950904, guid: ed1f749e18bb54142813b452c83737e7, type: 3}
+    offset: {x: 0, y: 0, z: 0}
+    yaw: 0
+  experienceReward: 300
+  experienceRadius: 9
+  chestPrefab: {fileID: 5472945512594405666, guid: 238c9d4c2b566ac41bed952d6c63e457, type: 3}
+  chestOffset: {x: 0, y: 0, z: -1.5}
+  initialSpawnDelay: 150
+  respawnDelay: 210

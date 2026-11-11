@@ -13,5 +13,5 @@ MonoBehaviour:
   m_Name: GreatswordAnimations
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.WeaponAttackAnimationSet
   combatProfile: {fileID: 11400000, guid: 8671d22960d16fb44815bb2b00de2c00, type: 2}
-  lightAttack: {fileID: 0}
-  heavyAttack: {fileID: 0}
+  lightAttack: {fileID: -623603649343465320, guid: cfa2d4b0890c453498c59c6cb6749523, type: 3}
+  heavyAttack: {fileID: -623603649343465320, guid: 4935de8c7b5f2a142b1ddeae8a9df4f5, type: 3}

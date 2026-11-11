@@ -10,6 +10,7 @@ namespace HeroesOfDragonland.EquipmentSystem
     {
         [Tooltip("Optional component implementing IEquipmentRequirementSource. Otherwise discovered on this player.")]
         [SerializeField] private MonoBehaviour requirementSource;
+        [SerializeField] private ArmorRules armorRules;
         private Inventory inventory;
         private readonly string[] equippedIds = new string[6];
         private bool transferring;
@@ -22,6 +23,27 @@ namespace HeroesOfDragonland.EquipmentSystem
         public string GetItemId(EquipmentSlot slot) => ValidSlot(slot) ? equippedIds[(int)slot - 1] : null;
         public ItemDefinition GetItem(EquipmentSlot slot)
             => Inventory.TryResolveItem(GetItemId(slot), out var item) ? item : null;
+
+        public float TotalWeight
+        {
+            get
+            {
+                float total = 0;
+                foreach (string id in equippedIds)
+                    if (id != null && Inventory.TryResolveItem(id, out var item)) total += item.Weight;
+                return total;
+            }
+        }
+        public float PhysicalDefense => GetModifiedStat(ItemStat.Armor, 0);
+        // Exposed for future magical damage; current damage is physical.
+        public float MagicalDefense => GetModifiedStat(ItemStat.MagicalDefense, 0);
+        public EquipmentWeightClass WeightClass => armorRules != null ? armorRules.Classify(TotalWeight)
+            : TotalWeight >= 30 ? EquipmentWeightClass.Heavy : TotalWeight >= 15 ? EquipmentWeightClass.Medium : EquipmentWeightClass.Light;
+        public WeightDodgeModifiers DodgeModifiers => armorRules != null ? armorRules.GetDodgeModifiers(TotalWeight)
+            : WeightClass == EquipmentWeightClass.Heavy ? WeightDodgeModifiers.Heavy
+            : WeightClass == EquipmentWeightClass.Medium ? WeightDodgeModifiers.Medium : WeightDodgeModifiers.Light;
+        public float ReducePhysicalDamage(float amount) => armorRules != null
+            ? armorRules.ReducePhysicalDamage(amount, PhysicalDefense) : amount * (100f / (100f + PhysicalDefense));
 
         public WeaponDefinition EquippedWeapon => GetItem(EquipmentSlot.MainHand)?.Weapon;
 

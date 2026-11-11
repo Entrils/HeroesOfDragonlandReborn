@@ -15,11 +15,11 @@ MonoBehaviour:
   minimumDrops: 1
   maximumDrops: 2
   rarityWeights:
-  - 0.5
+  - 0
   - 1
-  - 1
-  - 0.3
-  - 0.05
+  - 0.6
+  - 0
+  - 0
   entries:
   - item: {fileID: 11400000, guid: b4d4a0612c1acd74d98f66ef3969959f, type: 2}
     weight: 30

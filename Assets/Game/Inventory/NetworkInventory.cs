@@ -23,8 +23,7 @@ namespace HeroesOfDragonland.Multiplayer
         private Inventory inventory;
         private CharacterStats stats;
         private int nextRequestTick;
-        public bool IsAdmitted => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority
-            && Runner.TryGetPlayerObject(Object.InputAuthority, out var avatar) && avatar == Object;
+        public bool IsAdmitted => NetworkParticipant.IsAdmitted(Object);
         public bool CanMutateInventory => isActiveAndEnabled && IsAdmitted && !stats.IsDead && NetworkMatch.AllowsGameplay(Runner);
         public bool CanRequest => isActiveAndEnabled && Object != null && Object.IsValid && HasInputAuthority;
         public event Action<bool, string> RemoveResolved;
@@ -41,7 +40,7 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 // Filter this entire behaviour, including quantities and revision, before publishing.
                 ReplicateToAll(false);
-                ReplicateTo(Object.InputAuthority, true);
+                if (Object.InputAuthority != PlayerRef.None) ReplicateTo(Object.InputAuthority, true);
                 inventory.Changed += Publish;
                 Publish(inventory.CaptureSnapshot());
             }
@@ -69,7 +68,7 @@ namespace HeroesOfDragonland.Multiplayer
         // Shared per-avatar request budget for inventory and equipment RPCs.
         internal bool AdmitRequest(PlayerRef sender)
         {
-            if (!IsAdmitted || sender != Object.InputAuthority || Runner.Tick.Raw < nextRequestTick) return false;
+            if (!IsAdmitted || sender == PlayerRef.None || sender != Object.InputAuthority || Runner.Tick.Raw < nextRequestTick) return false;
             nextRequestTick = Runner.Tick.Raw + Mathf.Max(1, Mathf.CeilToInt(0.1f / Runner.DeltaTime));
             return true;
         }

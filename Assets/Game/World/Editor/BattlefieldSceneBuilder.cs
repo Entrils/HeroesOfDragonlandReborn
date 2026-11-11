@@ -79,8 +79,9 @@ namespace HeroesOfDragonland.World.Editor
                 }
                 campData.ApplyModifiedPropertiesWithoutUndo();
                 var camera = scene.GetRootGameObjects().Select(root => root.GetComponent<Camera>()).First(value => value != null);
-                camera.orthographic = true; camera.orthographicSize = 50; camera.farClipPlane = 250;
-                camera.transform.SetPositionAndRotation(new Vector3(0,82,-56), Quaternion.Euler(55.65f,0,0));
+                camera.orthographic = false; camera.fieldOfView = 60; camera.nearClipPlane = .1f; camera.farClipPlane = 250;
+                camera.transform.SetPositionAndRotation(new Vector3(-41,3,-7), Quaternion.Euler(20,90,0));
+                camera.gameObject.AddComponent<HeroesOfDragonland.Player.ThirdPersonCamera>();
                 Set(camera.gameObject.AddComponent<BattlefieldCamera>(), "bootstrap", bootstrap);
                 var surface = map.AddComponent<NavMeshSurface>(); surface.collectObjects = CollectObjects.Children;
                 surface.useGeometry = NavMeshCollectGeometry.PhysicsColliders;

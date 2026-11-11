@@ -9,6 +9,7 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkTestPlayer player;
         private NetworkCharacterStats stats;
         private TargetLock targetLock;
+        public bool IsLockedOn=>IsLocal&&targetLock.enabled&&!stats.Dead&&targetLock.CurrentTarget!=null;
         public Vector2 FacingIntent
         {
             get

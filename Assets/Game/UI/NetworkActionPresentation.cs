@@ -11,6 +11,7 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkPlayerCombat combat;
         private NetworkPlayerDodge dodge;
         private NetworkCharacterStats stats;
+        private HeroesOfDragonland.Presentation.CharacterVisual characterVisual;
         public bool SwingVisible { get; private set; }
         public bool RollVisible { get; private set; }
         private void Awake()
@@ -18,6 +19,7 @@ namespace HeroesOfDragonland.Multiplayer
             combat = GetComponent<NetworkPlayerCombat>();
             dodge = GetComponent<NetworkPlayerDodge>();
             stats = GetComponent<NetworkCharacterStats>();
+            characterVisual = GetComponentInChildren<HeroesOfDragonland.Presentation.CharacterVisual>();
         }
         private void LateUpdate()
         {
@@ -37,20 +39,20 @@ namespace HeroesOfDragonland.Multiplayer
             SwingVisible = swinging && swingPivot != null;
             if (swingPivot != null)
             {
-                swingPivot.gameObject.SetActive(swinging);
+                swingPivot.gameObject.SetActive(swinging && characterVisual == null);
                 if (swinging)
                     swingPivot.rotation = Quaternion.LookRotation(combat.AttackFacing)
                         * Quaternion.Euler(0, Mathf.Lerp(-65, 65, attackAge / duration), 0);
             }
             float dodgeAge = (float)(time - dodge.StartTick * (double)combat.Runner.DeltaTime);
             bool rolling = !stats.Dead && dodge.Busy && dodge.DodgeSequence > 0 && dodge.Definition != null
-                && dodgeAge >= 0 && dodgeAge < dodge.Definition.Duration;
+                && dodgeAge >= 0 && dodgeAge < dodge.ActiveDuration;
             RollVisible = rolling && body != null;
-            if (body != null)
+            if (body != null && characterVisual == null)
             {
                 Vector3 localDirection = transform.InverseTransformDirection(dodge.Direction);
                 body.localRotation = rolling
-                    ? Quaternion.AngleAxis(360f * dodgeAge / dodge.Definition.Duration, Vector3.Cross(Vector3.up, localDirection))
+                    ? Quaternion.AngleAxis(360f * dodgeAge / dodge.ActiveDuration, Vector3.Cross(Vector3.up, localDirection))
                     : Quaternion.identity;
             }
         }

@@ -11,19 +11,22 @@ namespace HeroesOfDragonland.Multiplayer
         private void Awake() => bootstrap = GetComponent<MultiplayerBootstrap>();
         private void OnGUI()
         {
-            if (Application.isBatchMode) return;
+            if (Application.isBatchMode || !HeroesOfDragonland.UI.DeveloperUiLayout.Visible) return;
+            var matrix = HeroesOfDragonland.UI.DeveloperUiLayout.Begin();
             if (bootstrap.Running && GetComponentInChildren<HeroesOfDragonland.UI.GameplayHudPresenter>() != null)
             {
-                GUILayout.BeginArea(new Rect(12, 12, 250, 115), GUI.skin.box);
+                GUILayout.BeginArea(new Rect(18, 240, 360, 140), GUI.skin.box);
                 GUI.enabled = !bootstrap.Busy;
                 if (GUILayout.Button("Disconnect")) _ = bootstrap.Disconnect();
+                GUILayout.Label("Mouse: camera / Esc: cursor / Enter: resume");
                 GUI.enabled = true;
                 GUILayout.Label("WASD move · LMB attack · Shift dodge");
                 GUILayout.Label("MMB lock · Q / E switch target");
                 GUILayout.EndArea();
+                GUI.matrix = matrix;
                 return;
             }
-            GUILayout.BeginArea(new Rect(12, 12, 400, 310), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(18, 240, 360, 310), GUI.skin.box);
             GUILayout.Label("Dragonland / Network melee combat");
             GUILayout.Label(bootstrap.Status);
             GUI.enabled = !bootstrap.Busy;
@@ -50,6 +53,7 @@ namespace HeroesOfDragonland.Multiplayer
                         + "   Mana " + Mathf.CeilToInt(resources.Mana) + " / " + resources.MaxMana);
             }
             GUILayout.EndArea();
+            GUI.matrix = matrix;
         }
     }
 }

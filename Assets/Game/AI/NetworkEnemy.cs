@@ -16,6 +16,11 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public NetworkId TargetId { get; private set; }
         [Networked] public int AttackSequence { get; private set; }
         [Networked] public int AttackStartTick { get; private set; }
+        [Networked] public int AttackIndex { get; private set; }
+        [Networked] public Vector3 AttackOrigin { get; private set; }
+        [Networked] public Vector3 AttackForward { get; private set; }
+        public float AttackWindup => Definition.AttackSet != null && Definition.AttackSet.Count > 0
+            ? Definition.AttackSet.Get(AttackIndex).Windup : Definition.AttackWindup;
         [Networked] public int AttackEndTick { get; private set; }
         [Networked] public NetworkBool AttackBusy { get; private set; }
         [Networked] public int SpawnIndex { get; private set; }
@@ -113,6 +118,9 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void OnAttackStarted()
         {
+            AttackIndex = attack.AttackIndex;
+            AttackOrigin = attack.AttackOrigin;
+            AttackForward = attack.AttackForward;
             AttackSequence++;
             AttackStartTick = Runner.Tick.Raw;
             AttackEndTick = 0;

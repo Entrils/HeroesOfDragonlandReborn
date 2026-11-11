@@ -1,0 +1,43 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: acc49623407250343b1b53ffdd1a2f3a, type: 3}
+  m_Name: BossLoot
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.LootTable
+  minimumDrops: 3
+  maximumDrops: 4
+  rarityWeights:
+  - 0
+  - 0
+  - 0
+  - 1
+  - 0.1
+  entries:
+  - item: {fileID: 11400000, guid: b4d4a0612c1acd74d98f66ef3969959f, type: 2}
+    weight: 30
+    minimumQuantity: 1
+    maximumQuantity: 1
+  - item: {fileID: 11400000, guid: 7c3f6239de33cab4d94641a03e925f76, type: 2}
+    weight: 25
+    minimumQuantity: 1
+    maximumQuantity: 1
+  - item: {fileID: 11400000, guid: bb91086ec56a7424d92d32beaf281860, type: 2}
+    weight: 40
+    minimumQuantity: 1
+    maximumQuantity: 5
+  - item: {fileID: 11400000, guid: f7f949ca674317c42a8b0492a19fc9f2, type: 2}
+    weight: 15
+    minimumQuantity: 1
+    maximumQuantity: 3
+  - item: {fileID: 11400000, guid: f0f5377d2b04bb04aa6e4185d75fa693, type: 2}
+    weight: 5
+    minimumQuantity: 1
+    maximumQuantity: 1

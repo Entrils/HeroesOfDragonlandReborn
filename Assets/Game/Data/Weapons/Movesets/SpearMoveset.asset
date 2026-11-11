@@ -1,0 +1,52 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 326dd15ef2d7b574fbba0cf38b544482, type: 3}
+  m_Name: SpearMoveset
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.WeaponMoveset
+  archetype: 2
+  animationSet: {fileID: 11400000, guid: e153c379d2b5f3f4fa6c235c2457770d, type: 2}
+  lightAttacks:
+  - profile: {fileID: 11400000, guid: 13a5409aa4f642242a9df33f91dcdcd3, type: 2}
+    animation: {fileID: -623603649343465320, guid: cfa2d4b0890c453498c59c6cb6749523, type: 3}
+    attackSpeed: 1.1
+    staminaCost: 20
+    range: 3.2
+    movementMultiplier: 0.25
+    staggerPower: 18
+    damageMultiplier: 1
+  - profile: {fileID: 11400000, guid: 30deac1dde05c7946b210dbfccdd1973, type: 2}
+    animation: {fileID: -623603649343465320, guid: b60a3da0567c53e41a34b3fff7da9273, type: 3}
+    attackSpeed: 1.1
+    staminaCost: 20
+    range: 3.2
+    movementMultiplier: 0.25
+    staggerPower: 20.7
+    damageMultiplier: 1.1
+  - profile: {fileID: 11400000, guid: 607422f1682df8c46ba0aca0e13d9b67, type: 2}
+    animation: {fileID: -623603649343465320, guid: cfa2d4b0890c453498c59c6cb6749523, type: 3}
+    attackSpeed: 1.1
+    staminaCost: 20
+    range: 3.2
+    movementMultiplier: 0.25
+    staggerPower: 23.4
+    damageMultiplier: 1.2
+  heavyAttack:
+    profile: {fileID: 11400000, guid: 431c8db0657983d44a91261949b24f94, type: 2}
+    animation: {fileID: -623603649343465320, guid: 4935de8c7b5f2a142b1ddeae8a9df4f5, type: 3}
+    attackSpeed: 1.1
+    staminaCost: 32
+    range: 3.2
+    movementMultiplier: 0.125
+    staggerPower: 54
+    damageMultiplier: 1.8
+  combo: {fileID: 11400000, guid: 41dfd5fcb8956d74387423b9a26ee192, type: 2}
+  comboResetDelay: 0.8

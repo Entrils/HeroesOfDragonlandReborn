@@ -3,6 +3,7 @@ using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Stats;
 using UnityEngine;
+using HeroesOfDragonland.EquipmentSystem;
 
 namespace HeroesOfDragonland.Multiplayer
 {
@@ -11,6 +12,12 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class NetworkPlayerDodge : NetworkBehaviour, IInvulnerabilityProvider
     {
         [SerializeField] private DodgeDefinition definition;
+        [Networked] private float DistanceMultiplier { get; set; }
+        [Networked] private float DurationMultiplier { get; set; }
+        [Networked] private float RecoveryMultiplier { get; set; }
+        private float RollDuration => definition.Duration * Mathf.Max(0.01f, DurationMultiplier);
+        private float RollRecovery => definition.Recovery * Mathf.Max(0.01f, RecoveryMultiplier);
+        private float RollDistance => definition.Distance * Mathf.Max(0.01f, DistanceMultiplier);
         [Networked] public int DodgeSequence { get; private set; }
         [Networked] public int StartTick { get; private set; }
         [Networked] public NetworkBool Busy { get; private set; }
@@ -19,10 +26,13 @@ namespace HeroesOfDragonland.Multiplayer
         private CharacterStats stats;
         private NetworkPlayerCombat combat;
         public DodgeDefinition Definition => definition;
+        public float ActiveDuration => RollDuration;
+        public float InvulnerabilityStartTime => definition.InvulnerabilityStartTime / definition.Duration * RollDuration;
+        public float InvulnerabilityEndTime => definition.InvulnerabilityEndTime / definition.Duration * RollDuration;
         private float Elapsed => (Runner.Tick.Raw - StartTick) * Runner.DeltaTime;
         public bool IsInvulnerable => isActiveAndEnabled && stats != null && stats.CanMutate
             && !stats.IsDead && Busy && definition != null
-            && Elapsed >= definition.InvulnerabilityStartTime && Elapsed < definition.InvulnerabilityEndTime;
+            && Elapsed >= InvulnerabilityStartTime && Elapsed < InvulnerabilityEndTime;
 
         private void Awake()
         {
@@ -35,9 +45,14 @@ namespace HeroesOfDragonland.Multiplayer
             if (combat == null || !combat.IsAdmitted()) return;
             if (!NetworkMatch.AllowsGameplay(Runner)) { Busy = false; return; }
             if (!isActiveAndEnabled || stats.IsDead) { Busy = false; return; }
-            if (Busy && Elapsed >= definition.Duration + definition.Recovery) Busy = false;
-            if (Busy || !input.Dodge || combat.IsBusy || combat.ActionsBlocked || definition == null) return;
-            if (!stats.TrySpendStamina(definition.StaminaCost)) return;
+            if (Busy && Elapsed >= RollDuration + RollRecovery) Busy = false;
+            if (Busy || !input.Dodge || (combat.IsBusy && !combat.CanDodgeCancel) || combat.ActionsBlocked || definition == null) return;
+            var rollModifiers = GetComponent<Equipment>()?.DodgeModifiers ?? WeightDodgeModifiers.Light;
+            if (!stats.TrySpendStamina(definition.StaminaCost * Mathf.Max(0.01f, rollModifiers.stamina))) return;
+            if (combat.IsBusy && !combat.CancelAttackForDodge()) return;
+            DistanceMultiplier = rollModifiers.distance;
+            DurationMultiplier = rollModifiers.duration;
+            RecoveryMultiplier = rollModifiers.recovery;
             Direction = move.sqrMagnitude > 0.0001f ? move.normalized
                 : (input.Facing.sqrMagnitude > 0.0001f ? -facing : facing);
             Facing = facing;
@@ -54,8 +69,8 @@ namespace HeroesOfDragonland.Multiplayer
         internal Vector3 StepDisplacement()
         {
             if (!isActiveAndEnabled || !stats.CanMutate || stats.IsDead || !Busy || definition == null) return Vector3.zero;
-            float time = Mathf.Clamp(definition.Duration - Elapsed, 0f, Runner.DeltaTime);
-            return Direction * (definition.Distance / definition.Duration * time);
+            float time = Mathf.Clamp(RollDuration - Elapsed, 0f, Runner.DeltaTime);
+            return Direction * (RollDistance / RollDuration * time);
         }
     }
 }

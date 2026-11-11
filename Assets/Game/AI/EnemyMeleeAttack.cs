@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Stats;
 using UnityEngine;
@@ -13,6 +14,13 @@ namespace HeroesOfDragonland.AI
         private float elapsed;
         private float cooldown;
         private Vector3 facing;
+        private Vector3 origin;
+        private int nextAttack;
+        public int AttackIndex { get; private set; }
+        public Vector3 AttackOrigin => origin;
+        public Vector3 AttackForward => facing;
+        public bool UsesAttackSet => definition != null && definition.AttackSet != null && definition.AttackSet.Count > 0;
+        public float Windup => UsesAttackSet ? definition.AttackSet.Get(AttackIndex).Windup : definition.AttackWindup;
         public float StaggerPower => definition != null ? definition.StaggerPower : 0;
         public bool IsBusy { get; private set; }
         public bool ResolvingHit { get; private set; }
@@ -28,9 +36,12 @@ namespace HeroesOfDragonland.AI
                 || GetComponent<CharacterStats>().IsDead || !CanHit(value)) return false;
             if (GetComponent<CombatDefense>() is { ActionsBlocked: true }) return false;
             target = value;
-            facing = (value.NavigationPosition - transform.position).normalized;
+            origin = transform.position;
+            facing = value.NavigationPosition - origin; facing.y = 0;
+            facing = facing.sqrMagnitude < .001f ? transform.forward : facing.normalized;
+            AttackIndex = UsesAttackSet ? nextAttack++ % definition.AttackSet.Count : 0;
             elapsed = 0;
-            cooldown = definition.AttackCooldown;
+            cooldown = UsesAttackSet ? Windup + definition.AttackSet.Get(AttackIndex).Recovery : definition.AttackCooldown;
             IsBusy = true;
             AttackStarted?.Invoke();
             return true;
@@ -45,8 +56,25 @@ namespace HeroesOfDragonland.AI
             if (!IsBusy) return;
             if (GetComponent<CharacterStats>().IsDead) { Cancel(); return; }
             elapsed += deltaTime;
-            if (elapsed < definition.AttackWindup) return;
-            if (CanHit(target) && Vector3.Angle(facing, target.NavigationPosition - transform.position) <= 60)
+            if (elapsed < Windup) return;
+            if (UsesAttackSet)
+            {
+                var move = definition.AttackSet.Get(AttackIndex);
+                var hit = new HashSet<EnemyThreatTarget>();
+                ResolvingHit = true;
+                try
+                {
+                    foreach (var collider in Physics.OverlapSphere(origin, move.Radius + 3, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
+                    {
+                        var victim = collider.GetComponentInParent<EnemyThreatTarget>();
+                        if (victim == null || !hit.Add(victim) || !move.Contains(origin, facing, victim.NavigationPosition)
+                            || !GetComponent<EnemyPerception>().CanSee(victim)) continue;
+                        victim.Receiver.TakeDamage(move.Damage, gameObject);
+                    }
+                }
+                finally { ResolvingHit = false; }
+            }
+            else if (CanHit(target) && Vector3.Angle(facing, target.NavigationPosition - transform.position) <= 60)
             {
                 IDamageable receiver = target.Receiver;
                 ResolvingHit = true;

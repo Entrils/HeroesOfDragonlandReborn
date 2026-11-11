@@ -17,6 +17,8 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public float AttackSwingDuration { get; private set; }
         [Networked] public Vector3 AttackFacing { get; private set; }
         [Networked] public NetworkBool HeavyAttack { get; private set; }
+        [Networked] public int AttackMoveIndex { get; private set; }
+        [Networked] public NetworkString<_32> AttackWeaponId { get; private set; }
         [Networked] public NetworkBool Blocking { get; private set; }
         [Networked] public NetworkBool Staggered { get; private set; }
         [Networked] public int GuardBreakSequence { get; private set; }
@@ -25,6 +27,8 @@ namespace HeroesOfDragonland.Multiplayer
         private MeleeAttack melee;
         private CharacterStats stats;
         private NetworkTestPlayer player;
+        private readonly AttackPressSequence presses = new AttackPressSequence();
+        public bool CanDodgeCancel => melee != null && melee.CanDodgeCancel;
         public bool ResolvingAttack { get; private set; }
         public MeleeAttackDefinition Definition => melee.Definition;
         public bool IsBusy => melee.IsBusy;
@@ -34,39 +38,54 @@ namespace HeroesOfDragonland.Multiplayer
             melee = GetComponent<MeleeAttack>();
             stats = GetComponent<CharacterStats>();
             player = GetComponent<NetworkTestPlayer>();
+            melee.AttackStarted += PublishAcceptedAttack;
         }
+        private void OnDestroy() { if (melee != null) melee.AttackStarted -= PublishAcceptedAttack; }
         public override void Spawned()
         {
             GetComponent<TeamIdentity>().TryConfigure(player.Team, CombatantKind.Player, false);
         }
         internal bool IsAdmitted()
-            => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority
-               && Runner.TryGetPlayerObject(Object.InputAuthority, out var avatar) && avatar == Object;
+            => NetworkParticipant.IsAdmitted(Object);
 
-        // Called by the server motor before movement; a held input may repeat only
-        // after the full recovery and another successful server stamina payment.
+        // Read each press once, including rejected presses; missing/repeated packets cannot replay it.
         internal void TickIntent(NetworkPlayerInput input, Vector3 facing, bool dodgeBusy)
         {
-            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner)) return;
+            if (!IsAdmitted()) return;
+            bool pressed = presses.TryRead(input.LightAttackPress, input.HeavyAttackPress, out var attack);
+            if (!NetworkMatch.AllowsGameplay(Runner) || input.SuppressAttacks || stats.IsDead)
+            {
+                melee.DiscardBufferedAttack(); Defense?.SetBlockIntent(false, dodgeBusy || melee.IsBusy);
+                PublishDefense(); return;
+            }
             Defense?.SetBlockIntent(input.Block, dodgeBusy || melee.IsBusy);
             PublishDefense();
-            if (dodgeBusy || ActionsBlocked || (!input.Attack && !input.HeavyAttack)) return;
-            if (!(input.HeavyAttack ? melee.TryHeavyAttack(facing) : melee.TryAttack(facing))) return;
+            if (dodgeBusy || ActionsBlocked) { melee.DiscardBufferedAttack(); return; }
+            if (pressed) melee.RequestAttack(attack, facing);
+        }
+
+        private void PublishAcceptedAttack()
+        {
+            if (!IsAdmitted()) return;
             HeavyAttack = melee.IsHeavy;
+            PublishMoveset();
             AttackSwingDuration = melee.SwingDuration;
             AttackSequence++;
             AttackStartTick = Runner.Tick.Raw;
-            AttackFacing = facing;
+            AttackFacing = melee.FacingDirection ?? transform.forward;
             AttackBusy = true;
         }
 
         internal bool TryStartSkillStrike(float multiplier, float manaCost)
         {
             if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || !melee.TrySkillAttack(multiplier, manaCost)) return false;
-            HeavyAttack = false;
-            AttackSwingDuration = melee.SwingDuration;
-            AttackSequence++; AttackStartTick = Runner.Tick.Raw;
-            AttackFacing = transform.forward; AttackBusy = true; return true;
+            return true;
+        }
+
+        internal bool CancelAttackForDodge()
+        {
+            if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || !melee.TryCancelForDodge()) return false;
+            AttackBusy = false; return true;
         }
 
         public void AfterTick()
@@ -80,6 +99,13 @@ namespace HeroesOfDragonland.Multiplayer
             finally { ResolvingAttack = false; }
             AttackBusy = melee.IsBusy && !stats.IsDead;
             PublishDefense();
+        }
+
+        private void PublishMoveset()
+        {
+            AttackMoveIndex = melee.MoveIndex;
+            AttackWeaponId = GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>()
+                ?.GetItemId(HeroesOfDragonland.Items.EquipmentSlot.MainHand) ?? "";
         }
 
         internal void CancelForRespawn()

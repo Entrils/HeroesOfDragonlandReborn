@@ -21,7 +21,9 @@ namespace HeroesOfDragonland.World.Camps
             public Vector3 Offset => offset;
             public float Yaw => yaw;
         }
+        [SerializeField] private CampDifficulty difficulty;
         [SerializeField] private Member[] enemies = Array.Empty<Member>();
+        public CampDifficulty Difficulty => difficulty;
         [SerializeField, Min(0)] private int experienceReward = 100;
         [Tooltip("Zero preserves legacy room-wide XP. Positive values require a living player near the cleared camp.")]
         [SerializeField, Min(0)] private float experienceRadius;

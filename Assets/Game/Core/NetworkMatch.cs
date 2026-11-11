@@ -10,6 +10,7 @@ namespace HeroesOfDragonland.Multiplayer
         public PlayerRef Player;
         public TeamId Team;
         public NetworkBool HasAvatar;
+        public NetworkBool IsBot;
     }
 
     [DisallowMultipleComponent, RequireComponent(typeof(NetworkObject))]
@@ -136,6 +137,16 @@ namespace HeroesOfDragonland.Multiplayer
                 if (ready && team == TeamId.TeamA) a++;
                 if (ready && team == TeamId.TeamB) b++;
             }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            var bots = bootstrap.GetComponent<DeveloperBotService>();
+            if (bots != null) foreach (var avatar in bots.Avatars)
+            {
+                if (index >= NetworkTeamRoster.PlayerCapacity) break;
+                var bot = avatar.GetComponent<NetworkTestPlayer>();
+                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = PlayerRef.None, Team = bot.Team, HasAvatar = true, IsBot = true });
+                if (bot.Team == TeamId.TeamA) a++; else if (bot.Team == TeamId.TeamB) b++;
+            }
+#endif
             while (index < NetworkTeamRoster.PlayerCapacity) LobbyPlayers.Set(index++, default);
             TeamACount = a; TeamBCount = b;
         }

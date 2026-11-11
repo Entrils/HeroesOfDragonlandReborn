@@ -20,6 +20,9 @@ namespace HeroesOfDragonland.Items
         [SerializeField] private EquipmentRequirement[] equipmentRequirements = Array.Empty<EquipmentRequirement>();
         [SerializeField] private ItemStatModifier[] statModifiers = Array.Empty<ItemStatModifier>();
 
+        [SerializeField, Min(0f)] private float weight;
+        public float Weight => weight;
+
         [SerializeField] private WeaponDefinition weapon;
         public WeaponDefinition Weapon => weapon;
 
@@ -60,6 +63,7 @@ namespace HeroesOfDragonland.Items
             else if (category == ItemCategory.Weapon && (weapon == null || !weapon.TryValidate(out _)))
                 error = "Weapon item requires a valid WeaponDefinition.";
             else if (category != ItemCategory.Weapon && weapon != null) error = "Only weapon items may reference a weapon definition.";
+            else if (float.IsNaN(weight) || float.IsInfinity(weight) || weight < 0) error = "Weight must be finite and nonnegative.";
             else if (maximumStackSize < 1 || value < 0) error = "Stack size must be positive and value nonnegative.";
             else
             {

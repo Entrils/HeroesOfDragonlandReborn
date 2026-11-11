@@ -1,0 +1,47 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b25196334e75d404fb07fda2b57abd91, type: 3}
+  m_Name: CharacterAnimationLibrary
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterAnimationLibrary
+  entries:
+  - motion: 0
+    clip: {fileID: -623603649343465320, guid: 7ff0b2cec0a78624d828cddddf041e83, type: 3}
+  - motion: 1
+    clip: {fileID: -623603649343465320, guid: 7329188e5d4090d4eae293c3a501c309, type: 3}
+  - motion: 2
+    clip: {fileID: -623603649343465320, guid: cd867981ab24537459c36a83582b14e4, type: 3}
+  - motion: 3
+    clip: {fileID: -623603649343465320, guid: 3ed1ed2d1c7227648bc41c01a088d536, type: 3}
+  - motion: 4
+    clip: {fileID: -623603649343465320, guid: 8ec0bf1cfa07794468b008a1e01a8eaf, type: 3}
+  - motion: 5
+    clip: {fileID: -623603649343465320, guid: 5a5ff3315f18aa845b5494c72a00d308, type: 3}
+  - motion: 6
+    clip: {fileID: -623603649343465320, guid: 4844fb46f9dd1da498dcb7f90d657935, type: 3}
+  - motion: 7
+    clip: {fileID: -623603649343465320, guid: e02930a741c6d6d42aba7b96cebd0405, type: 3}
+  - motion: 8
+    clip: {fileID: -623603649343465320, guid: 3016f3a9c1d6c024a8ad4e969fde9a48, type: 3}
+  - motion: 9
+    clip: {fileID: -623603649343465320, guid: fad72d5939c39d041a41d1c9034c4944, type: 3}
+  - motion: 10
+    clip: {fileID: -623603649343465320, guid: cfa2d4b0890c453498c59c6cb6749523, type: 3}
+  - motion: 11
+    clip: {fileID: -623603649343465320, guid: 4935de8c7b5f2a142b1ddeae8a9df4f5, type: 3}
+  - motion: 12
+    clip: {fileID: -623603649343465320, guid: 59311909aea220449806987d96889cb0, type: 3}
+  - motion: 13
+    clip: {fileID: -623603649343465320, guid: 31ff9cb91b953194295f1ceaeed62702, type: 3}
+  - motion: 14
+    clip: {fileID: -623603649343465320, guid: e93c8faa7762c6f4087cd8d28e091664, type: 3}
+  - motion: 15
+    clip: {fileID: -623603649343465320, guid: 86bd1c2c3d002eb49ab9902d2681d696, type: 3}

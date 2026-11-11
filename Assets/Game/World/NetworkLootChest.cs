@@ -12,6 +12,7 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public NetworkId CampId { get; private set; }
         [Networked] public NetworkBool IsOpen { get; private set; }
         [Networked] public PlayerRef OpenedBy { get; private set; }
+        [Networked] public NetworkId OpenedByBot { get; private set; }
         public event Action<bool, string> OpenResolved;
         private LootChest chest;
         public bool CanMutateChest => isActiveAndEnabled && Object != null && Object.IsValid
@@ -57,6 +58,17 @@ namespace HeroesOfDragonland.Multiplayer
             if (accepted) OpenedBy = sender;
             return accepted;
         }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        internal bool TryOpenForBot(NetworkObject actor, out string message)
+        {
+            message = "Chest is unavailable.";
+            if (!CanMutateChest || actor == null || actor.Runner != Runner || actor.InputAuthority != PlayerRef.None
+                || !NetworkParticipant.IsAdmitted(actor) || !actor.GetComponent<NetworkTestPlayer>().IsBot || IsOpen || chest.IsOpen) return false;
+            bool accepted = chest.TryInteract(actor.GetComponent<Inventory>(), out message);
+            if (accepted) OpenedByBot = actor.Id;
+            return accepted;
+        }
+#endif
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_OpenResult([RpcTarget] PlayerRef recipient, bool accepted, string message)
             => OpenResolved?.Invoke(accepted, message);

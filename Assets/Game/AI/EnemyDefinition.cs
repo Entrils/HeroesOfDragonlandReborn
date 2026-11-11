@@ -7,6 +7,8 @@ namespace HeroesOfDragonland.AI
     public sealed class EnemyDefinition : ScriptableObject
     {
         [SerializeField] private CharacterStatsConfig stats;
+        [SerializeField] private EnemyAttackSet attackSet;
+        public EnemyAttackSet AttackSet => attackSet;
         [SerializeField] private bool aggroOnSight = true;
         [SerializeField, Min(0.1f)] private float detectionRadius = 7;
         [SerializeField, Min(0.1f)] private float leashDistance = 12;

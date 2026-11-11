@@ -24,4 +24,5 @@ MonoBehaviour:
   - stat: 5
     coefficient: 0
   attackAnimationSet: {fileID: 11400000, guid: dad31d320da9c4a4ebe2c2a4b43db511, type: 2}
+  moveset: {fileID: 11400000, guid: b1e8ca4d2af8ed743aa3e3e011101917, type: 2}
   weaponPrefab: {fileID: 3784835372409220985, guid: 13e19c79cb00bf14a838cdc2bebdd605, type: 3}

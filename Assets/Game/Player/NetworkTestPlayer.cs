@@ -13,6 +13,11 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public TeamId Team { get; private set; }
         [Networked] public int ParticipantNumber { get; private set; }
         [Networked] public int SpawnLane { get; private set; }
+        [Networked] public NetworkBool IsBot { get; private set; }
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private DeveloperBotBrain botBrain;
+        public DeveloperBotBrain BotBrain => botBrain;
+#endif
         private NetworkCharacterStats networkStats;
         private NetworkPlayerCombat combat;
         private NetworkPlayerDodge dodge;
@@ -23,18 +28,22 @@ namespace HeroesOfDragonland.Multiplayer
             dodge = GetComponent<NetworkPlayerDodge>();
         }
 
-        internal void Initialize(TeamId team, int number, int lane)
+        internal void Initialize(TeamId team, int number, int lane, bool bot = false)
         {
             if (!Runner.IsServer) return;
             Team = team;
             ParticipantNumber = number;
             SpawnLane = lane;
+            IsBot = bot;
         }
 
         public override void Spawned()
         {
             Object.ForceRemoteRenderTimeframe = !HasStateAuthority;
-            name = "Player " + ParticipantNumber + " (" + Team + ")";
+            name = (IsBot ? "Bot " : "Player ") + ParticipantNumber + " (" + Team + ")";
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (Runner.IsServer && IsBot) botBrain = new DeveloperBotBrain(this);
+#endif
             Debug.Log("[Multiplayer] spawned participant=" + ParticipantNumber
                 + " object=" + Object.Id + " inputOwner=" + Object.InputAuthority
                 + " team=" + Team + " local=" + HasInputAuthority, this);
@@ -46,6 +55,9 @@ namespace HeroesOfDragonland.Multiplayer
             if (!Runner.IsServer || !HasStateAuthority || combat == null || !combat.IsAdmitted()) return;
             // Missing input stops locomotion/new requests, but existing actions keep ticking.
             GetInput(out NetworkPlayerInput input);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (IsBot) input = botBrain != null ? botBrain.Tick(Runner.DeltaTime) : default;
+#endif
             Vector2 move = Sanitize(input.Move);
             input.Facing = Sanitize(input.Facing);
             Vector3 direction = new Vector3(move.x, 0, move.y);
@@ -54,9 +66,10 @@ namespace HeroesOfDragonland.Multiplayer
                 : direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
             // Dodge wins simultaneous idle requests; neither action interrupts the other.
             if (dodge != null) dodge.TickIntent(input, direction, facing);
+            // Consume attack press counters even while dead/paused, so rejected input cannot replay after revival.
+            combat.TickIntent(input, facing, dodge != null && dodge.Busy);
             if (!NetworkMatch.AllowsGameplay(Runner)) return;
             if (networkStats != null && networkStats.Dead) return;
-            combat.TickIntent(input, facing, dodge != null && dodge.Busy);
             Vector3 offset = dodge != null && dodge.Busy ? dodge.StepDisplacement()
                 : direction * (movementSpeed * combat.MovementMultiplier * Runner.DeltaTime);
             Vector3 position = transform.position + Sweep(offset);

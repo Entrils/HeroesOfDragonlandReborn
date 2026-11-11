@@ -120,8 +120,8 @@ namespace HeroesOfDragonland.Multiplayer
                 var dodge = actor.GetComponent<NetworkPlayerDodge>();
                 if (!dodge.Busy || actor.GetComponent<NetworkCharacterStats>().Dead) continue;
                 float age = (runner.Tick.Raw - dodge.StartTick) * runner.DeltaTime;
-                string phase = age < dodge.Definition.InvulnerabilityStartTime ? "before"
-                    : age < dodge.Definition.InvulnerabilityEndTime ? "inside" : "after";
+                string phase = age < dodge.InvulnerabilityStartTime ? "before"
+                    : age < dodge.InvulnerabilityEndTime ? "inside" : "after";
                 if (!checkedWindows.Add(actor.Id + "/" + dodge.DodgeSequence + "/" + phase)) continue;
                 var stats = actor.GetComponent<CharacterStats>();
                 // Development-only authoritative test damage, immediately healed outside

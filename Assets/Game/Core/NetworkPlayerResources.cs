@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Multiplayer
         {
             if (!HasStateAuthority) return;
             ReplicateToAll(false);
-            ReplicateTo(Object.InputAuthority, true);
+            if (Object.InputAuthority != PlayerRef.None) ReplicateTo(Object.InputAuthority, true);
             stats.StaminaChanged += PublishStamina;
             stats.ManaChanged += PublishMana;
             PublishStamina(stats.CurrentStamina, stats.MaxStamina);

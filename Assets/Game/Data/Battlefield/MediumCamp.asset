@@ -12,6 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 476d16442a32f5d469f1268e7f623f68, type: 3}
   m_Name: MediumCamp
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.Camps.NetworkCampDefinition
+  difficulty: 1
   enemies:
   - prefab: {fileID: 762619340280149128, guid: 82badaf721116f741bdc42e144e953b1, type: 3}
     offset: {x: -1, y: 0, z: 1.5}

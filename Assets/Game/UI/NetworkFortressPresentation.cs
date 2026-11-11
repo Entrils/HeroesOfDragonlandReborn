@@ -26,8 +26,8 @@ namespace HeroesOfDragonland.Multiplayer
             for (int i = 0; i < NetworkTeamRoster.PlayerCapacity; i++)
             {
                 var slot = match.LobbyPlayers[i];
-                if (slot.Player == Fusion.PlayerRef.None) continue;
-                GUILayout.Label(slot.Player + " / " + slot.Team + (slot.HasAvatar ? "" : " / waiting for spawn")
+                if (slot.Player == Fusion.PlayerRef.None && !slot.IsBot) continue;
+                GUILayout.Label((slot.IsBot ? "BOT" : slot.Player.ToString()) + " / " + slot.Team + (slot.HasAvatar ? "" : " / waiting for spawn")
                     + (slot.Player == match.Runner.LocalPlayer ? " (you)" : ""));
             }
             if (match.PreparationError.ToString().Length > 0)

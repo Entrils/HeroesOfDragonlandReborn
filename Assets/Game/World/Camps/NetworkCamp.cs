@@ -146,8 +146,8 @@ namespace HeroesOfDragonland.Multiplayer
                 AwardedExperience = rewardExperience;
                 string rewardId = "camp:" + Object.Id + ":" + CompletionCount;
                 // Snapshot recipients at completion. No late-join replay or distance/client claims.
-                foreach (var player in Runner.ActivePlayers)
-                    if (Runner.TryGetPlayerObject(player, out var avatar) && avatar != null)
+                foreach (var avatar in Runner.GetComponentInParent<MultiplayerBootstrap>().Avatars)
+                    if (avatar != null)
                     {
                         if (experienceRadius > 0)
                         {

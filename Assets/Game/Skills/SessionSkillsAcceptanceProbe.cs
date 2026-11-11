@@ -80,7 +80,7 @@ namespace HeroesOfDragonland.Skills
                 hitObserved = false;
                 victim.GetComponent<CharacterStats>().ResetToFull();
                 victim.GetComponent<DamageReceiver>().DamageTaken += ObserveNormalHit;
-                attacker.GetComponent<NetworkPlayerCombat>().TickIntent(new NetworkPlayerInput { Attack = true }, Vector3.forward, false);
+                attacker.GetComponent<NetworkPlayerCombat>().TickIntent(new NetworkPlayerInput { Attack = true, LightAttackPress = 1 }, Vector3.forward, false);
                 serverStep = 3; serverActionAt = Time.unscaledTime + 1.5f;
             }
             else if (serverStep == 3 && Time.unscaledTime > serverActionAt)

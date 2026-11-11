@@ -64,6 +64,7 @@ namespace HeroesOfDragonland.Player
                 SetCursorCaptured(true);
 
             bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
+            if (!captured || !wasCaptured) meleeAttack?.DiscardBufferedAttack();
             if (targetLock != null) targetLock.Tick(captured);
             followCamera.SetFocusPoint(targetLock != null && targetLock.CurrentTarget != null
                 ? targetLock.CurrentTarget.AimPosition : (Vector3?)null);

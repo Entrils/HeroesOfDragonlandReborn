@@ -19,6 +19,16 @@ namespace HeroesOfDragonland.Player
         private float yaw;
         [SerializeField, Min(1f)] private float lockTrackingSpeed = 8f;
         private Vector3? focusPoint;
+        public Transform Target => target;
+        public void SetTarget(Transform value, Vector3 offset)
+        {
+            if (target == value) return;
+            target = value;
+            targetOffset = offset;
+            focusPoint = null;
+            OrientationOverride = null;
+            if (target != null) { yaw = target.eulerAngles.y; pitch = 20f; }
+        }
         public void SetFocusPoint(Vector3? point)
         {
             if (focusPoint.HasValue && !point.HasValue)

@@ -176,7 +176,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 924969514816359131}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -403,6 +403,9 @@ GameObject:
   - component: {fileID: 2273029504778262987}
   - component: {fileID: 8138339929408888723}
   - component: {fileID: 1087429863972279791}
+  - component: {fileID: 3610557483512552374}
+  - component: {fileID: 8399068704665186079}
+  - component: {fileID: 2832831941121429343}
   m_Layer: 0
   m_Name: BattlefieldPlayer
   m_TagString: Untagged
@@ -426,6 +429,7 @@ Transform:
   - {fileID: 6571138153239207144}
   - {fileID: 6895631980470835757}
   - {fileID: 3593645514804794027}
+  - {fileID: 4652012875593861200}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5588261316771400867
@@ -457,6 +461,7 @@ MonoBehaviour:
   - {fileID: 7824982661674417898}
   - {fileID: 4820301962147018485}
   - {fileID: 8138339929408888723}
+  - {fileID: 2832831941121429343}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &6370806309770207683
 MonoBehaviour:
@@ -515,6 +520,8 @@ MonoBehaviour:
   _Team: 0
   _ParticipantNumber: 0
   _SpawnLane: 0
+  _IsBot:
+    RawValue: 0
 --- !u!114 &8149975904543610302
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -677,7 +684,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f8ea948f025e1e4eb058a86d6bef69a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Targeting.Targetable
-  aimPoint: {fileID: 0}
+  aimPoint: {fileID: 2964046483834223177}
   localAimOffset: {x: 0, y: 1, z: 0}
   stats: {fileID: 0}
 --- !u!114 &8481436319266034475
@@ -829,6 +836,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.EquipmentSystem.Equipment
   requirementSource: {fileID: 0}
+  armorRules: {fileID: 11400000, guid: 42816cf72ec87ba468662f00e5de9d93, type: 2}
 --- !u!114 &5699070918685010748
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1039,3 +1047,128 @@ MonoBehaviour:
   guardBreakDuration: 1
   recoveryImmunity: 1
   staggerDecayPerSecond: 20
+--- !u!114 &3610557483512552374
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 863ea12ccebc4a544a497e3710ad7a2b, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.NetworkCharacterVisual
+  visual: {fileID: 3829529409023718459}
+--- !u!114 &8399068704665186079
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 13606b7c85cb263499f692cdf2da5595, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterEquipmentVisual
+  visual: {fileID: 3829529409023718459}
+--- !u!114 &2832831941121429343
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fdb8609e6a0d6442ab2e94836bd6de6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.NetworkCharacterAnimationState
+  _LockedOn:
+    RawValue: 0
+  _Grounded:
+    RawValue: 0
+  _VerticalSpeed: 0
+  _HitSequence: 0
+  _HitTick: 0
+  _DeathTick: 0
+  _StaggerTick: 0
+--- !u!1001 &9098817563144708412
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 68213562686561407}
+    m_Modifications:
+    - target: {fileID: 2021994863300850082, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_Name
+      value: CharacterVisual
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+--- !u!4 &2964046483834223177 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 6298027682516720501, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+  m_PrefabInstance: {fileID: 9098817563144708412}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &3829529409023718459 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5431419115113174279, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+  m_PrefabInstance: {fileID: 9098817563144708412}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 92ff599adc92b284ea110e2c245297ef, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterVisual
+--- !u!4 &4652012875593861200 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+  m_PrefabInstance: {fileID: 9098817563144708412}
+  m_PrefabAsset: {fileID: 0}

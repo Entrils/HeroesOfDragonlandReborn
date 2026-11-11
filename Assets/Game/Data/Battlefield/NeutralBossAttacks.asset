@@ -1,0 +1,33 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0919dff381a533a47ac7bd685091c819, type: 3}
+  m_Name: NeutralBossAttacks
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyAttackSet
+  attacks:
+  - displayName: CLEAVE - step aside
+    radius: 4.5
+    angle: 70
+    windup: 1.1
+    recovery: 1.4
+    damage: 34
+  - displayName: SWEEP - get behind
+    radius: 5.5
+    angle: 180
+    windup: 1.5
+    recovery: 1.4
+    damage: 28
+  - displayName: STOMP - move out
+    radius: 5
+    angle: 360
+    windup: 1.8
+    recovery: 1.4
+    damage: 40

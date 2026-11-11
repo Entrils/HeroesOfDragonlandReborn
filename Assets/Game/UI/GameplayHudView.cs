@@ -32,28 +32,36 @@ namespace HeroesOfDragonland.UI
             root.style.flexGrow = 1;
             root.style.color = Color.white;
             root.style.fontSize = 16;
-            personal = Panel("Player", 22, null, null, 22, 310);
+            personal = Panel("Player", 18, 18, null, null, 300);
             identity = Label(personal, "");
             health = Bar(personal, "Health", new Color(.75f, .18f, .22f));
             stamina = Bar(personal, "Stamina", new Color(.2f, .65f, .35f));
             mana = Bar(personal, "Mana", new Color(.18f, .42f, .85f));
             xp = Bar(personal, "XP", new Color(.65f, .45f, .85f));
-            var match = Panel("Match", null, 22, 22, null, 310);
+            var match = Panel("Match", null, 18, 18, null, 300);
             phase = Label(match, "Not connected");
             objective = Label(match, "Protect your King. Defeat the enemy King.");
             kingA = Bar(match, "Team A King", new Color(.2f, .5f, .9f));
             kingB = Bar(match, "Team B King", new Color(.85f, .28f, .25f));
-            targetPanel = Panel("Target", null, 225, 22, null, 310);
+            targetPanel = Panel("Target", null, null, null, 86, 360);
+            targetPanel.style.left = Length.Percent(50); targetPanel.style.marginLeft = -180;
             targetName = Label(targetPanel, "TARGET LOCKED");
             targetHealth = Bar(targetPanel, "Target", new Color(.85f, .35f, .2f));
             var notice = Panel("Notice", null, null, null, 28, 460);
             notice.style.left = Length.Percent(50);
             notice.style.marginLeft = -230;
             notice.style.backgroundColor = Color.clear;
+            notice.style.bottom = StyleKeyword.Auto;
+            notice.style.top = Length.Percent(40);
+            notice.style.unityTextAlign = TextAnchor.MiddleCenter;
             respawn = Label(notice, "");
             result = Label(notice, "");
             result.style.fontSize = 26;
             result.style.unityFontStyleAndWeight = FontStyle.Bold;
+            var controls = Label(root, "WASD move  /  Mouse look  /  MMB lock  /  Shift dodge  /  Esc menu");
+            controls.name = "Controls";
+            controls.style.position = Position.Absolute; controls.style.left = 18; controls.style.bottom = 18;
+            controls.style.width = Length.Percent(55); controls.style.fontSize = 13;
             marker = new Label("◇");
             marker.style.position = Position.Absolute;
             marker.style.fontSize = 36;
@@ -72,6 +80,7 @@ namespace HeroesOfDragonland.UI
             if (right.HasValue) panel.style.right = right.Value;
             if (bottom.HasValue) panel.style.bottom = bottom.Value;
             panel.style.width = width;
+            panel.style.maxWidth = Length.Percent(44);
             panel.style.paddingLeft = panel.style.paddingRight = 12;
             panel.style.paddingTop = panel.style.paddingBottom = 10;
             panel.style.backgroundColor = new Color(.035f, .045f, .065f, .88f);
@@ -89,7 +98,7 @@ namespace HeroesOfDragonland.UI
         private static ProgressBar Bar(VisualElement parent, string title, Color color)
         {
             var bar = new ProgressBar { title = title, lowValue = 0, highValue = 1 };
-            bar.style.height = 24; bar.style.marginTop = 4;
+            bar.style.height = 20; bar.style.marginTop = 4;
             bar.Q(className: "unity-progress-bar__progress").style.backgroundColor = color;
             parent.Add(bar);
             return bar;
@@ -128,6 +137,8 @@ namespace HeroesOfDragonland.UI
             marker.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
             if (!visible) return;
             Vector2 panelPoint = RuntimePanelUtils.ScreenToPanel(root.panel, new Vector2(point.x, Screen.height - point.y));
+            panelPoint.x = Mathf.Clamp(panelPoint.x, 20, Mathf.Max(20, root.resolvedStyle.width - 20));
+            panelPoint.y = Mathf.Clamp(panelPoint.y, 22, Mathf.Max(22, root.resolvedStyle.height - 22));
             marker.style.left = panelPoint.x - 20; marker.style.top = panelPoint.y - 22;
         }
     }

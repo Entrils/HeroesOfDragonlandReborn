@@ -17,8 +17,7 @@ namespace HeroesOfDragonland.Skills
         private SessionSkills skills;
         private int appliedRevision;
         private float nextRequestTime;
-        private bool IsServerOwner => isActiveAndEnabled && Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority
-            && Runner.TryGetPlayerObject(Object.InputAuthority, out var actor) && actor == Object;
+        private bool IsServerOwner => isActiveAndEnabled && NetworkParticipant.IsAdmitted(Object);
         public bool CanMutateSkills => IsServerOwner && NetworkMatch.AllowsGameplay(Runner);
         public bool CanRequest => isActiveAndEnabled && Object != null && Object.IsValid && HasInputAuthority
             && Runner.TryGetPlayerObject(Runner.LocalPlayer, out var actor) && actor == Object && NetworkMatch.AllowsGameplay(Runner);

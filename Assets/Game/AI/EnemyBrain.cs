@@ -158,7 +158,9 @@ namespace HeroesOfDragonland.AI
         private void Acquire(EnemyThreatTarget target)
         {
             if (AggroTarget == target) return;
-            attack.Cancel(); navigation.Stop();
+            // Boss windups commit to their advertised area even if another player takes aggro.
+            if (!attack.UsesAttackSet) attack.Cancel();
+            navigation.Stop();
             AggroTarget = target; unseenTime = 0;
             SetState(EnemyState.Alert);
         }

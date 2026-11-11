@@ -23,8 +23,7 @@ namespace HeroesOfDragonland.Multiplayer
         public event Action Died;
         public event Action<float> RespawnCountdownChanged;
         public event Action Respawned;
-        private bool IsServerOwner => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority
-            && Runner.TryGetPlayerObject(Object.InputAuthority, out var avatar) && avatar == Object;
+        private bool IsServerOwner => NetworkParticipant.IsAdmitted(Object);
         public float SecondsUntilRespawn => Object != null && Object.IsValid && WaitingForRespawn
             ? RespawnTimer.RemainingTime(Runner) ?? 0f : 0f;
         public bool IsSpawnProtected => Object != null && Object.IsValid && !WaitingForRespawn
