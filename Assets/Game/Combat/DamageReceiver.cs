@@ -26,16 +26,17 @@ namespace HeroesOfDragonland.Combat
             foreach (var provider in GetComponents<IInvulnerabilityProvider>())
                 if (provider.IsInvulnerable) return 0;
             var defense = GetComponent<CombatDefense>();
+            IMeleeImpactSource impact = null;
+            if (source != null)
+                foreach (var candidate in source.GetComponents<IMeleeImpactSource>())
+                    if (candidate.IsResolvingMeleeHit) { impact = candidate; break; }
+            if (GetComponent<ParryDefense>() is { } parry && parry.TryResolve(impact)) return 0;
             bool blocked = defense != null && defense.IsBlocking;
             if (blocked) amount = defense.BlockDamage(amount);
             float applied = stats.ApplyDamage(amount);
             if (applied > 0 && !blocked && defense != null)
             {
-                var melee = source != null ? source.GetComponent<MeleeAttack>() : null;
-                var enemy = source != null ? source.GetComponent<HeroesOfDragonland.AI.EnemyMeleeAttack>() : null;
-                float power = melee != null && melee.IsBusy ? melee.StaggerPower
-                    : enemy != null && enemy.ResolvingHit ? enemy.StaggerPower : 0;
-                defense.ApplyStagger(power);
+                if (impact != null) defense.ApplyPoiseDamage(impact.PoiseDamage);
             }
             if (applied > 0f) DamageTaken?.Invoke(applied, source);
             return applied;

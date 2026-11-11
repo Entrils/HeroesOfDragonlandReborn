@@ -17,7 +17,9 @@ namespace HeroesOfDragonland.Combat
         [SerializeField] private Vector3 hitCenter = new Vector3(0f, 1f, 1.2f);
         [SerializeField] private Vector3 hitHalfExtents = new Vector3(0.8f, 0.8f, 0.9f);
 
+        [Tooltip("Poise damage per unblocked hit. Serialized legacy name retained for existing assets.")]
         [SerializeField, Min(0)] private float staggerPower = 20f;
+        public float PoiseDamage => StaggerPower;
         [SerializeField, Min(1.01f)] private float heavyDamageMultiplier = 1.8f;
         [SerializeField, Min(1.01f)] private float heavyStaminaMultiplier = 1.6f;
         [SerializeField, Min(1.01f)] private float heavyTimingMultiplier = 1.6f;

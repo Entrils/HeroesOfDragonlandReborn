@@ -26,7 +26,7 @@ namespace HeroesOfDragonland.Player
             // Closing a panel with mouse/Space must not leak that held press into combat.
             awaitingRelease = (mouse != null && (mouse.leftButton.isPressed || mouse.middleButton.isPressed || mouse.rightButton.isPressed))
                 || (keyboard != null && (keyboard.spaceKey.isPressed || keyboard.leftShiftKey.isPressed
-                    || keyboard.rKey.isPressed || keyboard.qKey.isPressed || keyboard.eKey.isPressed));
+                    || keyboard.rKey.isPressed || keyboard.cKey.isPressed || keyboard.qKey.isPressed || keyboard.eKey.isPressed));
         }
         private void OnDisable() { owners.Clear(); awaitingRelease = false; }
     }

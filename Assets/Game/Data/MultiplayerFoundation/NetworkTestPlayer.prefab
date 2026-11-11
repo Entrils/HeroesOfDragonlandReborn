@@ -400,6 +400,8 @@ GameObject:
   - component: {fileID: 2892821168724467492}
   - component: {fileID: 8553345009531000516}
   - component: {fileID: 7262992354901030462}
+  - component: {fileID: 2651775991918749480}
+  - component: {fileID: 6194555932911707516}
   m_Layer: 0
   m_Name: NetworkTestPlayer
   m_TagString: Untagged
@@ -639,11 +641,30 @@ MonoBehaviour:
   _AttackFacing: {x: 0, y: 0, z: 0}
   _HeavyAttack:
     RawValue: 0
+  _AttackMoveIndex: 0
+  _AttackWeaponId:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000u
   _Blocking:
     RawValue: 0
   _Staggered:
     RawValue: 0
   _GuardBreakSequence: 0
+  _Parrying:
+    RawValue: 0
+  _ParryBusy:
+    RawValue: 0
+  _ParrySequence: 0
+  _ParrySuccessSequence: 0
+  _ParryStartTick: 0
+  _Poise: 0
+  _MaxPoise: 0
+  _PoiseRegenRemaining: 0
+  _StaggerRemaining: 0
+  _StaggerImmunityRemaining: 0
+  _StaggerSequence: 0
+  _LastDefenseInterrupt: 0
 --- !u!114 &9055720066618718665
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -937,7 +958,6 @@ MonoBehaviour:
   staggerDuration: 0.45
   guardBreakDuration: 1
   recoveryImmunity: 1
-  staggerDecayPerSecond: 20
 --- !u!114 &2892821168724467492
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -985,6 +1005,31 @@ MonoBehaviour:
   _HitTick: 0
   _DeathTick: 0
   _StaggerTick: 0
+--- !u!114 &2651775991918749480
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48bf64a24da423041ab85da18d55f72d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CharacterPoise
+--- !u!114 &6194555932911707516
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f1b021b0a1bf36440bcdcd2b93c5e08c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.ParryDefense
+  definition: {fileID: 11400000, guid: eaca9d055c6f463439a207e1ccb5f0d1, type: 2}
 --- !u!1001 &7901114657408407918
 PrefabInstance:
   m_ObjectHideFlags: 0

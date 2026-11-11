@@ -20,7 +20,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (GUILayout.Button("Disconnect")) _ = bootstrap.Disconnect();
                 GUILayout.Label("Mouse: camera / Esc: cursor / Enter: resume");
                 GUI.enabled = true;
-                GUILayout.Label("WASD move · LMB attack · Shift dodge");
+                GUILayout.Label("WASD move · LMB attack · Shift dodge · C parry");
                 GUILayout.Label("MMB lock · Q / E switch target");
                 GUILayout.EndArea();
                 GUI.matrix = matrix;
@@ -44,6 +44,7 @@ namespace HeroesOfDragonland.Multiplayer
             GUILayout.Label("Space / left mouse: attack. Friendly fire: off.");
             GUILayout.Label("Left Shift: dodge. Middle mouse: lock / unlock.");
             GUILayout.Label("Q / E: switch local target.");
+            GUILayout.Label("C: parry. Right mouse: block. R: heavy attack.");
             var runner = bootstrap.Runner;
             if (runner != null && runner.IsRunning && runner.TryGetPlayerObject(runner.LocalPlayer, out var actor) && actor != null)
             {

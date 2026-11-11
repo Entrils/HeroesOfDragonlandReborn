@@ -19,4 +19,6 @@ MonoBehaviour:
   maxMana: 0
   manaRegenPerSecond: 5
   manaRegenDelay: 2
-  staggerResistance: 50
+  poise: 50
+  poiseRegenDelay: 2
+  poiseRegenPerSecond: 20

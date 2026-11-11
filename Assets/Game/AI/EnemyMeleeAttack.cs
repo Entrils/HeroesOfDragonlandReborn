@@ -7,7 +7,7 @@ using UnityEngine;
 namespace HeroesOfDragonland.AI
 {
     [DisallowMultipleComponent, RequireComponent(typeof(CharacterStats), typeof(EnemyPerception))]
-    public sealed class EnemyMeleeAttack : MonoBehaviour
+    public sealed class EnemyMeleeAttack : MonoBehaviour, IMeleeImpactSource
     {
         private EnemyDefinition definition;
         private EnemyThreatTarget target;
@@ -24,6 +24,14 @@ namespace HeroesOfDragonland.AI
         public float StaggerPower => definition != null ? definition.StaggerPower : 0;
         public bool IsBusy { get; private set; }
         public bool ResolvingHit { get; private set; }
+        public bool IsResolvingMeleeHit => ResolvingHit && IsBusy;
+        public float PoiseDamage => StaggerPower;
+        public Vector3 ImpactOrigin => origin;
+        public void InterruptByParry(float duration)
+        {
+            if (!EnemyAuthority.CanSimulate(this) || !GetComponent<CharacterStats>().CanMutate || !IsResolvingMeleeHit) return;
+            Cancel(); GetComponent<CombatDefense>()?.OnParried(duration);
+        }
         public float CooldownRemaining => cooldown;
         public event Action AttackStarted;
         public event Action AttackFinished;
@@ -66,6 +74,7 @@ namespace HeroesOfDragonland.AI
                 {
                     foreach (var collider in Physics.OverlapSphere(origin, move.Radius + 3, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore))
                     {
+                        if (!IsBusy || GetComponent<CharacterStats>().IsDead) break;
                         var victim = collider.GetComponentInParent<EnemyThreatTarget>();
                         if (victim == null || !hit.Add(victim) || !move.Contains(origin, facing, victim.NavigationPosition)
                             || !GetComponent<EnemyPerception>().CanSee(victim)) continue;

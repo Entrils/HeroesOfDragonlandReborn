@@ -10,6 +10,7 @@ namespace HeroesOfDragonland.Multiplayer
         public NetworkBool HeavyAttack;
         public uint LightAttackPress;
         public uint HeavyAttackPress;
+        public uint ParryPress;
         public NetworkBool SuppressAttacks;
         public NetworkBool Block;
         public NetworkBool Dodge;

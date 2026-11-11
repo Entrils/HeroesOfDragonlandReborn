@@ -9,7 +9,7 @@ namespace HeroesOfDragonland.Combat
 {
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats))]
-    public sealed class MeleeAttack : MonoBehaviour
+    public sealed class MeleeAttack : MonoBehaviour, IMeleeImpactSource
     {
         [SerializeField] private MeleeAttackDefinition definition;
         [SerializeField] private LayerMask hitMask = ~0;
@@ -36,6 +36,15 @@ namespace HeroesOfDragonland.Combat
         public WeaponDefinition CurrentWeapon => IsBusy ? committedWeapon : EquippedWeapon;
         public float SwingDuration => Definition != null ? Definition.AttackDuration * Timing : 0;
         public bool IsHeavy { get; private set; }
+        private bool resolvingHit;
+        public bool IsResolvingMeleeHit => resolvingHit && IsBusy;
+        public float PoiseDamage => StaggerPower;
+        public Vector3 ImpactOrigin => transform.position;
+        public void InterruptByParry(float duration)
+        {
+            if (!stats.CanMutate || !IsResolvingMeleeHit || !IsBusy) return;
+            Cancel(); GetComponent<CombatDefense>()?.OnParried(duration);
+        }
         private float Timing => IsBusy ? committedTiming : 1f;
         public float StaggerPower => IsBusy && committedMove != null ? committedMove.StaggerPower
             : Definition == null ? 0f : Definition.StaggerPower * (IsHeavy ? Definition.HeavyStaggerMultiplier : 1f);
@@ -159,7 +168,10 @@ namespace HeroesOfDragonland.Combat
             elapsed += deltaTime;
             // Test even when a long frame crosses the entire active window.
             if (previous < Definition.ActiveEndTime * Timing && elapsed >= Definition.ActiveStartTime * Timing)
-                ResolveHits();
+            {
+                resolvingHit = true;
+                try { ResolveHits(); } finally { resolvingHit = false; }
+            }
             if (!IsBusy) return; // A hit callback may force an interruption.
             if (chain.TryConsume(elapsed, SwingDuration, RecoveryDuration, out bool heavy, out int index, out Vector3 facing)
                 && TryBeginAttack(facing, 1, true, heavy: heavy, continuation: true, index: index)) return;
@@ -176,6 +188,7 @@ namespace HeroesOfDragonland.Combat
             foreach (var collider in Physics.OverlapBox(center, committedHitHalfExtents,
                          transform.rotation, hitMask, QueryTriggerInteraction.Ignore))
             {
+                if (!IsBusy || stats.IsDead) break; // A parry may interrupt this swing inside TakeDamage.
                 if (collider.transform == transform || collider.transform.IsChildOf(transform)) continue;
                 var receiver = collider.GetComponentInParent<IDamageable>();
                 if (receiver == null || !receiver.IsAlive || hitTargets.Contains(receiver)) continue;

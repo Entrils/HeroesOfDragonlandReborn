@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7119979195e14524eb19435e79afcf9b, type: 3}
+  m_Name: DefaultParry
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.ParryDefinition
+  startup: 0.04
+  window: 0.18
+  recovery: 0.35
+  cooldown: 0.8
+  staminaCost: 15
+  arc: 120
+  attackerStagger: 0.65
+  movementMultiplier: 0.3

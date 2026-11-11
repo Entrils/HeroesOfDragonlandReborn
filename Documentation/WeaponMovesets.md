@@ -2,6 +2,8 @@
 
 Milestone 43 replaces the original wrapping/held-repeat sequence policy below with finite buffered transitions and explicit recovery/cancel rules. See [AttackChaining.md](AttackChaining.md) for the current runtime contract. M42 move profiles, costs, geometry and presentation mapping remain in use.
 
+Milestone 44 interprets the existing per-move stagger power as poise damage; serialized move values are preserved. See [AdvancedMeleeDefense.md](AdvancedMeleeDefense.md) for parry, block, guard break and delayed poise regeneration.
+
 `WeaponDefinition.Moveset` selects reusable `WeaponMoveset` data. Sword, Greatsword, Spear and Staff assets are linked under `Assets/Game/Data/Weapons/`. Runtime combat never branches on `WeaponArchetype`; the archetype is an authoring label. Existing weapons without a moveset retain the previous attack-set behavior, and unarmed actors retain their serialized melee fallback.
 
 ## Authoring

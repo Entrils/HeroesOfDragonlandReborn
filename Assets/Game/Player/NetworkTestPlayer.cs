@@ -79,6 +79,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (spawnService != null) position = spawnService.ConstrainPlayerMovement(Team, transform.position, position);
             transform.position = position;
             facing = dodge != null && dodge.Busy ? dodge.Facing : combat.IsBusy ? combat.AttackFacing : facing;
+            if (GetComponent<HeroesOfDragonland.Combat.ParryDefense>() is { IsBusy: true } parry) facing = parry.Facing;
             transform.rotation = Quaternion.LookRotation(facing);
         }
 

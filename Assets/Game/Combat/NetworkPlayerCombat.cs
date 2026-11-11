@@ -22,12 +22,25 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public NetworkBool Blocking { get; private set; }
         [Networked] public NetworkBool Staggered { get; private set; }
         [Networked] public int GuardBreakSequence { get; private set; }
+        [Networked] public NetworkBool Parrying { get; private set; }
+        [Networked] public NetworkBool ParryBusy { get; private set; }
+        [Networked] public int ParrySequence { get; private set; }
+        [Networked] public int ParrySuccessSequence { get; private set; }
+        [Networked] public int ParryStartTick { get; private set; }
+        [Networked] public float Poise { get; private set; }
+        [Networked] public float MaxPoise { get; private set; }
+        [Networked] public float PoiseRegenRemaining { get; private set; }
+        [Networked] public float StaggerRemaining { get; private set; }
+        [Networked] public float StaggerImmunityRemaining { get; private set; }
+        [Networked] public int StaggerSequence { get; private set; }
+        [Networked] public DefenseInterrupt LastDefenseInterrupt { get; private set; }
         private CombatDefense Defense => GetComponent<CombatDefense>();
         public bool ActionsBlocked => Defense != null && Defense.ActionsBlocked;
         private MeleeAttack melee;
         private CharacterStats stats;
         private NetworkTestPlayer player;
         private readonly AttackPressSequence presses = new AttackPressSequence();
+        private readonly AttackPressSequence parryPresses = new AttackPressSequence();
         public bool CanDodgeCancel => melee != null && melee.CanDodgeCancel;
         public bool ResolvingAttack { get; private set; }
         public MeleeAttackDefinition Definition => melee.Definition;
@@ -53,11 +66,14 @@ namespace HeroesOfDragonland.Multiplayer
         {
             if (!IsAdmitted()) return;
             bool pressed = presses.TryRead(input.LightAttackPress, input.HeavyAttackPress, out var attack);
+            bool parryPressed = parryPresses.TryRead(input.ParryPress, 0, out _);
             if (!NetworkMatch.AllowsGameplay(Runner) || input.SuppressAttacks || stats.IsDead)
             {
                 melee.DiscardBufferedAttack(); Defense?.SetBlockIntent(false, dodgeBusy || melee.IsBusy);
                 PublishDefense(); return;
             }
+            if (parryPressed && !dodgeBusy && GetComponent<ParryDefense>() is { } parry && parry.TryStart(facing))
+                ParryStartTick = Runner.Tick.Raw;
             Defense?.SetBlockIntent(input.Block, dodgeBusy || melee.IsBusy);
             PublishDefense();
             if (dodgeBusy || ActionsBlocked) { melee.DiscardBufferedAttack(); return; }
@@ -119,6 +135,17 @@ namespace HeroesOfDragonland.Multiplayer
             Blocking = Defense != null && Defense.IsBlocking && !stats.IsDead;
             Staggered = Defense != null && Defense.IsStaggered && !stats.IsDead;
             GuardBreakSequence = Defense != null ? Defense.GuardBreakSequence : 0;
+            var parry = GetComponent<ParryDefense>(); var poise = GetComponent<CharacterPoise>();
+            Parrying = parry != null && parry.IsActive && !stats.IsDead;
+            ParryBusy = parry != null && parry.IsBusy && !stats.IsDead;
+            ParrySequence = parry != null ? parry.AttemptSequence : 0;
+            ParrySuccessSequence = parry != null ? parry.SuccessSequence : 0;
+            Poise = poise != null ? poise.Current : 0; MaxPoise = poise != null ? poise.Maximum : 0;
+            PoiseRegenRemaining = poise != null ? poise.RegenDelayRemaining : 0;
+            StaggerRemaining = Defense != null ? Defense.StaggerRemaining : 0;
+            StaggerImmunityRemaining = Defense != null ? Defense.ImmunityRemaining : 0;
+            StaggerSequence = Defense != null ? Defense.StaggerSequence : 0;
+            LastDefenseInterrupt = Defense != null ? Defense.LastInterrupt : DefenseInterrupt.None;
         }
 
         public bool AllowsDamage(GameObject source)
@@ -132,7 +159,7 @@ namespace HeroesOfDragonland.Multiplayer
             }
             var attacker = source.GetComponent<NetworkPlayerCombat>();
             return attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
-                && attacker.ResolvingAttack && !attacker.stats.IsDead
+                && attacker.ResolvingAttack && attacker.melee.IsResolvingMeleeHit && !attacker.stats.IsDead
                 && player.Team != TeamId.Unassigned && attacker.player.Team != TeamId.Unassigned
                 && player.Team != attacker.player.Team;
         }

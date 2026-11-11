@@ -1,5 +1,7 @@
 # Milestone 43 — authoritative attack chaining and input buffering
 
+Milestone 44 adds [advanced melee defense](AdvancedMeleeDefense.md). Successful parry/poise/guard-break interruptions clear the same committed attack and one-slot buffer; they cannot bypass the shared post-stagger protection interval. Parry is a separate committed defensive action and cannot cancel an attack.
+
 `WeaponMoveset.Combo` references a reusable `WeaponComboDefinition`. Each light step has an explicit next-light index (`-1` ends the chain), optional light-to-heavy link, buffer window, mandatory recovery fraction and dodge cancel rule. Heavy is terminal. There are no weapon-specific branches in player combat or additional Animator transitions.
 
 The supplied Sword/Spear/Staff chains are Light1 → Light2 → Light3. Greatsword has Light1 → Light2. The last light does not wrap. Sword/Spear/Staff permit light-to-heavy transitions from their nonfinal light steps; Greatsword does not. The supplied heavy moves cannot chain or cancel into dodge. Custom definitions may use different links, including shorter chains; a maximum accepted-attack count still bounds any authored cycle.

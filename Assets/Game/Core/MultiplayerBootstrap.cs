@@ -19,8 +19,8 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkRunner runner;
         private bool busy;
         private int nextParticipant;
-        private uint lightAttackPress, heavyAttackPress;
-        private bool lightAttackHeld, heavyAttackHeld, suppressAttacks;
+        private uint lightAttackPress, heavyAttackPress, parryPress;
+        private bool lightAttackHeld, heavyAttackHeld, parryHeld, suppressAttacks;
         private int lastAttackCaptureFrame = -1;
         public bool Busy => busy;
         public bool Running => runner != null && runner.IsRunning;
@@ -50,6 +50,7 @@ namespace HeroesOfDragonland.Multiplayer
         internal bool? TestDodge { get; set; }
         internal bool? TestHeavyAttack { get; set; }
         internal bool? TestBlock { get; set; }
+        internal bool? TestParry { get; set; }
         internal Vector2? TestFacing { get; set; }
         internal bool? TestLockedOn {get;set;}
 #endif
@@ -77,11 +78,14 @@ namespace HeroesOfDragonland.Multiplayer
             bool heavy = keys != null && keys.rKey.isPressed;
             bool lightTap = (keys != null && keys.spaceKey.wasPressedThisFrame) || (mouse != null && mouse.leftButton.wasPressedThisFrame);
             bool heavyTap = keys != null && keys.rKey.wasPressedThisFrame;
+            bool parry = keys != null && keys.cKey.isPressed;
+            bool parryTap = keys != null && keys.cKey.wasPressedThisFrame;
             bool testing = false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            testing = TestAttack.HasValue || TestHeavyAttack.HasValue;
+            testing = TestAttack.HasValue || TestHeavyAttack.HasValue || TestParry.HasValue;
             if (TestAttack.HasValue) { light = TestAttack.Value; lightTap = false; }
             if (TestHeavyAttack.HasValue) { heavy = TestHeavyAttack.Value; heavyTap = false; }
+            if (TestParry.HasValue) { parry = TestParry.Value; parryTap = false; }
 #endif
             suppressAttacks = !Running || (!Application.isFocused && !testing)
                 || GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>() is { IsBlocked: true };
@@ -89,8 +93,9 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 if (lightTap || (light && !lightAttackHeld)) lightAttackPress = unchecked(lightAttackPress + 1);
                 if (heavyTap || (heavy && !heavyAttackHeld)) heavyAttackPress = unchecked(heavyAttackPress + 1);
+                if (parryTap || (parry && !parryHeld)) parryPress = unchecked(parryPress + 1);
             }
-            lightAttackHeld = light; heavyAttackHeld = heavy;
+            lightAttackHeld = light; heavyAttackHeld = heavy; parryHeld = parry;
         }
 
         private void SetStatus(string value)
@@ -116,7 +121,7 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 Application.runInBackground = true;
                 roster.Clear(); players.Clear(); pendingSpawns.Clear(); nextParticipant = 0;
-                lightAttackPress = heavyAttackPress = 0; lastAttackCaptureFrame = -1;
+                lightAttackPress = heavyAttackPress = parryPress = 0; lastAttackCaptureFrame = -1;
                 SessionId = mode == GameMode.Client ? null : Guid.NewGuid().ToString("N");
                 var runnerObject = new GameObject("Multiplayer Runner");
                 runnerObject.transform.SetParent(transform);
@@ -282,7 +287,7 @@ namespace HeroesOfDragonland.Multiplayer
             CaptureAttackPresses();
             if (GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>() is { IsBlocked: true })
             {
-                input.Set(new NetworkPlayerInput { LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, SuppressAttacks = true });
+                input.Set(new NetworkPlayerInput { LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, ParryPress = parryPress, SuppressAttacks = true });
                 return;
             }
             Vector2 move = Vector2.zero;
@@ -319,7 +324,7 @@ namespace HeroesOfDragonland.Multiplayer
             if(TestLockedOn.HasValue)lockedOn=TestLockedOn.Value;
 #endif
             input.Set(new NetworkPlayerInput { Move = Vector2.ClampMagnitude(move, 1), Attack = attack, HeavyAttack = heavy,
-                LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, SuppressAttacks = suppressAttacks,
+                LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, ParryPress = parryPress, SuppressAttacks = suppressAttacks,
                 Block = block, Dodge = dodge, Facing = facing, LockedOn=lockedOn });
         }
 

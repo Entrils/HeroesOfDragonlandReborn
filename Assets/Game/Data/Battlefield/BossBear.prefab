@@ -245,6 +245,7 @@ GameObject:
   - component: {fileID: 762619340280149128}
   - component: {fileID: 7295138637476348879}
   - component: {fileID: 5946830410281146029}
+  - component: {fileID: 1530405536305845678}
   m_Layer: 0
   m_Name: BossBear
   m_TagString: Untagged
@@ -511,11 +512,19 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkEnemy
   _Staggered:
     RawValue: 0
+  _Poise: 0
+  _MaxPoise: 0
+  _PoiseRegenRemaining: 0
+  _StaggerRemaining: 0
+  _StaggerImmunityRemaining: 0
   _State: 0
   _TargetId:
     Raw: 0
   _AttackSequence: 0
   _AttackStartTick: 0
+  _AttackIndex: 0
+  _AttackOrigin: {x: 0, y: 0, z: 0}
+  _AttackForward: {x: 0, y: 0, z: 0}
   _AttackEndTick: 0
   _AttackBusy:
     RawValue: 0
@@ -552,4 +561,15 @@ MonoBehaviour:
   staggerDuration: 0.45
   guardBreakDuration: 1
   recoveryImmunity: 1
-  staggerDecayPerSecond: 20
+--- !u!114 &1530405536305845678
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6925779332107957264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48bf64a24da423041ab85da18d55f72d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CharacterPoise

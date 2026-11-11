@@ -13,7 +13,9 @@ namespace HeroesOfDragonland.Combat
         [SerializeField, Min(0)] private float staminaCost = 25;
         [SerializeField, Min(.1f)] private float range = 2;
         [SerializeField, Range(0, 1)] private float movementMultiplier = .25f;
+        [Tooltip("Poise damage per unblocked hit; legacy serialized field name preserved.")]
         [SerializeField, Min(0)] private float staggerPower = 20;
+        public float PoiseDamage => staggerPower;
         [SerializeField, Min(0)] private float damageMultiplier = 1;
         public MeleeAttackDefinition Profile => profile;
         public AnimationClip Animation => animation;

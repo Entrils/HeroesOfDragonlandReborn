@@ -29,6 +29,9 @@ namespace HeroesOfDragonland.Stats
         public float CurrentMana { get { EnsureInitialized(); return mana.Current; } }
         public float MaxMana { get { EnsureInitialized(); return mana.Maximum; } }
         public float StaggerResistance => configuration != null ? configuration.StaggerResistance : 50f;
+        public float MaxPoise => configuration != null ? configuration.Poise : 50f;
+        public float PoiseRegenDelay => configuration != null ? configuration.PoiseRegenDelay : 2f;
+        public float PoiseRegenPerSecond => configuration != null ? configuration.PoiseRegenPerSecond : 20f;
         public bool IsDead => CurrentHealth <= 0f;
 
         private void Awake() => EnsureInitialized();
@@ -139,7 +142,7 @@ namespace HeroesOfDragonland.Stats
         // Uses scaled game time. Do not call manually while automatic Update is running.
         public void TickRegeneration(float deltaTime)
         {
-            if (!CanMutate || IsDead) return;
+            if (!CanMutate || IsDead || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
             float oldStamina = stamina.Current;
             float oldMana = mana.Current;
             GetComponent<HeroesOfDragonland.Combat.CombatDefense>()?.Tick(deltaTime);
@@ -156,6 +159,7 @@ namespace HeroesOfDragonland.Stats
             health.ResetToFull();
             stamina.ResetToFull();
             mana.ResetToFull();
+            GetComponent<HeroesOfDragonland.Combat.CharacterPoise>()?.ResetForSpawn();
             HealthChanged?.Invoke(health.Current, health.Maximum);
             StaminaChanged?.Invoke(stamina.Current, stamina.Maximum);
             ManaChanged?.Invoke(mana.Current, mana.Maximum);
@@ -168,6 +172,7 @@ namespace HeroesOfDragonland.Stats
             RestoreResource(mana, manaPolicy);
             RestoreResource(stamina, staminaPolicy);
             health.ResetToFull();
+            GetComponent<HeroesOfDragonland.Combat.CharacterPoise>()?.ResetForSpawn();
             HealthChanged?.Invoke(health.Current, health.Maximum);
             StaminaChanged?.Invoke(stamina.Current, stamina.Maximum);
             ManaChanged?.Invoke(mana.Current, mana.Maximum);

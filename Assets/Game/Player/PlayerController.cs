@@ -75,6 +75,8 @@ namespace HeroesOfDragonland.Player
             Vector3 direction = yaw * new Vector3(input.x, 0f, input.y);
             Vector3? facing = targetLock != null ? targetLock.FacingDirection : null;
             var defense = GetComponent<CombatDefense>();
+            if (captured && wasCaptured && Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame)
+                GetComponent<ParryDefense>()?.TryStart(facing ?? transform.forward);
             defense?.SetBlockIntent(captured && wasCaptured && Mouse.current != null && Mouse.current.rightButton.isPressed,
                 (meleeAttack != null && meleeAttack.IsBusy) || (dodge != null && dodge.IsBusy));
             if (defense != null && defense.IsStaggered)
@@ -93,6 +95,7 @@ namespace HeroesOfDragonland.Player
             }
             if (meleeAttack != null && captured && wasCaptured && attackAction.WasPressedThisFrame())
                 meleeAttack.TryAttack(facing);
+            if (GetComponent<ParryDefense>() is { IsBusy: true } parry) facing = parry.Facing;
             bool attacking = meleeAttack != null && meleeAttack.IsBusy;
             if (interactor != null) interactor.Tick(captured && wasCaptured && !attacking && !(defense != null && defense.ActionsBlocked));
             movement.Tick(direction * (attacking ? meleeAttack.MovementMultiplier : 1f) * (defense != null ? defense.MovementMultiplier : 1f),

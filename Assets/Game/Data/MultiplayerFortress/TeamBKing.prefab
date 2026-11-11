@@ -132,6 +132,7 @@ GameObject:
   - component: {fileID: 640264133303128441}
   - component: {fileID: 4658928340434380134}
   - component: {fileID: 8325430441423688355}
+  - component: {fileID: 824427824166552167}
   m_Layer: 0
   m_Name: TeamBKing
   m_TagString: Untagged
@@ -324,7 +325,18 @@ MonoBehaviour:
   staggerDuration: 0.45
   guardBreakDuration: 1
   recoveryImmunity: 1
-  staggerDecayPerSecond: 20
+--- !u!114 &824427824166552167
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3484319679107121321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 48bf64a24da423041ab85da18d55f72d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CharacterPoise
 --- !u!1 &3757412353808363801
 GameObject:
   m_ObjectHideFlags: 0

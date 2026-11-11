@@ -54,7 +54,7 @@ namespace HeroesOfDragonland.Presentation
             var state=new CharacterVisualState {
                 Speed = playing ? Mathf.Min(velocity.magnitude, 8) : 0,
                 LocalVelocity = playing ? new Vector2(local.x, local.z) : Vector2.zero,
-                Dead = stats.Dead, Attacking = attacking, Dodging = dodging, Blocking = playing && combat.Blocking,
+                Dead = stats.Dead, Attacking = attacking, Dodging = dodging, Blocking = playing && (combat.Blocking || combat.ParryBusy),
                 Staggered = playing && combat.Staggered, LockedOn = animationState!=null&&animationState.LockedOn,
                 Airborne=playing&&animationState!=null&&!animationState.Grounded,
                 VerticalSpeed=animationState!=null?animationState.VerticalSpeed:0,

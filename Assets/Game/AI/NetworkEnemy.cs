@@ -12,6 +12,11 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class NetworkEnemy : NetworkBehaviour, IAfterTick, IEnemyAuthority, IEnemyTargetPolicy, IDamagePolicy
     {
         [Networked] public NetworkBool Staggered { get; private set; }
+        [Networked] public float Poise { get; private set; }
+        [Networked] public float MaxPoise { get; private set; }
+        [Networked] public float PoiseRegenRemaining { get; private set; }
+        [Networked] public float StaggerRemaining { get; private set; }
+        [Networked] public float StaggerImmunityRemaining { get; private set; }
         [Networked] public EnemyState State { get; private set; }
         [Networked] public NetworkId TargetId { get; private set; }
         [Networked] public int AttackSequence { get; private set; }
@@ -36,7 +41,7 @@ namespace HeroesOfDragonland.Multiplayer
         private bool IsServerOwner => isActiveAndEnabled && Object != null && Object.IsValid
             && Runner.IsServer && HasStateAuthority && Object.InputAuthority == PlayerRef.None;
         public bool CanSimulateEnemy => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
-        public bool IsResolvingAttack => CanSimulateEnemy && !stats.IsDead && attack.ResolvingHit;
+        public bool IsResolvingAttack => CanSimulateEnemy && !stats.IsDead && attack.IsResolvingMeleeHit;
 
         private void Awake()
         {
@@ -110,7 +115,12 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void Publish()
         {
-            Staggered = GetComponent<CombatDefense>() is { IsStaggered: true };
+            var defense = GetComponent<CombatDefense>(); var poise = GetComponent<CharacterPoise>();
+            Staggered = defense != null && defense.IsStaggered;
+            Poise = poise != null ? poise.Current : 0; MaxPoise = poise != null ? poise.Maximum : 0;
+            PoiseRegenRemaining = poise != null ? poise.RegenDelayRemaining : 0;
+            StaggerRemaining = defense != null ? defense.StaggerRemaining : 0;
+            StaggerImmunityRemaining = defense != null ? defense.ImmunityRemaining : 0;
             State = brain.State;
             var target = brain.AggroTarget != null ? brain.AggroTarget.GetComponent<NetworkObject>() : null;
             TargetId = target != null && target.IsValid ? target.Id : default;
