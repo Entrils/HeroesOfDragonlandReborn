@@ -45,7 +45,11 @@ namespace HeroesOfDragonland.Multiplayer
             ProtectionTimer = TickTimer.None;
             WaitingForRespawn = true;
             DeathSequence++;
-            RespawnTimer = TickTimer.CreateFromSeconds(Runner, fortress.RespawnConfig.DelayAt(fortress.Match != null ? fortress.Match.PlayingSeconds : 0));
+            var balance = fortress.Match != null ? fortress.Match.Balance : null;
+            float elapsed = fortress.Match != null ? fortress.Match.PlayingSeconds : 0;
+            float delay = balance != null ? balance.RespawnDelay(elapsed, GetComponent<HeroesOfDragonland.Progression.SessionProgression>()?.Level ?? 1)
+                : fortress.RespawnConfig.DelayAt(elapsed);
+            RespawnTimer = TickTimer.CreateFromSeconds(Runner, delay);
             GetComponent<NetworkPlayerCombat>().CancelForRespawn();
             GetComponent<NetworkPlayerDodge>()?.CancelForRespawn();
             NotifyObservers();

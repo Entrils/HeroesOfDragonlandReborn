@@ -145,7 +145,7 @@ namespace HeroesOfDragonland.UI
             { view.SetMatch("Not connected", "Join a match to see objectives.", ""); return; }
             string state = "Round " + match.RoundNumber + " · " + match.State;
             string goal = "Protect your King. Defeat the enemy King.";
-            if (match.State == MatchPhase.Lobby) goal = "Waiting for players: " + (match.TeamACount + match.TeamBCount) + " / " + match.RequiredPlayers + " · Both teams required";
+            if (match.State == MatchPhase.Lobby) goal = "Lobby: ready up, then host starts / " + (match.TeamACount + match.TeamBCount) + " / " + match.RequiredPlayers + " · Both teams required";
             if (match.State == MatchPhase.Starting) goal = match.SecondsRemaining > 0 ? "Starting in " + Mathf.CeilToInt(match.SecondsRemaining) + "s" : "Waiting for team spawn points…";
             if (match.State == MatchPhase.Finished) goal = "Returning to lobby in " + Mathf.CeilToInt(match.SecondsRemaining) + "s";
             if (match.State == MatchPhase.ReturningToLobby) goal = "Resetting round…";

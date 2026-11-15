@@ -7,8 +7,13 @@ namespace HeroesOfDragonland.UI
     [DisallowMultipleComponent, RequireComponent(typeof(UIDocument))]
     public sealed class GameplayHudView : MonoBehaviour
     {
+        private VisualElement bossPanel;
+        private Label bossName, bossStatus, bossMove;
+        private ProgressBar bossHealth;
+        public bool HasBoss => bossPanel != null && bossPanel.style.display.value != DisplayStyle.None;
+        public float BossHealthValue => bossHealth?.value ?? 0;
         private VisualElement root, personal, targetPanel, marker;
-        private Label identity, phase, objective, respawn, result, targetName;
+        private Label identity, phase, objective, respawn, result, targetName, pacing;
         private ProgressBar health, stamina, mana, xp, targetHealth, kingA, kingB;
         public bool HasLocalPlayer => personal != null && personal.style.display.value != DisplayStyle.None;
         public string ResultText => result?.text;
@@ -43,6 +48,22 @@ namespace HeroesOfDragonland.UI
             objective = Label(match, "Protect your King. Defeat the enemy King.");
             kingA = Bar(match, "Team A King", new Color(.2f, .5f, .9f));
             kingB = Bar(match, "Team B King", new Color(.85f, .28f, .25f));
+            pacing = Label(match, "");
+            pacing.name = "MatchPacing";
+            bossPanel = Panel("Boss", null, 18, null, null, 520);
+            bossPanel.style.left = Length.Percent(50); bossPanel.style.translate = new Translate(Length.Percent(-50), 0);
+            bossPanel.style.maxWidth = Length.Percent(80);
+            void LayoutBoss()
+            {
+                bossPanel.style.top = root.resolvedStyle.width < 1100 ? Mathf.Max(220, match.resolvedStyle.height + 36) : 18;
+                bossPanel.style.width = Mathf.Min(520, root.resolvedStyle.width * .8f);
+            }
+            root.RegisterCallback<GeometryChangedEvent>(_ => LayoutBoss());
+            match.RegisterCallback<GeometryChangedEvent>(_ => LayoutBoss());
+            bossName = Label(bossPanel, ""); bossName.style.unityFontStyleAndWeight = FontStyle.Bold;
+            bossHealth = Bar(bossPanel, "Boss", new Color(.7f, .16f, .3f));
+            bossStatus = Label(bossPanel, ""); bossMove = Label(bossPanel, "");
+            SetBoss(false);
             targetPanel = Panel("Target", null, null, null, 86, 360);
             targetPanel.style.left = Length.Percent(50); targetPanel.style.marginLeft = -180;
             targetName = Label(targetPanel, "TARGET LOCKED");
@@ -113,6 +134,13 @@ namespace HeroesOfDragonland.UI
             bar.value = maximum > 0 ? Mathf.Clamp01(value / maximum) : 0;
             bar.title = maximum > 0 ? title + "  " + Mathf.CeilToInt(value) + " / " + Mathf.CeilToInt(maximum) : title + "  —";
         }
+        public void SetBoss(bool visible, string name = "", string status = "", float current = 0, float maximum = 0, string move = "")
+        {
+            if (bossPanel == null) return;
+            bossPanel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            bossName.text = name; bossStatus.text = status; bossMove.text = move;
+            Value(bossHealth, "Health", current, maximum);
+        }
         public void SetLocal(bool visible) { personal.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None; if (!visible) SetRespawn(""); }
         public void SetIdentity(string text) => identity.text = text;
         public void SetHealth(float value, float maximum) => Value(health, "Health", value, maximum);
@@ -129,6 +157,8 @@ namespace HeroesOfDragonland.UI
         public void SetKing(bool teamA, float value, float maximum) => Value(teamA ? kingA : kingB, "Team " + (teamA ? "A" : "B") + " King" + (maximum > 0 && value <= 0 ? " · DEFEATED" : ""), value, maximum);
         public void SetMatch(string state, string goal, string outcome) { phase.text = state; objective.text = goal; result.text = outcome; }
         public void SetRespawn(string value) => respawn.text = value;
+        public string PacingText => pacing?.text;
+        public void SetPacing(string value) { if (pacing != null) pacing.text = value; }
         public void PlaceTarget(Camera camera, Vector3 position)
         {
             if (camera == null || root.panel == null) { marker.style.display = DisplayStyle.None; return; }

@@ -124,6 +124,14 @@ namespace HeroesOfDragonland.Multiplayer
                 ?.GetItemId(HeroesOfDragonland.Items.EquipmentSlot.MainHand) ?? "";
         }
 
+        internal void SuspendConnection()
+        {
+            if (!Runner.IsServer || !HasStateAuthority) return;
+            melee.Cancel(); Defense?.ResetState(); PublishDefense(); AttackBusy = false;
+            ResetConnectionInput();
+        }
+        internal void ResetConnectionInput() { presses.Reset(); parryPresses.Reset(); }
+
         internal void CancelForRespawn()
         {
             if (!IsAdmitted()) return;
@@ -151,6 +159,9 @@ namespace HeroesOfDragonland.Multiplayer
         public bool AllowsDamage(GameObject source)
         {
             if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || stats.IsDead || source == null || source == gameObject) return false;
+            var magic = source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>();
+            if (magic != null && magic.AllowsProjectileDamage(Runner))
+                return TeamIdentity.AreEnemies(TeamIdentity.Find(source), GetComponent<TeamIdentity>());
             var enemy = source.GetComponent<NetworkEnemy>();
             if (enemy != null)
             {

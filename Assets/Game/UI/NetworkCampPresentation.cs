@@ -14,7 +14,7 @@ namespace HeroesOfDragonland.Multiplayer
             float remaining = camp.NextSpawnTimer.RemainingTime(camp.Runner) ?? 0;
             string tier = camp.Definition == null ? "NEUTRAL CAMP" : camp.Definition.Difficulty == HeroesOfDragonland.World.Camps.CampDifficulty.Contested
                 ? "CONTESTED" : "TIER " + ((int)camp.Definition.Difficulty + 1);
-            label.text = tier + " / " + ((camp.State == NetworkCampState.Pending || camp.State == NetworkCampState.Cleared) && remaining > 0
+            label.text = tier + " / " + camp.AvailableExperience + " XP / " + ((camp.State == NetworkCampState.Pending || camp.State == NetworkCampState.Cleared) && remaining > 0
                 ? "CAMP IN " + Mathf.CeilToInt(remaining) + "s"
                 : camp.State == NetworkCampState.Cleared ? "CAMP CLEARED / XP " + camp.AwardedExperience
                 : camp.DeadCount + "/" + camp.EnemyCount);

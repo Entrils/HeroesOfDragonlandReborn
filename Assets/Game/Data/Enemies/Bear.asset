@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc5308be631ccb0459a1c614c82c03d0, type: 3}
   m_Name: Bear
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyDefinition
+  archetype: 2
+  preferredDistance: 8
+  projectileSpeed: 14
+  spellManaCost: 30
   stats: {fileID: 11400000, guid: a6cf31289d5360f43a13e0edebf3af90, type: 2}
+  attackSet: {fileID: 0}
   aggroOnSight: 1
   detectionRadius: 7
   leashDistance: 12
@@ -21,8 +26,9 @@ MonoBehaviour:
   alertDuration: 0.4
   lostTargetTimeout: 3
   patrolSpeed: 1.5
-  chaseSpeed: 2.8
+  chaseSpeed: 2
   attackRange: 2
-  damage: 20
-  attackWindup: 0.4
-  attackCooldown: 1.8
+  damage: 24
+  attackWindup: 1.1
+  attackCooldown: 2.8
+  staggerPower: 75

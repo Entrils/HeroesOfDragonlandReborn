@@ -5,7 +5,7 @@ using UnityEngine;
 namespace HeroesOfDragonland.Skills
 {
     public enum SkillKind { Active, Passive }
-    public enum SkillEffect { MeleeStrike, Guard, MeleeTraining }
+    public enum SkillEffect { MeleeStrike, Guard, MeleeTraining, Ability }
 
     [CreateAssetMenu(menuName = "Heroes of Dragonland/Skill")]
     public sealed class SkillDefinition : ScriptableObject
@@ -13,6 +13,8 @@ namespace HeroesOfDragonland.Skills
         [SerializeField] private string displayName;
         [SerializeField, TextArea] private string description;
         [SerializeField] private SkillEffect effect;
+        [SerializeField] private HeroesOfDragonland.Abilities.AbilityDefinition ability;
+        public HeroesOfDragonland.Abilities.AbilityDefinition Ability => ability;
         [SerializeField, Min(1)] private int requiredLevel = 1;
         [SerializeField] private EquipmentRequirement[] requirements = Array.Empty<EquipmentRequirement>();
         [SerializeField, Min(1)] private int pointCost = 1;
@@ -27,8 +29,8 @@ namespace HeroesOfDragonland.Skills
         public int RequiredLevel => requiredLevel;
         public System.Collections.Generic.IReadOnlyList<EquipmentRequirement> Requirements => requirements;
         public int PointCost => pointCost;
-        public float ManaCost => manaCost;
-        public float Cooldown => cooldown;
+        public float ManaCost => effect == SkillEffect.Ability && ability != null ? ability.ManaCost : manaCost;
+        public float Cooldown => effect == SkillEffect.Ability && ability != null ? ability.Cooldown : cooldown;
         public float Magnitude => magnitude;
         public bool IsValid
         {
@@ -38,6 +40,7 @@ namespace HeroesOfDragonland.Skills
                     || requiredLevel < 1 || pointCost < 1 || !FiniteNonnegative(manaCost)
                     || !FiniteNonnegative(cooldown) || !FiniteNonnegative(magnitude) || requirements == null) return false;
                 foreach (var requirement in requirements) if (!requirement.IsValid) return false;
+                if (effect == SkillEffect.Ability && (ability == null || !ability.IsValid)) return false;
                 return Kind != SkillKind.Passive || (manaCost == 0 && cooldown == 0);
             }
         }

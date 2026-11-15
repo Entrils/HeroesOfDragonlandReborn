@@ -8,8 +8,13 @@ namespace HeroesOfDragonland.Multiplayer
         public static bool IsAdmitted(NetworkObject actor)
         {
             if (actor == null || !actor.IsValid || !actor.Runner.IsServer || !actor.HasStateAuthority) return false;
+            if (actor.GetComponent<NetworkTestPlayer>() is { IsSuspended: true }) return false;
             if (actor.InputAuthority != PlayerRef.None)
-                return actor.Runner.TryGetPlayerObject(actor.InputAuthority, out var owner) && owner == actor;
+            {
+                bool active = false;
+                foreach (var player in actor.Runner.ActivePlayers) if (player == actor.InputAuthority) { active = true; break; }
+                return active && actor.Runner.TryGetPlayerObject(actor.InputAuthority, out var owner) && owner == actor;
+            }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             var bots = actor.Runner.GetComponentInParent<DeveloperBotService>();
             return bots != null && bots.Contains(actor);

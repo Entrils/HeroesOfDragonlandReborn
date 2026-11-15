@@ -1,0 +1,62 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45bd936789530354f8a62c5e0957147b, type: 3}
+  m_Name: MatchBalance
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.MatchBalanceConfig
+  progression: {fileID: 11400000, guid: c4289cad8b82c094483fc72e30536c0a, type: 2}
+  earlyRespawnSeconds: 5
+  lateRespawnSeconds: 18
+  respawnRampStartSeconds: 300
+  respawnRampEndSeconds: 1200
+  respawnSecondsPerLevel: 0.5
+  maximumRespawnSeconds: 22
+  deathProgressLossFraction: 0
+  maximumDeathExperienceLoss: 50
+  killExperience: 60
+  assistExperiencePool: 30
+  assistWindowSeconds: 12
+  minimumContributionDamage: 1
+  repeatedVictimRewardCooldown: 60
+  comebackLevelGap: 0.75
+  comebackBonusPerLevel: 0.2
+  maximumComebackMultiplier: 1.5
+  lateMatchStartsAtSeconds: 600
+  campContributionWindowSeconds: 60
+  camps:
+  - difficulty: 0
+    experience: 25
+    firstSpawnSeconds: 0
+    respawnSeconds: 75
+    lateRespawnSeconds: 75
+    rewardRadius: 9
+    lateExperienceMultiplier: 1
+  - difficulty: 1
+    experience: 60
+    firstSpawnSeconds: 0
+    respawnSeconds: 105
+    lateRespawnSeconds: 75
+    rewardRadius: 9
+    lateExperienceMultiplier: 2
+  - difficulty: 2
+    experience: 120
+    firstSpawnSeconds: 150
+    respawnSeconds: 165
+    lateRespawnSeconds: 120
+    rewardRadius: 9
+    lateExperienceMultiplier: 1.5
+  - difficulty: 3
+    experience: 360
+    firstSpawnSeconds: 150
+    respawnSeconds: 210
+    lateRespawnSeconds: 150
+    rewardRadius: 20
+    lateExperienceMultiplier: 1.5

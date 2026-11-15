@@ -18,17 +18,42 @@ namespace HeroesOfDragonland.Multiplayer
         private float nextSpawnRetry;
         private NetworkRunner runner;
         private bool busy;
+        private bool connectionLost;
+        private readonly ReconnectReservations reconnects = new();
+        private byte[] connectionToken;
+        private bool clientSession, everConnected, intentionalDisconnect, cancelRequested, reconnectLoop;
+        private int reconnectEpoch, observedServerTick;
+        private float lastServerProgress;
+        private TaskCompletionSource<bool> leaveAcknowledged;
+        private System.Threading.CancellationTokenSource joinCancellation;
+        internal void ConfirmLeave() => leaveAcknowledged?.TrySetResult(true);
+        internal void ForfeitReconnect(PlayerRef player) => reconnects.Forget(player);
+        public NetworkConnectionState ConnectionState { get; private set; } = NetworkConnectionState.Offline;
+        public string NetworkMessage { get; private set; } = "Create or join a lobby.";
+        public string RequestNotice { get; private set; }
+        public event Action<NetworkConnectionState> ConnectionStateChanged;
+        public int ReservedPlayerCount => reconnects.Count;
+        public bool CanReconnect => clientSession && connectionToken != null && everConnected && !Running && !busy && !reconnectLoop;
+        private void SetConnectionState(NetworkConnectionState state, string message = null)
+        {
+            ConnectionState = state;
+            NetworkMessage = message ?? NetworkFailureMessages.For(state);
+            Debug.Log("[NetworkState] " + state + ": " + NetworkMessage, this);
+            if (ConnectionStateChanged != null) foreach (Action<NetworkConnectionState> handler in ConnectionStateChanged.GetInvocationList())
+                try { handler(state); } catch (Exception e) { Debug.LogException(e, this); }
+        }
         private int nextParticipant;
         private uint lightAttackPress, heavyAttackPress, parryPress;
         private bool lightAttackHeld, heavyAttackHeld, parryHeld, suppressAttacks;
         private int lastAttackCaptureFrame = -1;
-        public bool Busy => busy;
+        public bool Busy => busy || reconnectLoop;
         public bool Running => runner != null && runner.IsRunning;
         public string Status { get; private set; } = "Not connected";
         public event Action<string> StatusChanged;
         public event Action<NetworkRunner> SessionStarted;
         public NetworkRunner Runner => runner;
         public string SessionId { get; private set; }
+        public string RoomName { get; private set; }
         internal NetworkObject PlayerPrefab => playerPrefab;
         internal int NextParticipantNumber() => ++nextParticipant;
         internal bool ReserveBot(int key, out HeroesOfDragonland.Teams.TeamId team) => roster.TryAssign(key, out team);
@@ -54,6 +79,12 @@ namespace HeroesOfDragonland.Multiplayer
         internal Vector2? TestFacing { get; set; }
         internal bool? TestLockedOn {get;set;}
 #endif
+
+        private void OnDestroy()
+        {
+            intentionalDisconnect = true; reconnectEpoch++;
+            joinCancellation?.Cancel(); joinCancellation?.Dispose();
+        }
 
         private void Start()
         {
@@ -102,26 +133,45 @@ namespace HeroesOfDragonland.Multiplayer
         {
             Status = value;
             Debug.Log("[Multiplayer] " + value, this);
-            StatusChanged?.Invoke(value);
+            if (StatusChanged != null) foreach (Action<string> handler in StatusChanged.GetInvocationList())
+                try { handler(value); } catch (Exception e) { Debug.LogException(e, this); }
         }
 
-        public async Task StartSession(GameMode mode, string sessionName)
+        public Task StartSession(GameMode mode, string sessionName) => StartSessionCore(mode, sessionName, false);
+        private async Task StartSessionCore(GameMode mode, string sessionName, bool resuming)
         {
-            if (busy || runner != null) return;
+            if (busy || runner != null || (reconnectLoop && !resuming))
+            { RequestNotice = "A connection request is already active. Leave or cancel before joining again."; return; }
+            RequestNotice = null;
             bool supported = mode == GameMode.Host || mode == GameMode.Server || mode == GameMode.Client;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             supported |= mode == GameMode.Single;
 #endif
             if (!supported)
-            { SetStatus("Only Host, Server and Client modes are supported."); return; }
+            { SetConnectionState(NetworkConnectionState.FailedJoin, "Unsupported session mode."); return; }
             if (playerPrefab == null || string.IsNullOrWhiteSpace(sessionName) || sessionName.Length > 64)
-            { SetStatus("Assign a player prefab and a room name of 1-64 characters."); return; }
+            { SetConnectionState(NetworkConnectionState.FailedJoin, "Enter a lobby name of 1-64 characters; a player prefab must be configured."); return; }
             busy = true;
+            joinCancellation?.Dispose();
+            joinCancellation = new System.Threading.CancellationTokenSource();
+            cancelRequested = false;
+            intentionalDisconnect = false;
+            clientSession = mode == GameMode.Client;
+            if (!resuming)
+            {
+                everConnected = false;
+                connectionToken = clientSession ? new byte[32] : null;
+                if (connectionToken != null) using (var random = System.Security.Cryptography.RandomNumberGenerator.Create()) random.GetBytes(connectionToken);
+            }
+            SetConnectionState(resuming ? NetworkConnectionState.Reconnecting : NetworkConnectionState.Connecting,
+                resuming ? "Reconnecting to the same match..." : "Connecting to " + sessionName.Trim() + "...");
+            connectionLost = false;
             try
             {
                 Application.runInBackground = true;
                 roster.Clear(); players.Clear(); pendingSpawns.Clear(); nextParticipant = 0;
                 lightAttackPress = heavyAttackPress = parryPress = 0; lastAttackCaptureFrame = -1;
+                RoomName = sessionName.Trim();
                 SessionId = mode == GameMode.Client ? null : Guid.NewGuid().ToString("N");
                 var runnerObject = new GameObject("Multiplayer Runner");
                 runnerObject.transform.SetParent(transform);
@@ -136,33 +186,68 @@ namespace HeroesOfDragonland.Multiplayer
                     SessionName = sessionName.Trim(),
                     PlayerCount = NetworkTeamRoster.PlayerCapacity,
                     EnableClientSessionCreation = false,
+                    ConnectionToken = connectionToken,
+                    StartGameCancellationToken = joinCancellation.Token,
                     IsVisible = false,
                     SceneManager = runnerObject.AddComponent<NetworkSceneManagerDefault>()
                 });
                 if (!started.Ok)
                 {
-                    SetStatus("Start failed: " + started.ShutdownReason);
                     await ReleaseRunner();
+                    SetConnectionState(NetworkFailureMessages.Classify(started.ShutdownReason));
+                    SetStatus("Start failed: " + started.ShutdownReason);
                 }
                 else
                 {
-                    SessionStarted?.Invoke(runner);
+                    if (runner == null || !runner.IsRunning) throw new InvalidOperationException("Connection ended during startup.");
+                    everConnected = true;
+                    lastServerProgress = Time.realtimeSinceStartup;
+                    observedServerTick = runner.LatestServerTick;
+                    if (SessionStarted != null) foreach (Action<NetworkRunner> handler in SessionStarted.GetInvocationList())
+                        try { handler(runner); } catch (Exception e) { Debug.LogException(e, this); throw; }
+                    SetConnectionState(NetworkConnectionState.Connected, resuming ? "Reconnected to the match." : "Connected.");
                     SetStatus(mode + " connected / " + sessionName.Trim());
                 }
             }
             catch (Exception exception)
             {
-                SetStatus("Start failed: " + exception.Message);
                 await ReleaseRunner();
+                SetConnectionState(NetworkConnectionState.FailedJoin);
+                SetStatus("Start failed: " + exception.Message);
             }
-            finally { busy = false; }
+            finally
+            {
+                if (cancelRequested)
+                {
+                    intentionalDisconnect = true;
+                    await ReleaseRunner();
+                    everConnected = false; connectionToken = null;
+                    SetConnectionState(NetworkConnectionState.Offline, "Connection cancelled.");
+                }
+                busy = false;
+            }
         }
 
         public async Task Disconnect()
         {
-            if (busy) return;
+            intentionalDisconnect = true; connectionLost = false;
+            reconnectEpoch++;
+            everConnected = false; connectionToken = null;
+            if (busy) { cancelRequested = true; joinCancellation?.Cancel(); return; }
             busy = true;
-            try { await ReleaseRunner(); SetStatus("Disconnected"); }
+            SetConnectionState(NetworkConnectionState.Disconnecting, "Leaving session...");
+            try
+            {
+                var match = GetComponent<NetworkFortressSpawner>()?.Match;
+                if (Running && clientSession && match != null && match.Object != null && match.Object.IsValid)
+                {
+                    leaveAcknowledged = new TaskCompletionSource<bool>();
+                    match.RPC_LeaveSession();
+                    await Task.WhenAny(leaveAcknowledged.Task, Task.Delay(2000));
+                    leaveAcknowledged = null;
+                }
+                await ReleaseRunner(); SetStatus("Disconnected"); SetConnectionState(NetworkConnectionState.Offline, "You left the session.");
+            }
             finally { busy = false; }
         }
 
@@ -172,8 +257,12 @@ namespace HeroesOfDragonland.Multiplayer
             GetComponent<DeveloperBotService>()?.ReleaseSession();
 #endif
             var previous = runner;
+            if (previous != null && previous.IsServer) reconnects.Expire(previous, roster, true);
+            reconnects.Clear();
+            runner = null;
             if (previous != null)
             {
+                previous.RemoveCallbacks(this);
                 try { await previous.Shutdown(); }
                 finally
                 {
@@ -184,8 +273,58 @@ namespace HeroesOfDragonland.Multiplayer
             players.Clear(); roster.Clear(); pendingSpawns.Clear();
         }
 
+        public Task Reconnect() => CanReconnect ? RecoverConnection() : Task.CompletedTask;
+        private async Task RecoverConnection()
+        {
+            if (reconnectLoop || intentionalDisconnect) return;
+            reconnectLoop = true;
+            int epoch = reconnectEpoch;
+            try
+            {
+                busy = true;
+                await ReleaseRunner();
+                busy = false;
+                for (int attempt = 0; attempt < 3 && epoch == reconnectEpoch && !intentionalDisconnect; attempt++)
+                {
+                    SetConnectionState(NetworkConnectionState.Reconnecting, "Reconnecting (" + (attempt + 1) + "/3). Cancel to leave.");
+                    await Task.Delay((1 << attempt) * 2000);
+                    if (this == null || !Application.isPlaying || epoch != reconnectEpoch || intentionalDisconnect) return;
+                    await StartSessionCore(GameMode.Client, RoomName, true);
+                    if (Running && ConnectionState == NetworkConnectionState.Connected) return;
+                }
+                if (epoch == reconnectEpoch && !intentionalDisconnect) SetConnectionState(NetworkConnectionState.ReconnectExpired);
+            }
+            catch (Exception e) { Debug.LogException(e, this); SetConnectionState(NetworkConnectionState.ConnectionLost); }
+            finally
+            {
+                connectionLost = false;
+                busy = false; reconnectLoop = false;
+                if (intentionalDisconnect && !Running) SetConnectionState(NetworkConnectionState.Offline, "Connection cancelled.");
+            }
+        }
+
         private void Update()
         {
+            // Shutdown outside Fusion callbacks, after an in-flight start/disconnect finishes.
+            if (connectionLost && !busy)
+            {
+                connectionLost = false;
+                if (clientSession && everConnected && !intentionalDisconnect) _ = RecoverConnection();
+            }
+            if (Running && clientSession && !busy && !connectionLost && !reconnectLoop)
+            {
+                int tick = runner.LatestServerTick;
+                if (tick != observedServerTick)
+                {
+                    observedServerTick = tick; lastServerProgress = Time.realtimeSinceStartup;
+                    if (ConnectionState == NetworkConnectionState.Interrupted) SetConnectionState(NetworkConnectionState.Connected, "Connection restored.");
+                }
+                else if (Time.realtimeSinceStartup - lastServerProgress > 3 && ConnectionState == NetworkConnectionState.Connected)
+                    SetConnectionState(NetworkConnectionState.Interrupted);
+            }
+            GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>()?.SetBlocked(this,
+                ConnectionState == NetworkConnectionState.Interrupted || ConnectionState == NetworkConnectionState.Reconnecting);
+            if (Running && runner.IsServer) reconnects.Expire(runner, roster);
             CaptureAttackPresses();
             if (runner == null || !runner.IsServer || pendingSpawns.Count == 0 || Time.unscaledTime < nextSpawnRetry) return;
             nextSpawnRetry = Time.unscaledTime + .25f;
@@ -198,6 +337,7 @@ namespace HeroesOfDragonland.Multiplayer
         internal void ResetRoundPlayers()
         {
             if (runner == null || !runner.IsServer) return;
+            reconnects.Expire(runner, roster, true);
             // A new identity also invalidates old reward IDs and delayed avatar RPCs.
             SessionId = Guid.NewGuid().ToString("N");
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
@@ -214,6 +354,7 @@ namespace HeroesOfDragonland.Multiplayer
                     runner.Despawn(avatar);
                 }
             GetComponent<TeamSpawnService>()?.ResetReservations();
+            foreach (var player in runner.ActivePlayers) pendingSpawns.Add(player);
             foreach (var player in runner.ActivePlayers) OnPlayerJoined(runner, player);
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             GetComponent<DeveloperBotService>()?.SpawnPending();
@@ -222,9 +363,33 @@ namespace HeroesOfDragonland.Multiplayer
 
         public void OnPlayerJoined(NetworkRunner source, PlayerRef player)
         {
-            if (!source.IsServer || players.ContainsKey(player)) return;
+            if (source != runner || !source.IsServer || players.ContainsKey(player)) return;
+            bool active = false;
+            foreach (var connected in source.ActivePlayers) if (connected == player) { active = true; break; }
+            if (!active) { pendingSpawns.Remove(player); return; }
+            byte[] token = source.GetPlayerConnectionToken(player);
+            if (reconnects.IsDuplicate(token, player)) { source.Disconnect(player); return; }
+            if (reconnects.TryResume(token, player, out var previousOwner, out var resumed))
+            {
+                if (!roster.Transfer(previousOwner.RawEncoded, player.RawEncoded))
+                { reconnects.Forget(player); roster.Remove(previousOwner.RawEncoded); source.Despawn(resumed); source.Disconnect(player); return; }
+                resumed.AssignInputAuthority(player);
+                players[player] = resumed;
+                source.SetPlayerObject(player, resumed);
+                resumed.GetComponent<NetworkInventory>()?.ReplicateTo(player, true);
+                resumed.GetComponent<NetworkPlayerResources>()?.ReplicateTo(player, true);
+                resumed.GetComponent<NetworkPlayerCombat>()?.ResetConnectionInput();
+                resumed.GetComponent<NetworkTestPlayer>().SetSuspended(false);
+                pendingSpawns.Remove(player);
+                Debug.Log("[Resilience] Resumed reserved avatar " + resumed.Id + " owner=" + player);
+                return;
+            }
+            if (!pendingSpawns.Contains(player) && GetComponent<NetworkFortressSpawner>()?.Match is { } activeMatch
+                && activeMatch.State != MatchPhase.Lobby && activeMatch.State != MatchPhase.Boot)
+            { source.Disconnect(player); return; }
             if (!roster.TryAssign(player.RawEncoded, out var team))
             { source.Disconnect(player); SetStatus("Rejected join: six-player roster full."); return; }
+            reconnects.Track(player, token);
             NetworkObject avatar = null;
             try
             {
@@ -255,6 +420,7 @@ namespace HeroesOfDragonland.Multiplayer
                     (r, obj) => obj.GetComponent<NetworkTestPlayer>().Initialize(team, number, lane));
                 if (avatar == null) throw new InvalidOperationException("Player spawn returned null.");
                 players.Add(player, avatar);
+                reconnects.Track(player, token);
                 source.SetPlayerObject(player, avatar);
                 pendingSpawns.Remove(player);
                 SetStatus("Joined P" + number + " owner=" + player + " team=" + team
@@ -263,7 +429,7 @@ namespace HeroesOfDragonland.Multiplayer
             catch (Exception exception)
             {
                 if (avatar != null) source.Despawn(avatar);
-                players.Remove(player); roster.Remove(player.RawEncoded); pendingSpawns.Remove(player);
+                players.Remove(player); roster.Remove(player.RawEncoded); pendingSpawns.Remove(player); reconnects.Forget(player);
                 source.Disconnect(player);
                 SetStatus("Spawn failed: " + exception.Message);
             }
@@ -271,13 +437,33 @@ namespace HeroesOfDragonland.Multiplayer
 
         public void OnPlayerLeft(NetworkRunner source, PlayerRef player)
         {
-            if (!source.IsServer) return;
+            if (source != runner || !source.IsServer) return;
+            if (!players.ContainsKey(player) && !pendingSpawns.Contains(player)) return;
             pendingSpawns.Remove(player);
             if (players.TryGetValue(player, out var avatar))
             {
                 players.Remove(player);
-                if (avatar != null && avatar.IsValid) source.Despawn(avatar);
+                if (avatar != null && avatar.IsValid)
+                {
+                    var match = GetComponent<NetworkFortressSpawner>()?.Match;
+                    if (match != null && match.State == MatchPhase.Playing && reconnects.Reserve(player, avatar))
+                    {
+                        // Deny admission first, then stop actions and remove the old owner's private replication.
+                        avatar.GetComponent<NetworkPlayerCombat>()?.SuspendConnection();
+                        avatar.GetComponent<NetworkPlayerDodge>()?.SuspendConnection();
+                        avatar.GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Clear();
+                        avatar.GetComponent<NetworkInventory>()?.ReplicateTo(player, false);
+                        avatar.GetComponent<NetworkPlayerResources>()?.ReplicateTo(player, false);
+                        avatar.RemoveInputAuthority();
+                        avatar.GetComponent<NetworkTestPlayer>().SetSuspended(true);
+                        Debug.Log("[Resilience] Reserved disconnected avatar " + avatar.Id + " for 90 seconds");
+                        return;
+                    }
+                    foreach (var collider in avatar.GetComponentsInChildren<Collider>()) collider.enabled = false;
+                    source.Despawn(avatar);
+                }
             }
+            reconnects.Forget(player);
             roster.Remove(player.RawEncoded);
             SetStatus("Left owner=" + player + " count=" + roster.Count + "/6");
         }
@@ -333,8 +519,11 @@ namespace HeroesOfDragonland.Multiplayer
 
         public void OnConnectRequest(NetworkRunner source, NetworkRunnerCallbackArgs.ConnectRequest request, byte[] token)
         {
-            if (!source.IsServer || roster.Count >= NetworkTeamRoster.PlayerCapacity) request.Refuse();
-            else request.Accept(); // Final admission and team capacity rechecked at spawn.
+            if (source != runner || !source.IsServer || reconnects.IsDuplicate(token)) { request.Refuse(); return; }
+            var match = GetComponent<NetworkFortressSpawner>()?.Match;
+            if (match != null && match.State == MatchPhase.Playing && reconnects.CanResume(token)) { request.Accept(); return; }
+            if (roster.Count >= NetworkTeamRoster.PlayerCapacity || (match != null && match.State != MatchPhase.Lobby)) request.Refuse();
+            else request.Accept(); // Rechecked in OnPlayerJoined; reconnect credentials never override a live owner.
         }
 
         public void OnShutdown(NetworkRunner source, ShutdownReason reason)
@@ -343,21 +532,34 @@ namespace HeroesOfDragonland.Multiplayer
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             GetComponent<DeveloperBotService>()?.ReleaseSession();
 #endif
-            players.Clear(); roster.Clear(); pendingSpawns.Clear();
+            players.Clear(); roster.Clear(); pendingSpawns.Clear(); reconnects.Clear();
+            if (!intentionalDisconnect && clientSession && everConnected)
+            { connectionLost = !reconnectLoop; SetConnectionState(NetworkConnectionState.ConnectionLost); }
+            else if (!busy) SetConnectionState(NetworkFailureMessages.Classify(reason));
             runner = null;
             source.RemoveCallbacks(this);
             Destroy(source.gameObject);
             SetStatus("Stopped: " + reason);
         }
-        public void OnConnectedToServer(NetworkRunner source) => SetStatus("Connected to server");
+        public void OnConnectedToServer(NetworkRunner source) { if (source == runner) SetStatus("Connected to server"); }
         public void OnDisconnectedFromServer(NetworkRunner source, NetDisconnectReason reason)
-            => SetStatus("Connection lost: " + reason);
+        {
+            if (source != runner) return;
+            SetStatus("Connection lost: " + reason);
+            if (!intentionalDisconnect) { SetConnectionState(NetworkConnectionState.ConnectionLost); connectionLost = !reconnectLoop; }
+        }
         public void OnConnectFailed(NetworkRunner source, NetAddress address, NetConnectFailedReason reason)
-            => SetStatus("Connection failed: " + reason);
+        {
+            if (source != runner) return;
+            SetConnectionState(reason == NetConnectFailedReason.ServerFull ? NetworkConnectionState.SessionFull : NetworkConnectionState.JoinRejected);
+            SetStatus("Connection failed: " + reason);
+        }
         public void OnHostMigration(NetworkRunner source, HostMigrationToken token)
         {
-            SetStatus("Host left; host migration is not supported in this milestone.");
-            _ = Disconnect();
+            if (source != runner) return;
+            SetStatus("Host left; this match cannot migrate to another server.");
+            SetConnectionState(NetworkConnectionState.ConnectionLost);
+            connectionLost = !reconnectLoop;
         }
         public void OnSceneLoadDone(NetworkRunner source) { }
         public void OnSceneLoadStart(NetworkRunner source) { }

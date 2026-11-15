@@ -12,6 +12,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc5308be631ccb0459a1c614c82c03d0, type: 3}
   m_Name: BossKnight
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyDefinition
+  boss: {fileID: 11400000, guid: a0e32dc1d37864f468b352b3a81d4c43, type: 2}
+  archetype: 0
+  preferredDistance: 8
+  projectileSpeed: 14
+  spellManaCost: 30
   stats: {fileID: 11400000, guid: 8ef7f9e98d9c0f749ba2deb11ee8a111, type: 2}
   attackSet: {fileID: 11400000, guid: 1fc46aad7d294c44caf1ef176631e7df, type: 2}
   aggroOnSight: 1
@@ -25,6 +30,6 @@ MonoBehaviour:
   chaseSpeed: 2.8
   attackRange: 4
   damage: 22
-  attackWindup: 0.4
-  attackCooldown: 1.2
-  staggerPower: 20
+  attackWindup: 0.45
+  attackCooldown: 1.6
+  staggerPower: 75

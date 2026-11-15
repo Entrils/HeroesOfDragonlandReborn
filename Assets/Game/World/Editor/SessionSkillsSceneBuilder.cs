@@ -27,7 +27,7 @@ namespace HeroesOfDragonland.World.Editor
             try
             {
                 var skills = root.GetComponent<SessionSkills>() ?? root.AddComponent<SessionSkills>();
-                var data = new SerializedObject(skills); var entries = data.FindProperty("definitions"); entries.arraySize = definitions.Length;
+                var data = new SerializedObject(skills); var entries = data.FindProperty("definitions"); entries.arraySize = SessionSkills.SkillCount;
                 for (int i = 0; i < definitions.Length; i++) entries.GetArrayElementAtIndex(i).objectReferenceValue = definitions[i];
                 data.ApplyModifiedPropertiesWithoutUndo();
                 if (root.GetComponent<NetworkSessionSkills>() == null) root.AddComponent<NetworkSessionSkills>();
@@ -63,6 +63,7 @@ namespace HeroesOfDragonland.World.Editor
             finally { if (opened) EditorSceneManager.CloseScene(scene, true); }
             Fusion.Editor.NetworkProjectConfigUtilities.RebuildPrefabTable();
             AssetDatabase.SaveAssets();
+            HeroesOfDragonland.Abilities.Editor.MagicSetup.Install();
         }
         private static SkillDefinition Create(string fileName, string title, string description, SkillEffect effect,
             int level, Items.ItemStat stat, float minimum, float mana, float cooldown, float magnitude)

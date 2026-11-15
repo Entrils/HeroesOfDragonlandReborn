@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc5308be631ccb0459a1c614c82c03d0, type: 3}
   m_Name: BossBear
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyDefinition
+  archetype: 2
+  preferredDistance: 8
+  projectileSpeed: 14
+  spellManaCost: 30
   stats: {fileID: 11400000, guid: 1fd2d536e63d81a4cb03515e444b1d34, type: 2}
+  attackSet: {fileID: 0}
   aggroOnSight: 1
   detectionRadius: 7
   leashDistance: 10
@@ -21,9 +26,9 @@ MonoBehaviour:
   alertDuration: 0.4
   lostTargetTimeout: 3
   patrolSpeed: 1.5
-  chaseSpeed: 2.8
+  chaseSpeed: 2
   attackRange: 2
-  damage: 18
-  attackWindup: 0.4
-  attackCooldown: 1.8
-  staggerPower: 20
+  damage: 24
+  attackWindup: 1.1
+  attackCooldown: 2.8
+  staggerPower: 75

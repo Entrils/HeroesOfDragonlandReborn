@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cc81ee49738afae43b0faaa6b84585ab, type: 3}
   m_Name: MediumBearStats
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Stats.CharacterStatsConfig
-  maxHealth: 80
+  maxHealth: 160
   maxStamina: 0
   staminaRegenPerSecond: 20
   staminaRegenDelay: 1

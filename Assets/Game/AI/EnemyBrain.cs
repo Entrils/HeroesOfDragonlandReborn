@@ -20,6 +20,8 @@ namespace HeroesOfDragonland.AI
         private EnemyNavigation navigation;
         private EnemyPerception perception;
         private EnemyMeleeAttack attack;
+        private EnemyCombatTactics tactics;
+        private BossEncounter boss;
         private float stateTime;
         private float navigationTimer;
         private float unseenTime;
@@ -54,11 +56,13 @@ namespace HeroesOfDragonland.AI
             navigation = GetComponent<EnemyNavigation>();
             perception = GetComponent<EnemyPerception>();
             attack = GetComponent<EnemyMeleeAttack>();
+            boss = GetComponent<BossEncounter>();
             SpawnPosition = transform.position;
             if (definition == null || definition.Stats == null)
             { Debug.LogError("Enemy needs an EnemyDefinition with a stats profile.", this); enabled = false; return; }
             stats.ConfigureForSpawn(definition.Stats);
             attack.Configure(definition);
+            tactics = new EnemyCombatTactics(this, navigation, attack, stats);
         }
         private void OnEnable()
         {
@@ -81,6 +85,7 @@ namespace HeroesOfDragonland.AI
             SpawnPosition = transform.position;
             stats.ConfigureForSpawn(definition.Stats);
             attack.Configure(definition);
+            tactics = new EnemyCombatTactics(this, navigation, attack, stats);
         }
         // Manual ticking is for deterministic checks; don't also run Update that frame.
         public void Tick(float deltaTime)
@@ -89,9 +94,13 @@ namespace HeroesOfDragonland.AI
                 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) || State == EnemyState.Dead) return;
             if (stats.IsDead) { Die(); return; }
             if (GetComponent<CombatDefense>() is { IsStaggered: true }) { navigation.Stop(); attack.Cancel(); return; }
+            tactics.Tick(deltaTime);
             stateTime += deltaTime;
             navigationTimer -= deltaTime;
             perceptionTimer -= deltaTime;
+            if (State != EnemyState.Return && AggroTarget != null && (!perception.CanTarget(AggroTarget)
+                || Vector3.Distance(AggroTarget.NavigationPosition, SpawnPosition) > definition.LeashDistance)) boss?.TryReplaceLostTarget();
+            if (AggroTarget == null && (State == EnemyState.Alert || State == EnemyState.Chase || State == EnemyState.Attack)) boss?.TryReplaceLostTarget();
             if (State != EnemyState.Return && AggroTarget != null && (!perception.CanTarget(AggroTarget)
                 || Vector3.Distance(AggroTarget.NavigationPosition, SpawnPosition) > definition.LeashDistance
                 || Vector3.Distance(transform.position, SpawnPosition) > definition.LeashDistance)) BeginReturn();
@@ -108,10 +117,17 @@ namespace HeroesOfDragonland.AI
             {
                 bool visible = perception.CanSee(AggroTarget);
                 unseenTime = visible ? 0 : unseenTime + deltaTime;
-                if (unseenTime >= definition.LostTargetTimeout) { BeginReturn(); return; }
+                if (unseenTime >= definition.LostTargetTimeout)
+                {
+                    if (boss == null || !boss.TryReplaceLostTarget()) BeginReturn();
+                    return;
+                }
+                bool phasePaused = boss != null && boss.Tick(deltaTime);
                 attack.Tick(deltaTime);
+                if (phasePaused) return;
                 if (State == EnemyState.Alert && stateTime < definition.AlertDuration) return;
                 if (attack.IsBusy) return;
+                if (tactics.TryAct(AggroTarget, visible, deltaTime)) { SetState(EnemyState.Chase); return; }
                 if (visible && Vector3.Distance(transform.position, AggroTarget.NavigationPosition) <= definition.AttackRange)
                 {
                     navigation.Stop();
@@ -124,7 +140,7 @@ namespace HeroesOfDragonland.AI
                     SetState(EnemyState.Chase);
                     if (navigationTimer <= 0)
                     {
-                        if (!navigation.MoveTo(AggroTarget.NavigationPosition, definition.ChaseSpeed, definition.AttackRange * 0.8f)) { BeginReturn(); return; }
+                        if (!navigation.MoveTo(AggroTarget.NavigationPosition, definition.ChaseSpeed * (boss != null ? boss.SpeedMultiplier : 1), definition.AttackRange * 0.8f)) { BeginReturn(); return; }
                         navigationTimer = 0.25f;
                     }
                 }
@@ -153,7 +169,17 @@ namespace HeroesOfDragonland.AI
             if (!isActiveAndEnabled || !HasAuthority || definition == null || stats.IsDead
                 || State == EnemyState.Return || source == null) return;
             var target = source.GetComponentInParent<EnemyThreatTarget>();
-            if (perception.CanTarget(target) && Vector3.Distance(target.NavigationPosition, SpawnPosition) <= definition.LeashDistance) Acquire(target);
+            if (perception.CanTarget(target) && Vector3.Distance(target.NavigationPosition, SpawnPosition) <= definition.LeashDistance)
+            {
+                if (boss != null) boss.RegisterAttacker(target);
+                if (boss == null || AggroTarget == null || !perception.CanTarget(AggroTarget)) Acquire(target);
+            }
+        }
+        internal bool TrySwitchBossTarget(EnemyThreatTarget target)
+        {
+            if (!HasAuthority || State == EnemyState.Return || !perception.CanSee(target)
+                || Vector3.Distance(target.NavigationPosition, SpawnPosition) > definition.LeashDistance) return false;
+            Acquire(target); return true;
         }
         private void Acquire(EnemyThreatTarget target)
         {
@@ -166,6 +192,8 @@ namespace HeroesOfDragonland.AI
         }
         private void BeginReturn()
         {
+            tactics?.Reset();
+            boss?.ResetForEvade();
             AggroTarget = null; attack.Cancel(); navigation.Stop(); navigationTimer = 0;
             SetState(EnemyState.Return);
         }

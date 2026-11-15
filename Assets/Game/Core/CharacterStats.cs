@@ -98,6 +98,7 @@ namespace HeroesOfDragonland.Stats
             if (amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
             var gear = GetComponent<Equipment>();
             if (gear != null) amount = gear.ReducePhysicalDamage(amount);
+            amount = GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Absorb(amount) ?? amount;
             float removed = health.Remove(amount);
             if (removed <= 0f) return 0f;
             bool died = health.Current == 0f;

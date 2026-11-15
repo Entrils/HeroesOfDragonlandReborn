@@ -12,7 +12,7 @@ namespace HeroesOfDragonland.Skills
     [RequireComponent(typeof(SessionProgression), typeof(CharacterAttributes), typeof(CharacterStats))]
     public sealed class SessionSkills : MonoBehaviour, IInvulnerabilityProvider
     {
-        public const int SkillCount = 3;
+        public const int SkillCount = 6;
         [SerializeField] private SkillDefinition[] definitions = new SkillDefinition[SkillCount];
         private readonly float[] cooldowns = new float[SkillCount];
         private SessionProgression progression;
@@ -57,6 +57,7 @@ namespace HeroesOfDragonland.Skills
             // Only the progression authority may establish the reset boundary.
             if (!progression.HasAuthority || SessionId == id) return;
             SessionId = id; highestLevel = 1; SkillPoints = 1; learnedMask = 0;
+            GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Clear();
             guardRemaining = 0; Array.Clear(cooldowns, 0, cooldowns.Length); Notify();
         }
         private void OnProgression()
@@ -110,12 +111,21 @@ namespace HeroesOfDragonland.Skills
             if (!IsLearned(index)) reason = "Learn this skill first.";
             else if (definition.Kind != SkillKind.Active) reason = "Passive skills are always applied while learned.";
             else if (stats.IsDead) reason = "Cannot use skills while dead.";
+            else if (GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>() is { CastRemaining: > 0 }) reason = "Already casting.";
+            else if (GetComponent<CombatDefense>()?.ActionsBlocked == true) reason = "Finish your current action first.";
             else if (cooldowns[index] > 0) reason = "Skill is on cooldown.";
             else if (stats.CurrentMana < definition.ManaCost) reason = "Not enough Mana.";
             else if (GetComponent<MeleeAttack>()?.IsBusy == true || GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerCombat>()?.AttackBusy == true
                 || GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerDodge>()?.Busy == true
                 || GetComponent<HeroesOfDragonland.Player.PlayerDodge>()?.IsBusy == true) reason = "Finish your current action first.";
             else if (definition.Effect == SkillEffect.MeleeStrike && GetComponent<MeleeAttack>()?.Definition == null) reason = "Melee attack is not configured.";
+            if (reason.Length == 0 && definition.Effect == SkillEffect.Ability)
+            {
+                var caster = GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>();
+                if (caster == null) reason = "Ability caster is missing.";
+                else caster.CanStart(definition.Ability, definition.Ability.Target == HeroesOfDragonland.Abilities.AbilityTarget.SelfOrAlly
+                    ? caster.SelectHealingTarget(definition.Ability) : null, out reason);
+            }
             return reason.Length == 0;
         }
         public bool TryActivate(int index, string sessionId, out string reason)
@@ -128,7 +138,14 @@ namespace HeroesOfDragonland.Skills
             {
                 var definition = GetDefinition(index);
                 // No client target, hit, damage amount, cost, or duration is accepted.
-                if (definition.Effect == SkillEffect.MeleeStrike)
+                if (definition.Effect == SkillEffect.Ability)
+                {
+                    var caster = GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>();
+                    var target = definition.Ability.Target == HeroesOfDragonland.Abilities.AbilityTarget.SelfOrAlly
+                        ? caster.SelectHealingTarget(definition.Ability) : null;
+                    if (!caster.TryStart(definition.Ability, target, out reason)) return false;
+                }
+                else if (definition.Effect == SkillEffect.MeleeStrike)
                 {
                     var combat = GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerCombat>();
                     bool started = combat != null ? combat.TryStartSkillStrike(definition.Magnitude, definition.ManaCost)
@@ -153,7 +170,7 @@ namespace HeroesOfDragonland.Skills
             }
             return damage;
         }
-        private void Update() { if (GetComponent<ISessionSkillAuthority>() == null) Tick(Time.deltaTime); }
+        private void Update() { if (GetComponent<ISessionSkillAuthority>() == null) { Tick(Time.deltaTime); GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Tick(Time.deltaTime); } }
         public void Tick(float deltaTime)
         {
             if (!HasAuthority || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;

@@ -12,17 +12,23 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc5308be631ccb0459a1c614c82c03d0, type: 3}
   m_Name: Wolf
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyDefinition
+  archetype: 1
+  preferredDistance: 8
+  projectileSpeed: 14
+  spellManaCost: 30
   stats: {fileID: 11400000, guid: d8110c76c1a1b684c87f22236b3821d8, type: 2}
+  attackSet: {fileID: 0}
   aggroOnSight: 1
   detectionRadius: 7
   leashDistance: 12
   patrolRadius: 2
   idleDuration: 2
-  alertDuration: 0.4
+  alertDuration: 0.1
   lostTargetTimeout: 3
   patrolSpeed: 1.5
-  chaseSpeed: 4.5
+  chaseSpeed: 5.5
   attackRange: 1.4
   damage: 8
-  attackWindup: 0.4
-  attackCooldown: 1
+  attackWindup: 0.18
+  attackCooldown: 0.85
+  staggerPower: 12

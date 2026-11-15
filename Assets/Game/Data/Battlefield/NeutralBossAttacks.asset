@@ -18,16 +18,16 @@ MonoBehaviour:
     angle: 70
     windup: 1.1
     recovery: 1.4
-    damage: 34
-  - displayName: SWEEP - get behind
+    damage: 28
+  - displayName: HEAVY SWEEP - get behind
     radius: 5.5
     angle: 180
     windup: 1.5
     recovery: 1.4
-    damage: 28
+    damage: 48
   - displayName: STOMP - move out
     radius: 5
     angle: 360
     windup: 1.8
     recovery: 1.4
-    damage: 40
+    damage: 36

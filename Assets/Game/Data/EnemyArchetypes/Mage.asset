@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dc5308be631ccb0459a1c614c82c03d0, type: 3}
+  m_Name: Mage
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyDefinition
+  archetype: 5
+  preferredDistance: 8
+  projectileSpeed: 10
+  spellManaCost: 30
+  stats: {fileID: 11400000, guid: 11a6c845da0f33949baffcc785fb5dc3, type: 2}
+  attackSet: {fileID: 0}
+  aggroOnSight: 1
+  detectionRadius: 12
+  leashDistance: 18
+  patrolRadius: 2
+  idleDuration: 2
+  alertDuration: 0.4
+  lostTargetTimeout: 3
+  patrolSpeed: 1.5
+  chaseSpeed: 3
+  attackRange: 12
+  damage: 28
+  attackWindup: 1
+  attackCooldown: 2.2
+  staggerPower: 20

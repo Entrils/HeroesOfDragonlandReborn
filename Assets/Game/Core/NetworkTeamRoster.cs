@@ -30,6 +30,13 @@ namespace HeroesOfDragonland.Multiplayer
             return true;
         }
 
+        internal bool Transfer(int previous, int current)
+        {
+            if (previous == current) return teams.ContainsKey(previous);
+            if (teams.ContainsKey(current) || !teams.Remove(previous, out var team)) return false;
+            teams.Add(current, team); return true;
+        }
+
         public bool Remove(int connectionId) => teams.Remove(connectionId);
         public bool TryGetTeam(int connectionId, out TeamId team) => teams.TryGetValue(connectionId, out team);
         public void Clear() => teams.Clear();

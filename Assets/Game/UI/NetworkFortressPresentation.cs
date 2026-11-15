@@ -9,6 +9,7 @@ namespace HeroesOfDragonland.Multiplayer
         private void Awake() => fortress = GetComponent<NetworkFortressSpawner>();
         private void OnGUI()
         {
+            if (GetComponent<MultiplayerLobbyPanel>() != null && (!GetComponent<MultiplayerBootstrap>().Running || GetComponent<NetworkFortressSpawner>()?.Match?.State == MatchPhase.Lobby)) return;
             if (Application.isBatchMode) return;
             var match = fortress.Match;
             if (match == null || match.Object == null || !match.Object.IsValid) return;

@@ -136,6 +136,24 @@ namespace HeroesOfDragonland.Progression
             finally { processing = false; }
         }
 
+        // Death never removes earned levels, allocated attributes, points or equipment.
+        public bool TryApplyDeathLoss(long amount, string sessionId, string deathId, out string reason)
+        {
+            reason = null;
+            if (!HasAuthority || processing || !IsInitialized || sessionId != SessionId)
+                reason = "Death loss requires the active authoritative session.";
+            else if (amount < 0 || string.IsNullOrWhiteSpace(deathId) || rewardedIds.Contains(deathId))
+                reason = "Invalid or repeated death event.";
+            if (reason != null) return false;
+            processing = true;
+            try
+            {
+                rewardedIds.Add(deathId); CurrentXP -= Math.Min(CurrentXP, amount); Revision++;
+                Notify(Changed); return true;
+            }
+            finally { processing = false; }
+        }
+
         // Only the transport adapter applies accepted snapshots. No XP/level reward events on replicas.
         internal void ApplyNetworkState(string sessionId, int level, long xp, long points, long revision, int[] allocated)
         {
@@ -148,6 +166,11 @@ namespace HeroesOfDragonland.Progression
             allocatedAttributes.Clear();
             for (int i = 0; i < attributes.Length; i++) allocatedAttributes[attributes[i]] = allocated[i];
             Notify(Changed);
+        }
+
+        internal void ConfigureCurve(LevelProgressionDefinition value)
+        {
+            if (!IsInitialized && value != null && value.TryValidate(out _)) definition = value;
         }
 
         private void Notify(Action handlers)

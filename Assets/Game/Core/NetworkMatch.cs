@@ -11,12 +11,15 @@ namespace HeroesOfDragonland.Multiplayer
         public TeamId Team;
         public NetworkBool HasAvatar;
         public NetworkBool IsBot;
+        public NetworkBool Ready;
     }
 
     [DisallowMultipleComponent, RequireComponent(typeof(NetworkObject))]
     public sealed class NetworkMatch : NetworkBehaviour
     {
         [SerializeField] private MatchLifecycleConfig lifecycle;
+        [SerializeField] private MatchBalanceConfig balance;
+        public MatchBalanceConfig Balance => balance;
         [SerializeField] private NetworkKingObjective teamAKingPrefab;
         [SerializeField] private NetworkKingObjective teamBKingPrefab;
         [SerializeField] private NetworkEnemy teamAGuardPrefab;
@@ -40,6 +43,69 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public int FinishCount { get; private set; }
         [Networked] public NetworkId TeamAKingId { get; private set; }
         [Networked] public NetworkId TeamBKingId { get; private set; }
+        private readonly System.Collections.Generic.HashSet<PlayerRef> readyPlayers = new();
+        private readonly System.Collections.Generic.HashSet<PlayerRef> observedPlayers = new();
+        private int observedBotCount = -1;
+        [Networked] public NetworkBool AllowShortMatch { get; private set; }
+        public bool LocalReady
+        {
+            get { foreach (var slot in LobbyPlayers) if (!slot.IsBot && slot.Player == Runner.LocalPlayer) return slot.Ready; return false; }
+        }
+        public bool CanStartLobby
+        {
+            get
+            {
+                if (State != MatchPhase.Lobby || PreparationError.ToString().Length != 0) return false;
+                int a = 0, b = 0, humans = 0;
+                foreach (var slot in LobbyPlayers)
+                {
+                    if (slot.Team == TeamId.Unassigned) continue;
+                    if (!slot.HasAvatar || (!slot.IsBot && !slot.Ready)) return false;
+                    if (!slot.IsBot) humans++;
+                    if (slot.Team == TeamId.TeamA) a++; else if (slot.Team == TeamId.TeamB) b++;
+                }
+                return humans > 0 && MatchLifecycleRules.HasEnoughPlayers(a, b, AllowShortMatch ? 2 : 6);
+            }
+        }
+        // Sender identity comes from Fusion, never from a client-supplied player ID.
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+        public void RPC_SetReady(bool ready, RpcInfo info = default)
+        {
+            if (!IsServerOwner || State != MatchPhase.Lobby) return;
+            foreach (var player in Runner.ActivePlayers)
+                if (player == info.Source)
+                { if (ready) readyPlayers.Add(player); else readyPlayers.Remove(player); break; }
+        }
+        [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
+        public void RPC_LeaveSession(RpcInfo info = default)
+        {
+            if (!IsServerOwner || info.Source == PlayerRef.None) return;
+            bootstrap.ForfeitReconnect(info.Source);
+            RPC_LeaveAcknowledged(info.Source);
+        }
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_LeaveAcknowledged([RpcTarget] PlayerRef player) => bootstrap.ConfirmLeave();
+
+        public bool SetShortMatch(bool allow)
+        {
+            if (!IsServerOwner || State != MatchPhase.Lobby) return false;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (AllowShortMatch != allow) readyPlayers.Clear();
+            AllowShortMatch = allow;
+            RequiredPlayers = allow ? 2 : 6;
+            return true;
+#else
+            return false;
+#endif
+        }
+        public bool TryStartLobby()
+        {
+            if (!IsServerOwner) return false;
+            RefreshLobby();
+            if (!CanStartLobby) return false;
+            BeginRound();
+            return State == MatchPhase.Starting;
+        }
         private NetworkKingObjective kingA, kingB;
         private MultiplayerBootstrap bootstrap;
         private NetworkRoundReset reset;
@@ -69,7 +135,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (IsServerOwner)
             {
                 State = MatchPhase.Boot;
-                RequiredPlayers = lifecycle != null ? lifecycle.MinimumPlayers : NetworkTeamRoster.PlayerCapacity;
+                RequiredPlayers = NetworkTeamRoster.PlayerCapacity;
             }
             NotifyObservers();
         }
@@ -85,7 +151,7 @@ namespace HeroesOfDragonland.Multiplayer
                     SetPhase(MatchPhase.Lobby);
                     break;
                 case MatchPhase.Lobby:
-                    if (PreparationError.ToString().Length == 0 && EnoughPlayers) BeginRound();
+                    // Starting requires an explicit server/host action after all humans ready.
                     break;
                 case MatchPhase.Starting:
                     if (!EnoughConnections) BeginReturn();
@@ -94,7 +160,7 @@ namespace HeroesOfDragonland.Multiplayer
                 case MatchPhase.Playing:
                     PlayingSeconds += Runner.DeltaTime;
                     // An empty room is abandoned without inventing a winning team.
-                    if (TeamACount + TeamBCount == 0) BeginReturn();
+                    if (TeamACount + TeamBCount == 0 && bootstrap.ReservedPlayerCount == 0) BeginReturn();
                     break;
                 case MatchPhase.Finished:
                     if (PhaseTimer.Expired(Runner)) BeginReturn();
@@ -126,6 +192,17 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void RefreshLobby()
         {
+            var active = new System.Collections.Generic.HashSet<PlayerRef>(Runner.ActivePlayers);
+            int botCount = 0;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            botCount = bootstrap.GetComponent<DeveloperBotService>()?.SpawnedCount ?? 0;
+#endif
+            if (!observedPlayers.SetEquals(active) || observedBotCount != botCount)
+            {
+                readyPlayers.Clear();
+                observedPlayers.Clear(); observedPlayers.UnionWith(active);
+                observedBotCount = botCount;
+            }
             int index = 0, a = 0, b = 0;
             foreach (var player in Runner.ActivePlayers)
             {
@@ -133,7 +210,7 @@ namespace HeroesOfDragonland.Multiplayer
                 bootstrap.TryGetTeam(player, out var team);
                 bool ready = Runner.TryGetPlayerObject(player, out var obj) && obj != null && obj.IsValid
                     && obj.GetComponent<NetworkTestPlayer>() != null;
-                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = player, Team = team, HasAvatar = ready });
+                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = player, Team = team, HasAvatar = ready, Ready = readyPlayers.Contains(player) });
                 if (ready && team == TeamId.TeamA) a++;
                 if (ready && team == TeamId.TeamB) b++;
             }
@@ -143,7 +220,7 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 if (index >= NetworkTeamRoster.PlayerCapacity) break;
                 var bot = avatar.GetComponent<NetworkTestPlayer>();
-                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = PlayerRef.None, Team = bot.Team, HasAvatar = true, IsBot = true });
+                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = PlayerRef.None, Team = bot.Team, HasAvatar = true, IsBot = true, Ready = true });
                 if (bot.Team == TeamId.TeamA) a++; else if (bot.Team == TeamId.TeamB) b++;
             }
 #endif
@@ -156,12 +233,17 @@ namespace HeroesOfDragonland.Multiplayer
             if (!MatchLifecycleRules.CanTransition(State, next))
                 throw new InvalidOperationException("Invalid match transition: " + State + " -> " + next);
             State = next; StateSequence++;
+            // Keep transport admission open for authenticated reconnects; bootstrap gates new players.
+            if (Runner.SessionInfo.IsValid) Runner.SessionInfo.IsOpen = true;
+            if (next == MatchPhase.ReturningToLobby) readyPlayers.Clear();
             PhaseTimer = seconds < 0 ? TickTimer.None : TickTimer.CreateFromSeconds(Runner, seconds);
             Debug.Log("[MatchLifecycle] round=" + RoundNumber + " state=" + State, this);
         }
 
         private void BeginRound()
         {
+            if (balance != null && !balance.TryValidate(out var balanceError))
+            { PreparationError = balanceError; return; }
             PlayingSeconds = 0;
             RoundNumber++; FinishCount = 0; MatchEnded = false; Winner = TeamId.Unassigned;
             SetPhase(MatchPhase.Starting, lifecycle.StartingDelay);

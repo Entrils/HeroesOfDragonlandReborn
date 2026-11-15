@@ -10,7 +10,13 @@ namespace HeroesOfDragonland.AI
     public sealed class EnemyMeleeAttack : MonoBehaviour, IMeleeImpactSource
     {
         private EnemyDefinition definition;
+        private EnemyAttackSet committedSet;
+        private EnemyAttackSet AvailableSet => GetComponent<BossEncounter>() is { } boss && definition.Boss != null ? boss.AttackSet : definition.AttackSet;
+        public EnemyAttackSet ActiveSet => IsBusy ? committedSet : AvailableSet;
         private EnemyThreatTarget target;
+        private bool projectileReleased;
+        private Vector3 projectilePosition;
+        private float projectileDistance;
         private float elapsed;
         private float cooldown;
         private Vector3 facing;
@@ -19,12 +25,12 @@ namespace HeroesOfDragonland.AI
         public int AttackIndex { get; private set; }
         public Vector3 AttackOrigin => origin;
         public Vector3 AttackForward => facing;
-        public bool UsesAttackSet => definition != null && definition.AttackSet != null && definition.AttackSet.Count > 0;
-        public float Windup => UsesAttackSet ? definition.AttackSet.Get(AttackIndex).Windup : definition.AttackWindup;
+        public bool UsesAttackSet => definition != null && ActiveSet != null && ActiveSet.Count > 0;
+        public float Windup => UsesAttackSet ? ActiveSet.Get(AttackIndex).Windup : definition.AttackWindup;
         public float StaggerPower => definition != null ? definition.StaggerPower : 0;
         public bool IsBusy { get; private set; }
         public bool ResolvingHit { get; private set; }
-        public bool IsResolvingMeleeHit => ResolvingHit && IsBusy;
+        public bool IsResolvingMeleeHit => ResolvingHit && IsBusy && !definition.IsRanged;
         public float PoiseDamage => StaggerPower;
         public Vector3 ImpactOrigin => origin;
         public void InterruptByParry(float duration)
@@ -35,21 +41,27 @@ namespace HeroesOfDragonland.AI
         public float CooldownRemaining => cooldown;
         public event Action AttackStarted;
         public event Action AttackFinished;
-        public void Configure(EnemyDefinition value) => definition = value;
+        public void Configure(EnemyDefinition value) { definition = value; committedSet = null; }
+        public void ResetPattern() { if (!IsBusy) { nextAttack = 0; cooldown = 0; } }
 
         public bool TryStart(EnemyThreatTarget value)
         {
             if (!EnemyAuthority.CanSimulate(this) || !GetComponent<CharacterStats>().CanMutate
                 || !isActiveAndEnabled || definition == null || IsBusy || cooldown > 0
                 || GetComponent<CharacterStats>().IsDead || !CanHit(value)) return false;
-            if (GetComponent<CombatDefense>() is { ActionsBlocked: true }) return false;
+            if (GetComponent<CombatDefense>() is { ActionsBlocked: true } || GetComponent<BossEncounter>() is { Phase: BossPhase.Transition }) return false;
+            if (definition.Archetype == EnemyArchetype.Mage && !GetComponent<CharacterStats>().TrySpendMana(definition.SpellManaCost)) return false;
+            projectileReleased = false;
+            projectileDistance = 0;
             target = value;
             origin = transform.position;
             facing = value.NavigationPosition - origin; facing.y = 0;
             facing = facing.sqrMagnitude < .001f ? transform.forward : facing.normalized;
-            AttackIndex = UsesAttackSet ? nextAttack++ % definition.AttackSet.Count : 0;
+            if (definition.IsRanged) facing = (value.AimPosition - (origin + Vector3.up)).normalized;
+            committedSet = AvailableSet;
+            AttackIndex = UsesAttackSet ? nextAttack++ % ActiveSet.Count : 0;
             elapsed = 0;
-            cooldown = UsesAttackSet ? Windup + definition.AttackSet.Get(AttackIndex).Recovery : definition.AttackCooldown;
+            cooldown = UsesAttackSet ? Windup + ActiveSet.Get(AttackIndex).Recovery : definition.AttackCooldown;
             IsBusy = true;
             AttackStarted?.Invoke();
             return true;
@@ -65,9 +77,14 @@ namespace HeroesOfDragonland.AI
             if (GetComponent<CharacterStats>().IsDead) { Cancel(); return; }
             elapsed += deltaTime;
             if (elapsed < Windup) return;
+            if (definition.IsRanged)
+            {
+                TickProjectile(Mathf.Min(deltaTime, elapsed - Windup));
+                return;
+            }
             if (UsesAttackSet)
             {
-                var move = definition.AttackSet.Get(AttackIndex);
+                var move = ActiveSet.Get(AttackIndex);
                 var hit = new HashSet<EnemyThreatTarget>();
                 ResolvingHit = true;
                 try
@@ -91,6 +108,35 @@ namespace HeroesOfDragonland.AI
                 finally { ResolvingHit = false; }
             }
             Cancel();
+        }
+        private void TickProjectile(float dt)
+        {
+            if (!projectileReleased)
+            {
+                projectileReleased = true;
+                projectilePosition = origin + Vector3.up;
+                // Commit to the advertised aim; projectiles never track a dodging target.
+                // facing was fixed at attack acceptance.
+            }
+            if (dt <= 0) return;
+            float step = Mathf.Min(definition.ProjectileSpeed * dt, definition.AttackRange - projectileDistance);
+            var hits = Physics.SphereCastAll(projectilePosition, .15f, facing, step, Physics.DefaultRaycastLayers, QueryTriggerInteraction.Ignore);
+            Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+            foreach (var hit in hits)
+            {
+                if (hit.transform == transform || hit.transform.IsChildOf(transform)) continue;
+                var victim = hit.collider.GetComponentInParent<EnemyThreatTarget>();
+                if (victim != null && GetComponent<EnemyPerception>().CanTarget(victim))
+                {
+                    ResolvingHit = true;
+                    try { victim.Receiver.TakeDamage(definition.Damage, gameObject); }
+                    finally { ResolvingHit = false; }
+                }
+                Cancel(); return;
+            }
+            projectilePosition += facing * step;
+            projectileDistance += step;
+            if (projectileDistance >= definition.AttackRange) Cancel();
         }
         private bool CanHit(EnemyThreatTarget value) => value != null && value.IsAlive
             && Vector3.Distance(transform.position, value.NavigationPosition) <= definition.AttackRange

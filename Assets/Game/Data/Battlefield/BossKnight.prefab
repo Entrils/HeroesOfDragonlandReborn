@@ -247,6 +247,7 @@ GameObject:
   - component: {fileID: 5946830410281146029}
   - component: {fileID: 2284184287765343151}
   - component: {fileID: 1530405536305845678}
+  - component: {fileID: 1229845253127542183}
   m_Layer: 0
   m_Name: BossKnight
   m_TagString: Untagged
@@ -511,6 +512,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6ceb931d26d981d4f863cf86ecabca26, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkEnemy
+  _Blocking:
+    RawValue: 0
   _Staggered:
     RawValue: 0
   _Poise: 0
@@ -526,6 +529,9 @@ MonoBehaviour:
   _AttackIndex: 0
   _AttackOrigin: {x: 0, y: 0, z: 0}
   _AttackForward: {x: 0, y: 0, z: 0}
+  _BossPhase: 0
+  _AttackPhase: 0
+  _BossTransitionRemaining: 0
   _AttackEndTick: 0
   _AttackBusy:
     RawValue: 0
@@ -586,3 +592,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48bf64a24da423041ab85da18d55f72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CharacterPoise
+--- !u!114 &1229845253127542183
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6925779332107957264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 23eb1642dcd8cc44388ac14452a50516, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.BossEncounter

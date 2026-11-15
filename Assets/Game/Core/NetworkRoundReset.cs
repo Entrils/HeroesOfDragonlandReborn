@@ -19,7 +19,7 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 if (!obj.IsValid || obj.Runner != runner) continue;
                 if (obj.GetComponent<NetworkEnemy>() != null || obj.GetComponent<NetworkKingObjective>() != null
-                    || obj.GetComponent<NetworkCamp>() != null || obj.GetComponent<NetworkLootChest>() != null)
+                    || obj.GetComponent<NetworkFortressGate>() != null || obj.GetComponent<NetworkCamp>() != null || obj.GetComponent<NetworkLootChest>() != null)
                 {
                     foreach (var collider in obj.GetComponentsInChildren<Collider>()) collider.enabled = false;
                     runner.Despawn(obj);
@@ -36,6 +36,7 @@ namespace HeroesOfDragonland.Multiplayer
         internal void SpawnWorld(NetworkRunner runner)
         {
             if (!IsOwner(runner)) throw new InvalidOperationException("Only this session's server can create its world.");
+            GetComponent<FortressAssaultSpawner>()?.SpawnRound(runner);
             GetComponent<NetworkEnemySpawner>()?.SpawnRound(runner);
             GetComponent<NetworkCampSpawner>()?.SpawnRound(runner);
         }

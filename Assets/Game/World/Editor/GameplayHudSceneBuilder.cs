@@ -47,6 +47,7 @@ namespace HeroesOfDragonland.World.Editor
                     go.AddComponent<GameplayHudView>();
                     hud = go.AddComponent<GameplayHudPresenter>();
                 }
+                if (hud.GetComponent<BossHealthPresenter>() == null) hud.gameObject.AddComponent<BossHealthPresenter>();
                 hud.GetComponent<UIDocument>().panelSettings = settings;
                 if (hud.GetComponent<GameplayHudAcceptanceProbe>() == null) hud.gameObject.AddComponent<GameplayHudAcceptanceProbe>();
                 var data = new SerializedObject(hud);

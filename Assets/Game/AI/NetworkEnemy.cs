@@ -11,6 +11,7 @@ namespace HeroesOfDragonland.Multiplayer
     [RequireComponent(typeof(EnemyBrain), typeof(NetworkCharacterStats), typeof(NetworkTransform))]
     public sealed class NetworkEnemy : NetworkBehaviour, IAfterTick, IEnemyAuthority, IEnemyTargetPolicy, IDamagePolicy
     {
+        [Networked] public NetworkBool Blocking { get; private set; }
         [Networked] public NetworkBool Staggered { get; private set; }
         [Networked] public float Poise { get; private set; }
         [Networked] public float MaxPoise { get; private set; }
@@ -24,8 +25,13 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public int AttackIndex { get; private set; }
         [Networked] public Vector3 AttackOrigin { get; private set; }
         [Networked] public Vector3 AttackForward { get; private set; }
-        public float AttackWindup => Definition.AttackSet != null && Definition.AttackSet.Count > 0
-            ? Definition.AttackSet.Get(AttackIndex).Windup : Definition.AttackWindup;
+        [Networked] public BossPhase BossPhase { get; private set; }
+        [Networked] public BossPhase AttackPhase { get; private set; }
+        [Networked] public float BossTransitionRemaining { get; private set; }
+        public EnemyAttackSet PresentedAttackSet => AttackPhase == HeroesOfDragonland.AI.BossPhase.PhaseTwo && Definition.Boss != null
+            ? Definition.Boss.PhaseTwoAttacks : Definition.AttackSet;
+        public float AttackWindup => PresentedAttackSet != null && PresentedAttackSet.Count > 0
+            ? PresentedAttackSet.Get(AttackIndex).Windup : Definition.AttackWindup;
         [Networked] public int AttackEndTick { get; private set; }
         [Networked] public NetworkBool AttackBusy { get; private set; }
         [Networked] public int SpawnIndex { get; private set; }
@@ -41,7 +47,7 @@ namespace HeroesOfDragonland.Multiplayer
         private bool IsServerOwner => isActiveAndEnabled && Object != null && Object.IsValid
             && Runner.IsServer && HasStateAuthority && Object.InputAuthority == PlayerRef.None;
         public bool CanSimulateEnemy => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
-        public bool IsResolvingAttack => CanSimulateEnemy && !stats.IsDead && attack.IsResolvingMeleeHit;
+        public bool IsResolvingAttack => CanSimulateEnemy && !stats.IsDead && attack.ResolvingHit;
 
         private void Awake()
         {
@@ -116,11 +122,15 @@ namespace HeroesOfDragonland.Multiplayer
         private void Publish()
         {
             var defense = GetComponent<CombatDefense>(); var poise = GetComponent<CharacterPoise>();
+            Blocking = defense != null && defense.IsBlocking;
             Staggered = defense != null && defense.IsStaggered;
             Poise = poise != null ? poise.Current : 0; MaxPoise = poise != null ? poise.Maximum : 0;
             PoiseRegenRemaining = poise != null ? poise.RegenDelayRemaining : 0;
             StaggerRemaining = defense != null ? defense.StaggerRemaining : 0;
             StaggerImmunityRemaining = defense != null ? defense.ImmunityRemaining : 0;
+            var boss = GetComponent<BossEncounter>();
+            BossPhase = boss != null ? boss.Phase : HeroesOfDragonland.AI.BossPhase.Dormant;
+            BossTransitionRemaining = boss != null ? boss.TransitionRemaining : 0;
             State = brain.State;
             var target = brain.AggroTarget != null ? brain.AggroTarget.GetComponent<NetworkObject>() : null;
             TargetId = target != null && target.IsValid ? target.Id : default;
@@ -128,6 +138,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void OnAttackStarted()
         {
+            AttackPhase = GetComponent<BossEncounter>()?.Phase ?? HeroesOfDragonland.AI.BossPhase.Dormant;
             AttackIndex = attack.AttackIndex;
             AttackOrigin = attack.AttackOrigin;
             AttackForward = attack.AttackForward;
@@ -139,6 +150,7 @@ namespace HeroesOfDragonland.Multiplayer
         private void OnAttackFinished() { AttackEndTick = Runner.Tick.Raw; AttackBusy = false; }
         private void OnDeath()
         {
+            if (Definition.Boss != null) BossPhase = HeroesOfDragonland.AI.BossPhase.Defeated;
             State = EnemyState.Dead; TargetId = default; AttackBusy = false;
             attack.Cancel();
             agent.enabled = false;
@@ -154,6 +166,8 @@ namespace HeroesOfDragonland.Multiplayer
         public bool AllowsDamage(GameObject source)
         {
             if (!CanSimulateEnemy || stats.IsDead || source == null) return false;
+            var magic = source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>();
+            if (magic != null && magic.AllowsProjectileDamage(Runner)) return HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject);
             var player = source.GetComponent<NetworkPlayerCombat>();
             return player != null && player.Runner == Runner && player.IsAdmitted()
                 && player.ResolvingAttack && !source.GetComponent<CharacterStats>().IsDead;

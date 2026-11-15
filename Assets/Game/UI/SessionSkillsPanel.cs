@@ -106,12 +106,16 @@ namespace HeroesOfDragonland.UI
                 descriptions[i].text = definition.DisplayName + " | " + definition.Kind + (skills.IsLearned(i) ? " | Learned" : "")
                     + "\n" + definition.Description + "\nRequires: " + requirements + " | Points: " + definition.PointCost
                     + (definition.Kind == SkillKind.Active ? " | Mana: " + definition.ManaCost + " | Cooldown: " + definition.Cooldown + "s" : "")
+                    + (definition.Ability != null ? " | Cast: " + definition.Ability.CastTime + "s | Range: " + definition.Ability.Range + "m" : "")
                     + (skills.CooldownRemaining(i) > 0 ? "\nReady in " + skills.CooldownRemaining(i).ToString("0.0") + "s" : "")
                     + "\n" + (skills.IsLearned(i) ? useReason : learnReason);
                 learn[i].SetEnabled(available && canLearn); use[i].SetEnabled(available && canUse);
                 use[i].style.display = definition.Kind == SkillKind.Active ? DisplayStyle.Flex : DisplayStyle.None;
             }
-            status.text = pending ? "Waiting for server..." : !network.CanRequest ? "Skills require an active match." : feedback;
+            var caster = skills.GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>();
+            string magic = caster != null ? (caster.CastRemaining > 0 ? "Casting: " + caster.CastRemaining.ToString("0.0") + "s. " : "")
+                + (caster.ShieldRemaining > 0 ? "Shield: " + caster.ShieldCapacity.ToString("0") + " / " + caster.ShieldRemaining.ToString("0.0") + "s. " : "") : "";
+            status.text = magic + (pending ? "Waiting for server..." : !network.CanRequest ? "Skills require an active match." : feedback);
         }
         private void Request(int index, bool learning)
         {

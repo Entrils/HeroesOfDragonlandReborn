@@ -3,9 +3,22 @@ using UnityEngine;
 
 namespace HeroesOfDragonland.AI
 {
+    public enum EnemyArchetype { Standard, Wolf, Bear, Knight, Archer, Mage }
+
     [CreateAssetMenu(menuName = "Heroes of Dragonland/Enemy Definition")]
     public sealed class EnemyDefinition : ScriptableObject
     {
+        [SerializeField] private BossEncounterDefinition boss;
+        public BossEncounterDefinition Boss => boss;
+        [SerializeField] private EnemyArchetype archetype;
+        [SerializeField, Min(0)] private float preferredDistance = 8f;
+        [SerializeField, Min(.1f)] private float projectileSpeed = 14f;
+        [SerializeField, Min(0)] private float spellManaCost = 30f;
+        public EnemyArchetype Archetype => archetype;
+        public bool IsRanged => archetype == EnemyArchetype.Archer || archetype == EnemyArchetype.Mage;
+        public float PreferredDistance => Mathf.Clamp(preferredDistance, .5f, AttackRange * .9f);
+        public float ProjectileSpeed => Mathf.Max(.1f, projectileSpeed);
+        public float SpellManaCost => Mathf.Max(0, spellManaCost);
         [SerializeField] private CharacterStatsConfig stats;
         [SerializeField] private EnemyAttackSet attackSet;
         public EnemyAttackSet AttackSet => attackSet;

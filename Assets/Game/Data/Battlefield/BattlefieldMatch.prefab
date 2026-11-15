@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5180749836792205273}
   - component: {fileID: 9135981848501712677}
   - component: {fileID: 6383800148502305765}
+  - component: {fileID: 7572901124636204971}
   m_Layer: 0
   m_Name: BattlefieldMatch
   m_TagString: Untagged
@@ -52,6 +53,7 @@ MonoBehaviour:
   NestedObjects: []
   NetworkedBehaviours:
   - {fileID: 6383800148502305765}
+  - {fileID: 7572901124636204971}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &6383800148502305765
 MonoBehaviour:
@@ -66,16 +68,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkMatch
   lifecycle: {fileID: 11400000, guid: 1835323b602702c459c0572fd4d0279b, type: 2}
+  balance: {fileID: 11400000, guid: f9f982516786ba44db8f60ac48d9dd26, type: 2}
   teamAKingPrefab: {fileID: 6988759492962262306, guid: e22178f07ca733e489c0b1faf35a876e, type: 3}
   teamBKingPrefab: {fileID: 4658928340434380134, guid: 24d0d748cd2187140b823428ba3741bd, type: 3}
-  teamAGuardPrefab: {fileID: 7774775507930950904, guid: b61fe7523dadfcd4a8d6d57548a3f2f6, type: 3}
-  teamBGuardPrefab: {fileID: 7774775507930950904, guid: 072be2a1bb8133c4180f473197ecaf5d, type: 3}
-  teamAKingPosition: {x: -36, y: 0, z: 0}
-  teamBKingPosition: {x: 36, y: 0, z: 0}
-  teamAGuardPosition: {x: -27, y: 0, z: 0}
-  teamBGuardPosition: {x: 27, y: 0, z: 0}
+  teamAGuardPrefab: {fileID: 7774775507930950904, guid: 273c21fbab040014a93d19276c2db851, type: 3}
+  teamBGuardPrefab: {fileID: 7774775507930950904, guid: 6641ffdf320cf37469c7ab41e87252e7, type: 3}
+  teamAKingPosition: {x: -38, y: 0, z: 7}
+  teamBKingPosition: {x: 38, y: 0, z: -7.0000005}
+  teamAGuardPosition: {x: -22, y: 0, z: 0}
+  teamBGuardPosition: {x: 22, y: 0, z: 0.0000009616506}
   _State: 0
   _RoundNumber: 0
+  _PlayingSeconds: 0
   _StateSequence: 0
   _RequiredPlayers: 0
   _TeamACount: 0
@@ -92,3 +96,17 @@ MonoBehaviour:
     Raw: 0
   _TeamBKingId:
     Raw: 0
+--- !u!114 &7572901124636204971
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2488257776114685532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: eb7df02f8c7c38045a095d64dfa2951d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkMatchPacing
+  _TeamAAverageLevel: 0
+  _TeamBAverageLevel: 0

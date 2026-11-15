@@ -77,7 +77,7 @@ namespace HeroesOfDragonland.Combat
         public bool RequestAttack(AttackInputKind input, Vector3? facing = null)
         {
             if (!isActiveAndEnabled || !stats.CanMutate || stats.IsDead || !System.Enum.IsDefined(typeof(AttackInputKind), input)) return false;
-            if (GetComponent<CombatDefense>() is { ActionsBlocked: true }) return false;
+            if (GetComponent<CombatDefense>() is { ActionsBlocked: true } || GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>() is { IsCasting: true }) return false;
             Vector3 direction = facing ?? transform.forward;
             if (!Finite(direction.x) || !Finite(direction.y) || !Finite(direction.z)) return false;
             if (IsBusy)
@@ -102,7 +102,7 @@ namespace HeroesOfDragonland.Combat
         {
             if (!isActiveAndEnabled || !stats.CanMutate || (IsBusy && !continuation) || (!continuation && !chain.CanStart)
                 || Definition == null || stats.IsDead) return false;
-            if (GetComponent<CombatDefense>() is { ActionsBlocked: true }) return false;
+            if (GetComponent<CombatDefense>() is { ActionsBlocked: true } || GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>() is { IsCasting: true }) return false;
             var dodge = GetComponent<HeroesOfDragonland.Player.PlayerDodge>();
             if (dodge != null && dodge.IsBusy) return false;
             var networkDodge = GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerDodge>();

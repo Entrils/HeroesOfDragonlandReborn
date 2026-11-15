@@ -12,7 +12,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: dc5308be631ccb0459a1c614c82c03d0, type: 3}
   m_Name: HighKnight
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyDefinition
+  archetype: 3
+  preferredDistance: 8
+  projectileSpeed: 14
+  spellManaCost: 30
   stats: {fileID: 11400000, guid: 793245d12eca5f948a051781d946fcd9, type: 2}
+  attackSet: {fileID: 0}
   aggroOnSight: 1
   detectionRadius: 7
   leashDistance: 10
@@ -21,8 +26,9 @@ MonoBehaviour:
   alertDuration: 0.4
   lostTargetTimeout: 3
   patrolSpeed: 1.5
-  chaseSpeed: 3.5
+  chaseSpeed: 3.2
   attackRange: 1.7
   damage: 14
-  attackWindup: 0.4
-  attackCooldown: 1.2
+  attackWindup: 0.45
+  attackCooldown: 1.6
+  staggerPower: 30

@@ -11,6 +11,6 @@ namespace HeroesOfDragonland.AI
     {
         // Offline actors retain their manual test/brain controls. Network actors fail closed.
         internal static bool CanSimulate(Component actor)
-            => actor.GetComponent<IEnemyAuthority>()?.CanSimulateEnemy ?? true;
+            => actor.GetComponent<IEnemyAuthority>()?.CanSimulateEnemy ?? (actor.GetComponent<EnemyBrain>()?.HasAuthority ?? true);
     }
 }

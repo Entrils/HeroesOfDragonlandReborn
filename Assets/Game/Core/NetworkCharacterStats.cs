@@ -13,7 +13,8 @@ namespace HeroesOfDragonland.Multiplayer
         private CharacterStats stats;
         private bool initializing;
         private bool IsServerOwner => Object != null && Object.IsValid && Runner.IsServer && HasStateAuthority;
-        public bool CanMutateStats => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
+        public bool CanMutateStats => IsServerOwner && (initializing || (NetworkMatch.AllowsGameplay(Runner)
+            && (GetComponent<NetworkTestPlayer>() == null || NetworkParticipant.IsAdmitted(Object))));
 
         private void Awake() => stats = GetComponent<CharacterStats>();
         public override void Spawned()

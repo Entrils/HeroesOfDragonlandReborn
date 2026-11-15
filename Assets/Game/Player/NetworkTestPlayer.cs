@@ -13,6 +13,12 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public TeamId Team { get; private set; }
         [Networked] public int ParticipantNumber { get; private set; }
         [Networked] public int SpawnLane { get; private set; }
+        [Networked] public NetworkBool Suspended { get; private set; }
+        public bool IsSuspended => Suspended;
+        private bool appliedSuspended;
+        private Collider[] suspendedColliders;
+        private Renderer[] suspendedRenderers;
+        private bool[] colliderStates, rendererStates;
         [Networked] public NetworkBool IsBot { get; private set; }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private DeveloperBotBrain botBrain;
@@ -82,6 +88,32 @@ namespace HeroesOfDragonland.Multiplayer
             if (GetComponent<HeroesOfDragonland.Combat.ParryDefense>() is { IsBusy: true } parry) facing = parry.Facing;
             transform.rotation = Quaternion.LookRotation(facing);
         }
+
+        internal void SetSuspended(bool value)
+        {
+            if (!Runner.IsServer || !HasStateAuthority) return;
+            Suspended = value;
+            ApplySuspension();
+        }
+        private void ApplySuspension()
+        {
+            if (appliedSuspended == (bool)Suspended) return;
+            appliedSuspended = Suspended;
+            if (Suspended)
+            {
+                suspendedColliders = GetComponentsInChildren<Collider>(true);
+                suspendedRenderers = GetComponentsInChildren<Renderer>(true);
+                colliderStates = new bool[suspendedColliders.Length]; rendererStates = new bool[suspendedRenderers.Length];
+                for (int i = 0; i < suspendedColliders.Length; i++) { colliderStates[i] = suspendedColliders[i].enabled; suspendedColliders[i].enabled = false; }
+                for (int i = 0; i < suspendedRenderers.Length; i++) { rendererStates[i] = suspendedRenderers[i].enabled; suspendedRenderers[i].enabled = false; }
+            }
+            else
+            {
+                if (suspendedColliders != null) for (int i = 0; i < suspendedColliders.Length; i++) if (suspendedColliders[i] != null) suspendedColliders[i].enabled = colliderStates[i];
+                if (suspendedRenderers != null) for (int i = 0; i < suspendedRenderers.Length; i++) if (suspendedRenderers[i] != null) suspendedRenderers[i].enabled = rendererStates[i];
+            }
+        }
+        public override void Render() => ApplySuspension();
 
         private static Vector2 Sanitize(Vector2 value)
         {

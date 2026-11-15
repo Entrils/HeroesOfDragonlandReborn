@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 0919dff381a533a47ac7bd685091c819, type: 3}
+  m_Name: WardenPhaseTwoAttacks
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.EnemyAttackSet
+  attacks:
+  - displayName: FRENZIED CLEAVE - step aside
+    radius: 4.5
+    angle: 80
+    windup: 0.85
+    recovery: 1.1
+    damage: 34
+  - displayName: CRUSHING BLOW - dodge the cone
+    radius: 5.5
+    angle: 80
+    windup: 1.5
+    recovery: 1.7
+    damage: 55
+  - displayName: SEISMIC STOMP - move out
+    radius: 5
+    angle: 360
+    windup: 1.4
+    recovery: 1.1
+    damage: 42
+  - displayName: SHOCKWAVE - escape the ring
+    radius: 7
+    angle: 360
+    windup: 1.8
+    recovery: 1.1
+    damage: 46

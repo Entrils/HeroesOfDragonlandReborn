@@ -11,6 +11,7 @@ namespace HeroesOfDragonland.Multiplayer
         private void Awake() => bootstrap = GetComponent<MultiplayerBootstrap>();
         private void OnGUI()
         {
+            if (GetComponent<MultiplayerLobbyPanel>() != null && (!GetComponent<MultiplayerBootstrap>().Running || GetComponent<NetworkFortressSpawner>()?.Match?.State == MatchPhase.Lobby)) return;
             if (Application.isBatchMode || !HeroesOfDragonland.UI.DeveloperUiLayout.Visible) return;
             var matrix = HeroesOfDragonland.UI.DeveloperUiLayout.Begin();
             if (bootstrap.Running && GetComponentInChildren<HeroesOfDragonland.UI.GameplayHudPresenter>() != null)

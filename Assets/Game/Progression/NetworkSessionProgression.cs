@@ -20,12 +20,13 @@ namespace HeroesOfDragonland.Multiplayer
         private static readonly ItemStat[] attributeKinds = { ItemStat.Vitality, ItemStat.Endurance, ItemStat.Mind, ItemStat.Strength, ItemStat.Dexterity };
         private bool IsServerOwner => isActiveAndEnabled && Object != null && Object.IsValid
             && Runner.IsServer && HasStateAuthority && (Object.InputAuthority != PlayerRef.None || NetworkParticipant.IsAdmitted(Object));
-        public bool CanMutateProgression => IsServerOwner && (initializing || NetworkMatch.AllowsGameplay(Runner));
+        public bool CanMutateProgression => IsServerOwner && (initializing || (NetworkParticipant.IsAdmitted(Object) && NetworkMatch.AllowsGameplay(Runner)));
         public bool IsAdmitted => CanMutateProgression
             && NetworkParticipant.IsAdmitted(Object);
         private void Awake() => progression = GetComponent<SessionProgression>();
         public override void Spawned()
         {
+            progression.ConfigureCurve(NetworkMatchPacing.BalanceFor(Runner)?.Progression);
             if (!IsServerOwner) return;
             var bootstrap = Runner.GetComponentInParent<MultiplayerBootstrap>();
             initializing = true;

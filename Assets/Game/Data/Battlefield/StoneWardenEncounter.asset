@@ -1,0 +1,21 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 05649f74a398f564ab76fd7019c71c65, type: 3}
+  m_Name: StoneWardenEncounter
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.AI.BossEncounterDefinition
+  displayName: Stone Warden
+  phaseTwoAttacks: {fileID: 11400000, guid: b8a87db40b09052438d970bcd0453598, type: 2}
+  phaseTwoHealth: 0.5
+  transitionDuration: 2.5
+  targetSwitchInterval: 7
+  enragedSpeedMultiplier: 1.25
+  healthBarDistance: 24

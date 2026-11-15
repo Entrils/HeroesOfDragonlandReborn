@@ -5,6 +5,7 @@ namespace HeroesOfDragonland.Combat
     {
         private uint light, heavy;
         private bool initialized;
+        public void Reset() { initialized = false; light = heavy = 0; }
         public bool TryRead(uint nextLight, uint nextHeavy, out AttackInputKind input)
         {
             input = AttackInputKind.Light;

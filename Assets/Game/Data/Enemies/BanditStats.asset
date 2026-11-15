@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: BanditStats
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Stats.CharacterStatsConfig
   maxHealth: 85
-  maxStamina: 0
+  maxStamina: 100
   staminaRegenPerSecond: 20
   staminaRegenDelay: 1
   maxMana: 0

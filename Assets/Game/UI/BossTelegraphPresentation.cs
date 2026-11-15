@@ -10,9 +10,12 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkCharacterStats stats;
         private LineRenderer outline;
         private Material material;
+        private Renderer body;
+        private MaterialPropertyBlock tint;
         private const int Segments = 64;
         private void Awake()
         {
+            body = transform.Find("Body")?.GetComponent<Renderer>(); tint = new MaterialPropertyBlock();
             enemy = GetComponent<NetworkEnemy>(); stats = GetComponent<NetworkCharacterStats>();
             var visual = new GameObject("Boss attack warning");
             visual.transform.SetParent(transform, false);
@@ -25,9 +28,26 @@ namespace HeroesOfDragonland.Multiplayer
         private void LateUpdate()
         {
             outline.enabled = false;
-            var set = enemy.Definition.AttackSet;
+            var set = enemy.PresentedAttackSet;
             if (enemy.Object == null || !enemy.Object.IsValid || set == null || set.Count == 0 || stats.Dead
-                || !NetworkMatch.AllowsGameplay(enemy.Runner) || enemy.AttackSequence == 0) return;
+                || !NetworkMatch.AllowsGameplay(enemy.Runner)) return;
+            if (body != null && enemy.Definition.Boss != null)
+            {
+                body.GetPropertyBlock(tint);
+                tint.SetColor("_BaseColor", enemy.BossPhase == BossPhase.PhaseTwo ? new Color(.6f, .12f, .08f) : enemy.BossPhase == BossPhase.Transition ? new Color(1, .55f, .08f) : new Color(.3f, .36f, .4f));
+                body.SetPropertyBlock(tint);
+            }
+            if (enemy.BossPhase == BossPhase.Transition && enemy.Definition.Boss != null)
+            {
+                outline.enabled = true; outline.positionCount = Segments + 1;
+                outline.startWidth = outline.endWidth = .16f;
+                outline.startColor = outline.endColor = new Color(1, .7f, .1f);
+                float progress = 1 - enemy.BossTransitionRemaining / enemy.Definition.Boss.TransitionDuration;
+                for (int i = 0; i <= Segments; i++) outline.SetPosition(i, transform.position + Vector3.up * .12f
+                    + Quaternion.AngleAxis(i * 360f / Segments, Vector3.up) * Vector3.forward * Mathf.Lerp(1.5f, 5, progress));
+                return;
+            }
+            if (enemy.AttackSequence == 0) return;
             double time = enemy.HasStateAuthority ? enemy.Runner.LocalRenderTime : enemy.Runner.RemoteRenderTime;
             float age = (float)(time - enemy.AttackStartTick * (double)enemy.Runner.DeltaTime);
             var attack = set.Get(enemy.AttackIndex);

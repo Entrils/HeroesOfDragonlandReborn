@@ -1,0 +1,40 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4737cecc7a888d54bbfe34db162df285, type: 3}
+  m_Name: FortressAssault
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.FortressAssaultDefinition
+  gates:
+  - prefab: {fileID: 4449401799196987619, guid: 5959264a2c6eab14a8ee30d2ddb34a00, type: 3}
+    position: {x: -24, y: 0, z: 0}
+    yaw: 0
+  - prefab: {fileID: 6656958259414554223, guid: 6bd9baf635a0cd84b828b6ebd4b23dc7, type: 3}
+    position: {x: 24, y: 0, z: 0.000000786805}
+    yaw: 180
+  guards:
+  - prefab: {fileID: 7774775507930950904, guid: 895ca4f9532c27e44ab11c6042c882b8, type: 3}
+    position: {x: -29, y: 0, z: 8.5}
+    yaw: 0
+  - prefab: {fileID: 7774775507930950904, guid: 895ca4f9532c27e44ab11c6042c882b8, type: 3}
+    position: {x: -29, y: 0, z: -8.5}
+    yaw: 180
+  - prefab: {fileID: 7774775507930950904, guid: b88c584cfe18bc94e88dc09b53f45a81, type: 3}
+    position: {x: -37, y: 0, z: 6}
+    yaw: 90
+  - prefab: {fileID: 7774775507930950904, guid: dc08910d3e2e4b843adc7225a7ee3834, type: 3}
+    position: {x: 29, y: 0, z: -8.5}
+    yaw: 180
+  - prefab: {fileID: 7774775507930950904, guid: dc08910d3e2e4b843adc7225a7ee3834, type: 3}
+    position: {x: 29, y: 0, z: 8.5}
+    yaw: 0
+  - prefab: {fileID: 7774775507930950904, guid: 1f52d6075d5572a4da4fa09a6504c948, type: 3}
+    position: {x: 37, y: 0, z: -6.0000005}
+    yaw: -90

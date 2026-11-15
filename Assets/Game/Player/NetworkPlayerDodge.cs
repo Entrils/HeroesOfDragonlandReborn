@@ -61,6 +61,7 @@ namespace HeroesOfDragonland.Multiplayer
             Busy = true;
         }
 
+        internal void SuspendConnection() { if (Runner.IsServer && HasStateAuthority) Busy = false; }
         internal void CancelForRespawn()
         {
             if (combat != null && combat.IsAdmitted()) Busy = false;
