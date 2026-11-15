@@ -4,6 +4,7 @@ using UnityEngine;
 
 namespace HeroesOfDragonland.Combat
 {
+    public enum DamageImpactCue { MeleeHit, Blocked, Parried }
     [DisallowMultipleComponent]
     [RequireComponent(typeof(CharacterStats), typeof(CombatDefense))]
     public sealed class DamageReceiver : MonoBehaviour, IDamageable
@@ -12,6 +13,14 @@ namespace HeroesOfDragonland.Combat
         private CharacterStats stats;
         public bool IsAlive => isActiveAndEnabled && stats != null && !stats.IsDead;
         public event Action<float, GameObject> DamageTaken;
+        // Accepted outcomes only, including a fully blocked hit. Observers cannot alter damage.
+        public event Action<DamageImpactCue, GameObject> ImpactResolved;
+        private void PresentImpact(DamageImpactCue cue, GameObject source)
+        {
+            if (ImpactResolved == null) return;
+            foreach (Action<DamageImpactCue, GameObject> listener in ImpactResolved.GetInvocationList())
+                try { listener(cue, source); } catch (Exception exception) { Debug.LogException(exception, this); }
+        }
 
         private void Awake() => stats = GetComponent<CharacterStats>();
         private void OnEnable() => stats.Died += HandleDeath;
@@ -30,7 +39,8 @@ namespace HeroesOfDragonland.Combat
             if (source != null)
                 foreach (var candidate in source.GetComponents<IMeleeImpactSource>())
                     if (candidate.IsResolvingMeleeHit) { impact = candidate; break; }
-            if (GetComponent<ParryDefense>() is { } parry && parry.TryResolve(impact)) return 0;
+            if (GetComponent<ParryDefense>() is { } parry && parry.TryResolve(impact))
+            { PresentImpact(DamageImpactCue.Parried, source); return 0; }
             bool blocked = defense != null && defense.IsBlocking;
             if (blocked) amount = defense.BlockDamage(amount);
             float applied = stats.ApplyDamage(amount);
@@ -39,6 +49,8 @@ namespace HeroesOfDragonland.Combat
                 if (impact != null) defense.ApplyPoiseDamage(impact.PoiseDamage);
             }
             if (applied > 0f) DamageTaken?.Invoke(applied, source);
+            if (blocked) PresentImpact(DamageImpactCue.Blocked, source);
+            else if (applied > 0 && impact != null) PresentImpact(DamageImpactCue.MeleeHit, source);
             return applied;
         }
 

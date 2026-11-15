@@ -1,0 +1,3128 @@
+{
+  "version": 1,
+  "milestone": 56,
+  "blender": "5.3.0",
+  "status": "Art candidate; Unity biome replacement, prefabs, performance and gameplay acceptance pending",
+  "assets": [
+    {
+      "name": "SM_AF_TreeAncient01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_TreeAncient01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_TreeAncient01.fbx",
+      "dimensionsUnity": [
+        3.18769,
+        6.26923,
+        3.19649
+      ],
+      "minimumBlender": [
+        -1.5881890058517456,
+        -1.5975234508514404,
+        -0.03568273037672043
+      ],
+      "maximumBlender": [
+        1.5994991064071655,
+        1.5989619493484497,
+        6.233547687530518
+      ],
+      "triangles": [
+        2824,
+        824,
+        246
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark",
+          "M_AF_LeavesLight",
+          "M_AF_Leaves"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_LeavesLight",
+          "M_AF_Leaves"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Leaves"
+        ]
+      ],
+      "collider": "capsule",
+      "lod0Materials": [
+        "M_AF_Bark",
+        "M_AF_LeavesLight",
+        "M_AF_Leaves"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark",
+        "M_AF_LeavesLight",
+        "M_AF_Leaves"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark",
+        "M_AF_Leaves"
+      ]
+    },
+    {
+      "name": "SM_AF_TreeAncient02",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_TreeAncient02.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_TreeAncient02.fbx",
+      "dimensionsUnity": [
+        3.19278,
+        6.26272,
+        3.19423
+      ],
+      "minimumBlender": [
+        -1.5948922634124756,
+        -1.5959126949310303,
+        -0.033850736916065216
+      ],
+      "maximumBlender": [
+        1.5978899002075195,
+        1.598319411277771,
+        6.2288689613342285
+      ],
+      "triangles": [
+        2824,
+        824,
+        246
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark",
+          "M_AF_LeavesLight",
+          "M_AF_Leaves"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_LeavesLight",
+          "M_AF_Leaves"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Leaves"
+        ]
+      ],
+      "collider": "capsule",
+      "lod0Materials": [
+        "M_AF_Bark",
+        "M_AF_LeavesLight",
+        "M_AF_Leaves"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark",
+        "M_AF_LeavesLight",
+        "M_AF_Leaves"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark",
+        "M_AF_Leaves"
+      ]
+    },
+    {
+      "name": "SM_AF_DeadTree01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_DeadTree01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DeadTree01.fbx",
+      "dimensionsUnity": [
+        2.35735,
+        6.83065,
+        2.30912
+      ],
+      "minimumBlender": [
+        -1.1982347965240479,
+        -1.1826153993606567,
+        -0.02890108712017536
+      ],
+      "maximumBlender": [
+        1.1591167449951172,
+        1.126507043838501,
+        6.801746845245361
+      ],
+      "triangles": [
+        744,
+        296,
+        166
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark"
+        ],
+        [
+          "M_AF_Bark"
+        ],
+        [
+          "M_AF_Bark"
+        ]
+      ],
+      "collider": "capsule",
+      "lod0Materials": [
+        "M_AF_Bark"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark"
+      ]
+    },
+    {
+      "name": "SM_AF_DeadTree02",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_DeadTree02.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DeadTree02.fbx",
+      "dimensionsUnity": [
+        2.35646,
+        6.83065,
+        2.38739
+      ],
+      "minimumBlender": [
+        -1.1582667827606201,
+        -1.1824194192886353,
+        -0.02890108712017536
+      ],
+      "maximumBlender": [
+        1.1981905698776245,
+        1.2049659490585327,
+        6.801746845245361
+      ],
+      "triangles": [
+        744,
+        296,
+        166
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark"
+        ],
+        [
+          "M_AF_Bark"
+        ],
+        [
+          "M_AF_Bark"
+        ]
+      ],
+      "collider": "capsule",
+      "lod0Materials": [
+        "M_AF_Bark"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark"
+      ]
+    },
+    {
+      "name": "SM_AF_Rock01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_Rock01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Rock01.fbx",
+      "dimensionsUnity": [
+        1.84263,
+        1.23709,
+        1.44895
+      ],
+      "minimumBlender": [
+        -0.8970173597335815,
+        -0.7286112308502197,
+        0.0
+      ],
+      "maximumBlender": [
+        0.9456093311309814,
+        0.720342755317688,
+        1.2370896339416504
+      ],
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Rock"
+        ],
+        [
+          "M_AF_Rock"
+        ],
+        [
+          "M_AF_Rock"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Rock"
+      ],
+      "lod1Materials": [
+        "M_AF_Rock"
+      ],
+      "lod2Materials": [
+        "M_AF_Rock"
+      ]
+    },
+    {
+      "name": "SM_AF_Rock02",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_Rock02.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Rock02.fbx",
+      "dimensionsUnity": [
+        2.26666,
+        1.48946,
+        1.72207
+      ],
+      "minimumBlender": [
+        -1.1008127927780151,
+        -0.8342539668083191,
+        0.0
+      ],
+      "maximumBlender": [
+        1.1658521890640259,
+        0.8878133893013,
+        1.489459753036499
+      ],
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Rock"
+        ],
+        [
+          "M_AF_Rock"
+        ],
+        [
+          "M_AF_Rock"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Rock"
+      ],
+      "lod1Materials": [
+        "M_AF_Rock"
+      ],
+      "lod2Materials": [
+        "M_AF_Rock"
+      ]
+    },
+    {
+      "name": "SM_AF_Rock03",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_Rock03.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Rock03.fbx",
+      "dimensionsUnity": [
+        2.47914,
+        1.70339,
+        1.90922
+      ],
+      "minimumBlender": [
+        -1.2596015930175781,
+        -0.9873074889183044,
+        0.0
+      ],
+      "maximumBlender": [
+        1.219533920288086,
+        0.9219139814376831,
+        1.7033894062042236
+      ],
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Rock"
+        ],
+        [
+          "M_AF_Rock"
+        ],
+        [
+          "M_AF_Rock"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Rock"
+      ],
+      "lod1Materials": [
+        "M_AF_Rock"
+      ],
+      "lod2Materials": [
+        "M_AF_Rock"
+      ]
+    },
+    {
+      "name": "SM_AF_Bush01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_Bush01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Bush01.fbx",
+      "dimensionsUnity": [
+        1.48369,
+        0.63706,
+        1.52172
+      ],
+      "minimumBlender": [
+        -0.7593944072723389,
+        -0.7581601142883301,
+        0.0
+      ],
+      "maximumBlender": [
+        0.7242963314056396,
+        0.7635567784309387,
+        0.6370572447776794
+      ],
+      "triangles": [
+        508,
+        200,
+        60
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_LeavesLight",
+          "M_AF_Leaves",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_LeavesLight",
+          "M_AF_Leaves",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_LeavesLight",
+          "M_AF_Leaves",
+          "M_AF_Heartwood"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_LeavesLight",
+        "M_AF_Leaves",
+        "M_AF_Heartwood"
+      ],
+      "lod1Materials": [
+        "M_AF_LeavesLight",
+        "M_AF_Leaves",
+        "M_AF_Heartwood"
+      ],
+      "lod2Materials": [
+        "M_AF_LeavesLight",
+        "M_AF_Leaves",
+        "M_AF_Heartwood"
+      ]
+    },
+    {
+      "name": "SM_AF_Bush02",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_Bush02.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Bush02.fbx",
+      "dimensionsUnity": [
+        1.41396,
+        0.64021,
+        1.46158
+      ],
+      "minimumBlender": [
+        -0.7082759141921997,
+        -0.7350925803184509,
+        0.0
+      ],
+      "maximumBlender": [
+        0.7056890726089478,
+        0.7264854907989502,
+        0.6402053833007812
+      ],
+      "triangles": [
+        508,
+        200,
+        60
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_LeavesLight",
+          "M_AF_Leaves",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_LeavesLight",
+          "M_AF_Leaves",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_LeavesLight",
+          "M_AF_Leaves",
+          "M_AF_Heartwood"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_LeavesLight",
+        "M_AF_Leaves",
+        "M_AF_Heartwood"
+      ],
+      "lod1Materials": [
+        "M_AF_LeavesLight",
+        "M_AF_Leaves",
+        "M_AF_Heartwood"
+      ],
+      "lod2Materials": [
+        "M_AF_LeavesLight",
+        "M_AF_Leaves",
+        "M_AF_Heartwood"
+      ]
+    },
+    {
+      "name": "SM_AF_GrassClump01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_GrassClump01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_GrassClump01.fbx",
+      "dimensionsUnity": [
+        0.731,
+        0.21601,
+        0.64899
+      ],
+      "minimumBlender": [
+        -0.35046759247779846,
+        -0.30851003527641296,
+        0.0
+      ],
+      "maximumBlender": [
+        0.3805365264415741,
+        0.34048426151275635,
+        0.21600684523582458
+      ],
+      "triangles": [
+        110,
+        48,
+        16
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Moss"
+        ],
+        [
+          "M_AF_Moss"
+        ],
+        [
+          "M_AF_Moss"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_Moss"
+      ],
+      "lod1Materials": [
+        "M_AF_Moss"
+      ],
+      "lod2Materials": [
+        "M_AF_Moss"
+      ]
+    },
+    {
+      "name": "SM_AF_GrassClump02",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_GrassClump02.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_GrassClump02.fbx",
+      "dimensionsUnity": [
+        0.71252,
+        0.21809,
+        0.60221
+      ],
+      "minimumBlender": [
+        -0.36329591274261475,
+        -0.34504377841949463,
+        0.0
+      ],
+      "maximumBlender": [
+        0.3492237627506256,
+        0.25716519355773926,
+        0.21809346973896027
+      ],
+      "triangles": [
+        110,
+        48,
+        16
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Moss"
+        ],
+        [
+          "M_AF_Moss"
+        ],
+        [
+          "M_AF_Moss"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_Moss"
+      ],
+      "lod1Materials": [
+        "M_AF_Moss"
+      ],
+      "lod2Materials": [
+        "M_AF_Moss"
+      ]
+    },
+    {
+      "name": "SM_AF_FallenLog01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_FallenLog01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_FallenLog01.fbx",
+      "dimensionsUnity": [
+        3.63801,
+        0.75138,
+        0.75597
+      ],
+      "minimumBlender": [
+        -1.8300000429153442,
+        -0.35850098729133606,
+        0.030106186866760254
+      ],
+      "maximumBlender": [
+        1.8080060482025146,
+        0.3974696099758148,
+        0.7814904451370239
+      ],
+      "triangles": [
+        184,
+        112,
+        64
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Heartwood"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Bark",
+        "M_AF_Heartwood"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark",
+        "M_AF_Heartwood"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark",
+        "M_AF_Heartwood"
+      ]
+    },
+    {
+      "name": "SM_AF_Stump01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_Stump01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Stump01.fbx",
+      "dimensionsUnity": [
+        0.79823,
+        0.6952,
+        0.8
+      ],
+      "minimumBlender": [
+        -0.39911407232284546,
+        -0.421999990940094,
+        -0.026607602834701538
+      ],
+      "maximumBlender": [
+        0.39911407232284546,
+        0.3779999911785126,
+        0.6685919761657715
+      ],
+      "triangles": [
+        152,
+        92,
+        52
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Heartwood"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Bark",
+        "M_AF_Heartwood"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark",
+        "M_AF_Heartwood"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark",
+        "M_AF_Heartwood"
+      ]
+    },
+    {
+      "name": "SM_AF_CampCairn01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_CampCairn01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_CampCairn01.fbx",
+      "dimensionsUnity": [
+        0.89404,
+        0.94768,
+        0.7248
+      ],
+      "minimumBlender": [
+        -0.46314817667007446,
+        -0.3280390202999115,
+        -0.01771421730518341
+      ],
+      "maximumBlender": [
+        0.4308911859989166,
+        0.3967653512954712,
+        0.9299613237380981
+      ],
+      "triangles": [
+        300,
+        80
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Rock",
+          "M_AF_Heartwood"
+        ],
+        [
+          "M_AF_Rock",
+          "M_AF_Heartwood"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Rock",
+        "M_AF_Heartwood"
+      ],
+      "lod1Materials": [
+        "M_AF_Rock",
+        "M_AF_Heartwood"
+      ]
+    },
+    {
+      "name": "SM_AF_RuinWall01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_RuinWall01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_RuinWall01.fbx",
+      "dimensionsUnity": [
+        3.0124,
+        1.80962,
+        0.71472
+      ],
+      "minimumBlender": [
+        -1.5287812948226929,
+        -0.33980023860931396,
+        -0.037362053990364075
+      ],
+      "maximumBlender": [
+        1.4836150407791138,
+        0.37492018938064575,
+        1.7722628116607666
+      ],
+      "triangles": [
+        720,
+        180
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Rock",
+          "M_AF_Moss"
+        ],
+        [
+          "M_AF_Rock",
+          "M_AF_Moss"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Rock",
+        "M_AF_Moss"
+      ],
+      "lod1Materials": [
+        "M_AF_Rock",
+        "M_AF_Moss"
+      ]
+    },
+    {
+      "name": "SM_AF_RuinPillar01",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_RuinPillar01.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_RuinPillar01.fbx",
+      "dimensionsUnity": [
+        0.88163,
+        2.11328,
+        0.79036
+      ],
+      "minimumBlender": [
+        -0.445914626121521,
+        -0.42820748686790466,
+        -0.02985219657421112
+      ],
+      "maximumBlender": [
+        0.4357178509235382,
+        0.36215633153915405,
+        2.0834243297576904
+      ],
+      "triangles": [
+        400,
+        100
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Rock",
+          "M_AF_Moss"
+        ],
+        [
+          "M_AF_Rock",
+          "M_AF_Moss"
+        ]
+      ],
+      "collider": "mesh",
+      "lod0Materials": [
+        "M_AF_Rock",
+        "M_AF_Moss"
+      ],
+      "lod1Materials": [
+        "M_AF_Rock",
+        "M_AF_Moss"
+      ]
+    },
+    {
+      "name": "SM_AF_ForestFloorTile",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_ForestFloorTile.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_ForestFloorTile.fbx",
+      "dimensionsUnity": [
+        4.0,
+        0.0,
+        4.0
+      ],
+      "minimumBlender": [
+        -2.0,
+        -2.0,
+        0.0
+      ],
+      "maximumBlender": [
+        2.0,
+        2.0,
+        0.0
+      ],
+      "triangles": [
+        2
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_ForestFloor"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_ForestFloor"
+      ]
+    },
+    {
+      "name": "SM_AF_DirtPathTile",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_DirtPathTile.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DirtPathTile.fbx",
+      "dimensionsUnity": [
+        3.2,
+        0.0,
+        4.0
+      ],
+      "minimumBlender": [
+        -1.600000023841858,
+        -2.0,
+        0.0
+      ],
+      "maximumBlender": [
+        1.600000023841858,
+        2.0,
+        0.0
+      ],
+      "triangles": [
+        2
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_DirtPath"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_DirtPath"
+      ]
+    },
+    {
+      "name": "SM_AF_DistantTreeline",
+      "source": "ArtSource/Environment/AncientForest/SM_AF_DistantTreeline.blend",
+      "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DistantTreeline.fbx",
+      "dimensionsUnity": [
+        14.53246,
+        6.07246,
+        1.8551
+      ],
+      "minimumBlender": [
+        -7.264010429382324,
+        -0.9359670877456665,
+        0.0
+      ],
+      "maximumBlender": [
+        7.2684478759765625,
+        0.9191332459449768,
+        6.072459697723389
+      ],
+      "triangles": [
+        252,
+        180,
+        108
+      ],
+      "lodMaterials": [
+        [
+          "M_AF_Bark",
+          "M_AF_Leaves"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Leaves"
+        ],
+        [
+          "M_AF_Bark",
+          "M_AF_Leaves"
+        ]
+      ],
+      "collider": "none",
+      "lod0Materials": [
+        "M_AF_Bark",
+        "M_AF_Leaves"
+      ],
+      "lod1Materials": [
+        "M_AF_Bark",
+        "M_AF_Leaves"
+      ],
+      "lod2Materials": [
+        "M_AF_Bark",
+        "M_AF_Leaves"
+      ]
+    }
+  ],
+  "placements": [
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        -10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        -2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        2
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        10
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        14
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        18
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        22
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        26
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        30
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        34
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        38
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        42
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        46
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -10,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -6,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        -2,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        2,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        6,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "position": [
+        10,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "position": [
+        0,
+        0.012,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        -10,
+        0,
+        -7
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "position": [
+        -7,
+        0,
+        -3
+      ],
+      "yaw": -37,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        -10,
+        0,
+        2
+      ],
+      "yaw": -74,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "position": [
+        -7,
+        0,
+        6
+      ],
+      "yaw": -111,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        -10,
+        0,
+        10
+      ],
+      "yaw": -148,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "position": [
+        -4,
+        0,
+        10
+      ],
+      "yaw": -185,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        5,
+        0,
+        -8
+      ],
+      "yaw": -222,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "position": [
+        9,
+        0,
+        -4
+      ],
+      "yaw": -259,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        10,
+        0,
+        2
+      ],
+      "yaw": -296,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "position": [
+        7,
+        0,
+        7
+      ],
+      "yaw": -333,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        10,
+        0,
+        10
+      ],
+      "yaw": -370,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "position": [
+        3,
+        0,
+        11
+      ],
+      "yaw": -407,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DeadTree01",
+      "position": [
+        -10,
+        0,
+        -11
+      ],
+      "yaw": -30,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DeadTree02",
+      "position": [
+        11,
+        0,
+        6
+      ],
+      "yaw": -65,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "position": [
+        -8,
+        0,
+        -9
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Rock02",
+      "position": [
+        -8,
+        0,
+        4
+      ],
+      "yaw": -43,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Rock03",
+      "position": [
+        8,
+        0,
+        1
+      ],
+      "yaw": -86,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "position": [
+        9,
+        0,
+        8
+      ],
+      "yaw": -129,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Rock02",
+      "position": [
+        -5,
+        0,
+        9
+      ],
+      "yaw": -172,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_FallenLog01",
+      "position": [
+        -7,
+        0,
+        1
+      ],
+      "yaw": -70,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Stump01",
+      "position": [
+        8,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_RuinWall01",
+      "position": [
+        -6,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_RuinPillar01",
+      "position": [
+        -9,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_CampCairn01",
+      "position": [
+        4,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_FR_Crate",
+      "position": [
+        5.5,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_FR_Barrel",
+      "position": [
+        6.5,
+        0,
+        6
+      ],
+      "yaw": 0,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        10.250222136548768,
+        0,
+        1.3146301079759013
+      ],
+      "yaw": -170.52187975583172,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        10.749332610378389,
+        0,
+        -1.7475577178494017
+      ],
+      "yaw": -83.13702668266755,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        -6.441229920888505,
+        0,
+        5.699023802578264
+      ],
+      "yaw": -75.92767521437003,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        9.452489113837657,
+        0,
+        1.2536804751314197
+      ],
+      "yaw": -138.4745246527131,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -10.332398038998187,
+        0,
+        -7.576099943522372
+      ],
+      "yaw": -324.69380176664,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -6.895659550518868,
+        0,
+        2.5280757420615565
+      ],
+      "yaw": -201.11886142750873,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        -8.23522475649255,
+        0,
+        3.7557418914316045
+      ],
+      "yaw": -22.813005155526938,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -6.280758741814603,
+        0,
+        3.8533355889491965
+      ],
+      "yaw": -68.4285034480991,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -8.028514414346137,
+        0,
+        -0.06961297850275017
+      ],
+      "yaw": -230.4079968483253,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -10.884546455232636,
+        0,
+        3.841807251917393
+      ],
+      "yaw": -210.01022378263897,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -10.982931947618958,
+        0,
+        1.4942741903623897
+      ],
+      "yaw": -0.34824870113073114,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        6.447412939203801,
+        0,
+        -6.736166288691877
+      ],
+      "yaw": -167.2729572501946,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        8.776528348490132,
+        0,
+        -7.02506454617766
+      ],
+      "yaw": -284.76562150658214,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -4.342816776744989,
+        0,
+        1.8209926004326107
+      ],
+      "yaw": -165.99606605993307,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        9.057265839453823,
+        0,
+        -10.343550880973712
+      ],
+      "yaw": -298.55953473944413,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        7.982971751532954,
+        0,
+        -7.417842753396912
+      ],
+      "yaw": -183.18182164721784,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -9.914687645725888,
+        0,
+        1.742457172140277
+      ],
+      "yaw": -249.8744921528394,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        -4.641098445019062,
+        0,
+        6.294363653226039
+      ],
+      "yaw": -87.6531307248173,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -9.746041795016968,
+        0,
+        -0.3747077730880157
+      ],
+      "yaw": -268.2882961170147,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -4.375633840028081,
+        0,
+        -6.230187794213892
+      ],
+      "yaw": -235.70856042409906,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        3.7170464176564924,
+        0,
+        -8.076873045133492
+      ],
+      "yaw": -59.21995281847403,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        -7.84250390900344,
+        0,
+        3.069301379932268
+      ],
+      "yaw": -237.54401033794315,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -10.09260461591008,
+        0,
+        3.99359812690329
+      ],
+      "yaw": -175.03747414126482,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -8.649529597062724,
+        0,
+        -8.039622046055696
+      ],
+      "yaw": -92.30459906294703,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        4.51870683603018,
+        0,
+        -7.717520870854903
+      ],
+      "yaw": -209.37238793250194,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        8.087266407581616,
+        0,
+        1.4648720307197678
+      ],
+      "yaw": -249.18934881583354,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        -8.46608293290964,
+        0,
+        10.10911185224666
+      ],
+      "yaw": -341.168869583736,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        7.906075587861874,
+        0,
+        -5.886998515127681
+      ],
+      "yaw": -212.6983222332475,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        5.531994677430124,
+        0,
+        -8.056344346441376
+      ],
+      "yaw": -47.383078239686554,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        8.792246686148577,
+        0,
+        1.3213990663035595
+      ],
+      "yaw": -331.60397413030057,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        4.743386033050962,
+        0,
+        -6.74194990736745
+      ],
+      "yaw": -85.59319479350715,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        9.58021497973417,
+        0,
+        -8.702417471445433
+      ],
+      "yaw": -347.4632762180129,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -6.782387132787643,
+        0,
+        -10.005777788864506
+      ],
+      "yaw": -336.0986837323169,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        3.4378385685838033,
+        0,
+        -2.7107368456971646
+      ],
+      "yaw": -145.09536748637248,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -5.63977535340463,
+        0,
+        -9.639146198175972
+      ],
+      "yaw": -184.2053535709969,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -3.7626688880018886,
+        0,
+        -2.668326710133604
+      ],
+      "yaw": -43.73497460332874,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -8.793531154978492,
+        0,
+        -1.0401858480829755
+      ],
+      "yaw": -154.87100330581538,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        7.387498301250243,
+        0,
+        -3.0674779854120473
+      ],
+      "yaw": -110.87900749450618,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -10.534873458050848,
+        0,
+        9.98158116277419
+      ],
+      "yaw": -29.799718831388148,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        -10.370741111541472,
+        0,
+        -5.25789188163245
+      ],
+      "yaw": -250.65983864754094,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        8.641714162848373,
+        0,
+        -2.0244845520074755
+      ],
+      "yaw": -48.83633998542732,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        -5.388129687708179,
+        0,
+        -1.0887382128765388
+      ],
+      "yaw": -356.8873443125834,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -6.121817634546957,
+        0,
+        -10.840545691091082
+      ],
+      "yaw": -243.55837322285862,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -5.643434991381463,
+        0,
+        2.60280093606662
+      ],
+      "yaw": -325.8334340602568,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        6.30991860835066,
+        0,
+        -3.2268067776643123
+      ],
+      "yaw": -67.45767125608236,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        10.731884993384028,
+        0,
+        -6.200982130546826
+      ],
+      "yaw": -266.9493730573624,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        4.498892848210835,
+        0,
+        -0.6302253534668356
+      ],
+      "yaw": -251.11016453555663,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        -8.517094681606732,
+        0,
+        -0.6363380896594695
+      ],
+      "yaw": -44.83911137973402,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -10.429803809745787,
+        0,
+        2.6625653844254042
+      ],
+      "yaw": -350.2910747788756,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -4.45135140137301,
+        0,
+        2.545332240733668
+      ],
+      "yaw": -204.0076860146819,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        -9.899592889307845,
+        0,
+        -0.23246075935333543
+      ],
+      "yaw": -193.81803370902162,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        3.8187440075109187,
+        0,
+        -8.361424957488905
+      ],
+      "yaw": -323.3538132491158,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        5.256960689307924,
+        0,
+        -4.978529344593134
+      ],
+      "yaw": -67.27088660472337,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -4.758211736840921,
+        0,
+        5.553272069510637
+      ],
+      "yaw": -85.7298596556832,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "position": [
+        9.806718324145116,
+        0,
+        3.638340239957337
+      ],
+      "yaw": -225.59831971007438,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        5.945211930000042,
+        0,
+        -0.3209128828109282
+      ],
+      "yaw": -309.9718808264746,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        10.578188444902189,
+        0,
+        1.2771206400313488
+      ],
+      "yaw": -305.5816370739782,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -7.303389316180021,
+        0,
+        -7.802056499729944
+      ],
+      "yaw": -130.91908905981413,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        9.046777880948419,
+        0,
+        -9.340402802055387
+      ],
+      "yaw": -101.05211416659688,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        8.335358627278339,
+        0,
+        -6.8448770885700165
+      ],
+      "yaw": -40.76444884329328,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -5.330331553449053,
+        0,
+        -3.713895451415084
+      ],
+      "yaw": -186.87452778726825,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        10.082047068939474,
+        0,
+        4.595830002036813
+      ],
+      "yaw": -288.67108221233497,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        9.366130895329277,
+        0,
+        6.534901792526409
+      ],
+      "yaw": -260.93793059199174,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        10.601058701383963,
+        0,
+        1.1072548471787425
+      ],
+      "yaw": -57.77113310083708,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -5.490116211693238,
+        0,
+        10.235449146890975
+      ],
+      "yaw": -61.7268910820853,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        6.278076654602469,
+        0,
+        -3.57998647378934
+      ],
+      "yaw": -149.97610829696958,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -10.574229977089933,
+        0,
+        0.7913187709746623
+      ],
+      "yaw": -303.00349336167295,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        5.804054361169982,
+        0,
+        -10.605170020910762
+      ],
+      "yaw": -229.20908624587153,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        6.716160662705509,
+        0,
+        -4.451952906828348
+      ],
+      "yaw": -45.885687242545636,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -7.52370600961219,
+        0,
+        1.7984636384970756
+      ],
+      "yaw": -80.23236149754177,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -5.469268859089745,
+        0,
+        2.8515631884802133
+      ],
+      "yaw": -276.9301090686801,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -10.10105478264036,
+        0,
+        -7.0769288239277515
+      ],
+      "yaw": -230.36202506606548,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "position": [
+        -7.880014440968568,
+        0,
+        8.713246499347743
+      ],
+      "yaw": -111.9290465097754,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        8.349241924350931,
+        0,
+        -10.591432466185752
+      ],
+      "yaw": -72.72469848741848,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        5.246633488952561,
+        0,
+        -1.5236853506010632
+      ],
+      "yaw": -231.78049823765227,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -6.973858496135593,
+        0,
+        2.6859980923330795
+      ],
+      "yaw": -326.18311105222494,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "position": [
+        -7.798009669461718,
+        0,
+        8.109668771899123
+      ],
+      "yaw": -357.9793732740007,
+      "scale": 1
+    },
+    {
+      "asset": "SM_AF_DistantTreeline",
+      "position": [
+        0,
+        0,
+        50
+      ],
+      "yaw": 0,
+      "scale": 1
+    }
+  ],
+  "palette": [
+    {
+      "name": "M_AF_Bark",
+      "color": "A19C87",
+      "roughness": 0.87,
+      "textured": true
+    },
+    {
+      "name": "M_AF_Leaves",
+      "color": "657354",
+      "roughness": 0.9,
+      "textured": false
+    },
+    {
+      "name": "M_AF_LeavesLight",
+      "color": "89936D",
+      "roughness": 0.9,
+      "textured": false
+    },
+    {
+      "name": "M_AF_Rock",
+      "color": "8C9187",
+      "roughness": 0.9,
+      "textured": true
+    },
+    {
+      "name": "M_AF_ForestFloor",
+      "color": "6C7058",
+      "roughness": 0.93,
+      "textured": true
+    },
+    {
+      "name": "M_AF_DirtPath",
+      "color": "8E8165",
+      "roughness": 0.93,
+      "textured": true
+    },
+    {
+      "name": "M_AF_Heartwood",
+      "color": "9A8464",
+      "roughness": 0.85,
+      "textured": false
+    },
+    {
+      "name": "M_AF_Moss",
+      "color": "67774E",
+      "roughness": 0.95,
+      "textured": false
+    }
+  ],
+  "ambient": {
+    "maxParticles": 16,
+    "emissionPerSecond": 2,
+    "lifetimeSeconds": 6
+  },
+  "reuse": [
+    "SM_FR_Crate",
+    "SM_FR_Barrel"
+  ]
+}

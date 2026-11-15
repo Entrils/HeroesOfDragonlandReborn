@@ -1,0 +1,216 @@
+{
+  "blender": "5.3.0",
+  "assets": [
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "fbx": "PASS",
+      "triangles": [
+        2824,
+        824,
+        246
+      ],
+      "collision": "capsule"
+    },
+    {
+      "asset": "SM_AF_TreeAncient02",
+      "fbx": "PASS",
+      "triangles": [
+        2824,
+        824,
+        246
+      ],
+      "collision": "capsule"
+    },
+    {
+      "asset": "SM_AF_DeadTree01",
+      "fbx": "PASS",
+      "triangles": [
+        744,
+        296,
+        166
+      ],
+      "collision": "capsule"
+    },
+    {
+      "asset": "SM_AF_DeadTree02",
+      "fbx": "PASS",
+      "triangles": [
+        744,
+        296,
+        166
+      ],
+      "collision": "capsule"
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "fbx": "PASS",
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_Rock02",
+      "fbx": "PASS",
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_Rock03",
+      "fbx": "PASS",
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_Bush01",
+      "fbx": "PASS",
+      "triangles": [
+        508,
+        200,
+        60
+      ],
+      "collision": "none"
+    },
+    {
+      "asset": "SM_AF_Bush02",
+      "fbx": "PASS",
+      "triangles": [
+        508,
+        200,
+        60
+      ],
+      "collision": "none"
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "fbx": "PASS",
+      "triangles": [
+        110,
+        48,
+        16
+      ],
+      "collision": "none"
+    },
+    {
+      "asset": "SM_AF_GrassClump02",
+      "fbx": "PASS",
+      "triangles": [
+        110,
+        48,
+        16
+      ],
+      "collision": "none"
+    },
+    {
+      "asset": "SM_AF_FallenLog01",
+      "fbx": "PASS",
+      "triangles": [
+        184,
+        112,
+        64
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_Stump01",
+      "fbx": "PASS",
+      "triangles": [
+        152,
+        92,
+        52
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_CampCairn01",
+      "fbx": "PASS",
+      "triangles": [
+        300,
+        80
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_RuinWall01",
+      "fbx": "PASS",
+      "triangles": [
+        720,
+        180
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_RuinPillar01",
+      "fbx": "PASS",
+      "triangles": [
+        400,
+        100
+      ],
+      "collision": "mesh"
+    },
+    {
+      "asset": "SM_AF_ForestFloorTile",
+      "fbx": "PASS",
+      "triangles": [
+        2
+      ],
+      "collision": "none"
+    },
+    {
+      "asset": "SM_AF_DirtPathTile",
+      "fbx": "PASS",
+      "triangles": [
+        2
+      ],
+      "collision": "none"
+    },
+    {
+      "asset": "SM_AF_DistantTreeline",
+      "fbx": "PASS",
+      "triangles": [
+        252,
+        180,
+        108
+      ],
+      "collision": "none"
+    }
+  ],
+  "textureMaps": [
+    "T_AF_AmbientMote_BaseColor.png",
+    "T_AF_Bark_BaseColor.png",
+    "T_AF_Bark_Mask.png",
+    "T_AF_Bark_Normal.png",
+    "T_AF_DirtPath_BaseColor.png",
+    "T_AF_DirtPath_Mask.png",
+    "T_AF_DirtPath_Normal.png",
+    "T_AF_ForestFloor_BaseColor.png",
+    "T_AF_ForestFloor_Mask.png",
+    "T_AF_ForestFloor_Normal.png",
+    "T_AF_Rock_BaseColor.png",
+    "T_AF_Rock_Mask.png",
+    "T_AF_Rock_Normal.png"
+  ],
+  "checks": [
+    "19 actual FBX reimports",
+    "LOD counts",
+    "nondegenerate triangles and UVs",
+    "material slot counts",
+    "meter-scale world bounds",
+    "unit basis sockets",
+    "closed collision shells",
+    "finite 512px PBR maps",
+    "URP metallic/AO/reserved/smoothness mask channels",
+    "unit-length +Z tangent normals"
+  ],
+  "limitation": "Offline checks only. Unity compile/import, biome application, live lock-on/telegraphs, visual approval and six-player profiling remain pending."
+}

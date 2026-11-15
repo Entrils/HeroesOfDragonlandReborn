@@ -1,0 +1,67 @@
+{
+  "blender": "5.3.0",
+  "assets": [
+    {
+      "asset": "SM_BS_StrataOutcrop",
+      "fbx": "PASS",
+      "triangles": [
+        960,
+        240,
+        60
+      ]
+    },
+    {
+      "asset": "SM_BS_ShatteredStandard",
+      "fbx": "PASS",
+      "triangles": [
+        92,
+        28
+      ]
+    },
+    {
+      "asset": "SM_BS_CorruptedSpire",
+      "fbx": "PASS",
+      "triangles": [
+        320,
+        80,
+        20
+      ]
+    },
+    {
+      "asset": "SM_BS_TwistedRoot",
+      "fbx": "PASS",
+      "triangles": [
+        744,
+        296,
+        166
+      ]
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "fbx": "PASS",
+      "triangles": [
+        2
+      ]
+    }
+  ],
+  "textureMaps": 24,
+  "transitionPairs": [
+    "Forest > Ruins",
+    "Highlands > Ruins",
+    "Forest > Corrupted",
+    "Highlands > Corrupted",
+    "Ruins > Corrupted"
+  ],
+  "checks": [
+    "actual FBX reimports",
+    "LOD counts",
+    "UV triangle area",
+    "meter bounds",
+    "basis sockets",
+    "closed lowest-LOD static collision shells",
+    "URP mask packing",
+    "normal validity",
+    "transition endpoint matching"
+  ],
+  "limitation": "Unity import/compile, material-light matching, map boundary placement, camp/lock-on readability and six-player performance remain pending."
+}

@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1260" height="1050" viewBox="0 0 1260 1050">
+<rect width="1260" height="1050" fill="#161d22"/><g font-family="Segoe UI, sans-serif" fill="#e6dfcf">
+<text x="30" y="42" font-size="26">Dragonland - Combat and Gameplay VFX</text>
+<text x="30" y="74" font-size="15" fill="#b5bdc2">Design sheet: compact glyphs + sparse bursts. Not a Unity render or timing validation.</text>
+<path d="M34 112 Q48 91 62 112" stroke="#8cd1cc" stroke-width="3" fill="none"/><text x="74" y="113" font-size="14">Friendly: smooth/open</text>
+<path d="M345 113 L352 96 L359 110 L366 92 L373 110 L380 96 L387 113" stroke="#ff913d" stroke-width="3" fill="none"/><text x="403" y="113" font-size="14">Hostile: outward teeth</text>
+<path d="M728 93 L740 104 L728 115 L716 104 Z" stroke="#c8b994" stroke-width="3" fill="none"/><text x="753" y="113" font-size="14">Neutral: diamond</text>
+<g transform="translate(30,145)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="115.3,67.9 138.4,58 121.9,31.6 145,51.4 168.1,31.6 151.6,58 174.7,67.9" stroke="#E5DCC4" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Melee hit</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.24s | 8 particles | cap 6 | priority 1</text></g>
+<g transform="translate(335,145)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,31.6 171.4,31.6 166.12,69.88 145,87.7 123.88,69.88 118.6,31.6" stroke="#B4C1CA" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Blocked hit</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.3s | 6 particles | cap 6 | priority 1</text></g>
+<g transform="translate(640,145)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="145,25 151.6,51.4 178,58 151.6,64.6 145,91 138.4,64.6 112,58 138.4,51.4 145,25" stroke="#F1D694" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Parry</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.4s | 10 particles | cap 6 | priority 2</text></g>
+<g transform="translate(945,145)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,31.6 137.08,31.6 147.64,48.1 137.08,61.96 151.6,71.2 145,87.7 168.1,67.9 171.4,31.6 154.9,31.6" stroke="#DFAE79" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Guard break</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.5s | 10 particles | cap 6 | priority 2</text></g>
+<g transform="translate(30,308)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="112,77.8 138.4,64.6 164.8,44.8 178,28.3" stroke="#DAC7A0" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Heavy attack</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.35s | 6 particles | cap 6 | priority 1</text></g>
+<g transform="translate(335,308)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="121.9,77.8 131.8,58 123.88,38.2 145,51.4 159.52,31.6 154.9,64.6 168.1,77.8" stroke="#A8AFB2" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Player death</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.8s | 12 particles | cap 6 | priority 1</text></g>
+<g transform="translate(640,308)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="115.3,64.6 138.4,54.7 131.8,39.52 171.4,58 145,61.96 148.3,76.48 115.3,64.6" stroke="#F0AE62" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Fire projectile</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">1.5s | 8 particles | cap 8 | priority 3</text></g>
+<g transform="translate(945,308)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,51.4 138.4,51.4 138.4,31.6 151.6,31.6 151.6,51.4 171.4,51.4 171.4,64.6 151.6,64.6 151.6,84.4 138.4,84.4 138.4,64.6 118.6,64.6 118.6,51.4" stroke="#A6D1AC" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Healing</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.65s | 10 particles | cap 6 | priority 2</text></g>
+<g transform="translate(30,471)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="115.3,38.2 121.9,25 168.1,25 174.7,38.2 170.08,74.5 145,91 119.92,74.5 115.3,38.2" stroke="#92BFC8" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Magic shield</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.8s | 6 particles | cap 6 | priority 3</text></g>
+<g transform="translate(335,471)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="145,28.3 168.1,58 145,87.7 121.9,58 145,28.3 145,87.7" stroke="#9AAED2" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Mana cast</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.6s | 6 particles | cap 6 | priority 2</text></g>
+<g transform="translate(640,471)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,71.2 145,44.8 171.4,71.2 145,44.8 145,25 131.8,38.2 145,25 158.2,38.2" stroke="#DDD1A0" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Level up</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.8s | 12 particles | cap 6 | priority 0</text></g>
+<g transform="translate(945,471)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="145,28.3 164.8,58 145,87.7 125.2,58 145,28.3" stroke="#D3BE8C" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Item pickup</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.45s | 6 particles | cap 4 | priority 0</text></g>
+<g transform="translate(30,634)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,77.8 171.4,77.8 171.4,54.7 118.6,54.7 128.5,31.6 174.7,31.6 171.4,54.7 118.6,54.7 118.6,77.8" stroke="#D6B66F" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Chest opening</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.65s | 10 particles | cap 4 | priority 0</text></g>
+<g transform="translate(335,634)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,77.8 118.6,38.2 131.8,38.2 131.8,77.8 145,77.8 145,38.2 158.2,38.2 158.2,77.8 171.4,77.8 171.4,38.2" stroke="#C8B994" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Camp cleared</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">0.8s | 10 particles | cap 4 | priority 0</text></g>
+<g transform="translate(640,634)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="115.3,34.9 121.9,77.8 168.1,77.8 174.7,34.9 154.9,54.7 145,31.6 135.1,54.7 115.3,34.9" stroke="#D2C9B3" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Boss death</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">1.2s | 16 particles | cap 2 | priority 2</text></g>
+<g transform="translate(945,634)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="115.3,34.9 121.9,77.8 139.72,77.8 150.28,61.3 141.7,48.1 152.92,31.6 164.8,54.7 174.7,34.9 168.1,77.8 154.9,77.8" stroke="#D5BC8D" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">King death</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">1.2s | 16 particles | cap 2 | priority 2</text></g>
+<g transform="translate(30,797)"><rect width="290" height="148" rx="8" fill="#252e34"/>
+<polyline points="118.6,31.6 112,58 125.2,84.4 145,91 164.8,84.4 178,58 171.4,31.6" stroke="#E0CA8B" stroke-width="3" fill="none" stroke-linejoin="round"/>
+<text x="14" y="111" font-size="17">Victory</text>
+<text x="14" y="132" font-size="12" fill="#adb7bc">1.3s | 16 particles | cap 1 | priority 0</text></g>
+<text x="30" y="1005" font-size="15">32 active effects max. Existing attack telegraphs remain outside this pool.</text></g></svg>

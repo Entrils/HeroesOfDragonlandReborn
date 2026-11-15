@@ -144,17 +144,15 @@ namespace HeroesOfDragonland.Presentation
             ClearAttachment(socket);
             var parent = GetSocket(socket);
             if (prefab == null || parent == null) return null;
-            var visual = Instantiate(prefab, parent, false);
-            visual.transform.localPosition = Vector3.zero; visual.transform.localRotation = Quaternion.identity; visual.transform.localScale = Vector3.one;
-            foreach (var collider in visual.GetComponentsInChildren<Collider>()) collider.enabled = false;
-            foreach (var body in visual.GetComponentsInChildren<Rigidbody>()) { body.isKinematic = true; body.detectCollisions = false; }
+            var visual = EquipmentVisualSafety.Spawn(prefab, parent);
+            if (visual == null) return null;
             attachments[socket] = visual;
             return visual;
         }
         public void ClearAttachment(CharacterSocket socket)
         {
             if (!attachments.Remove(socket, out var previous) || previous == null) return;
-            previous.SetActive(false); Destroy(previous);
+            EquipmentVisualSafety.Release(previous);
         }
         public void MoveAttachment(CharacterSocket from, CharacterSocket to)
         {

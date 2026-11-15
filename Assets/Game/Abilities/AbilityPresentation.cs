@@ -9,6 +9,7 @@ namespace HeroesOfDragonland.Abilities
     public sealed class AbilityPresentation : MonoBehaviour
     {
         [SerializeField] private Animator animator;
+        [SerializeField] private bool externalVfx;
         private AbilityCaster caster;
         private GameObject castingVfx;
         private readonly List<GameObject> visuals = new();
@@ -30,6 +31,7 @@ namespace HeroesOfDragonland.Abilities
         }
         private void Update()
         {
+            if (externalVfx) return;
             if (Application.isBatchMode) return;
             if (caster.ShieldRemaining > 0 && shieldVisual == null)
             {
@@ -72,6 +74,15 @@ namespace HeroesOfDragonland.Abilities
         }
         private void OnCue(AbilityDefinition definition, AbilityCue cue, Vector3 position, Vector3 direction)
         {
+            if (externalVfx)
+            {
+                // Keep existing optional cast-animation triggers when M59 owns the visuals.
+                if (cue == AbilityCue.CastStarted && animator != null && !string.IsNullOrEmpty(definition.AnimationTrigger))
+                    foreach (var parameter in animator.parameters)
+                        if (parameter.type == AnimatorControllerParameterType.Trigger && parameter.name == definition.AnimationTrigger)
+                        { animator.SetTrigger(parameter.nameHash); break; }
+                return;
+            }
             if (cue == AbilityCue.CastStarted)
             {
                 StopCasting();

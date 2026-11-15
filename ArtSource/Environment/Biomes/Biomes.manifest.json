@@ -1,0 +1,928 @@
+{
+  "version": 1,
+  "milestone": 57,
+  "blender": "5.3.0",
+  "status": "Offline biome-set candidate; Unity setup, map application and production acceptance pending",
+  "assets": [
+    {
+      "name": "SM_BS_StrataOutcrop",
+      "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_StrataOutcrop.fbx",
+      "triangles": [
+        960,
+        240,
+        60
+      ],
+      "minimumBlender": [
+        -1.541137933731079,
+        -1.001104712486267,
+        0.0
+      ],
+      "maximumBlender": [
+        1.6321930885314941,
+        1.0653760433197021,
+        2.1936757564544678
+      ],
+      "dimensionsUnity": [
+        3.1733310222625732,
+        2.1936757564544678,
+        2.0664807558059692
+      ],
+      "lod0Materials": [
+        "M_BS_StrataStone"
+      ],
+      "lod1Materials": [
+        "M_BS_StrataStone"
+      ],
+      "lod2Materials": [
+        "M_BS_StrataStone"
+      ]
+    },
+    {
+      "name": "SM_BS_ShatteredStandard",
+      "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_ShatteredStandard.fbx",
+      "triangles": [
+        92,
+        28
+      ],
+      "minimumBlender": [
+        -0.30000001192092896,
+        -0.30000001192092896,
+        0.0
+      ],
+      "maximumBlender": [
+        1.2000000476837158,
+        0.30000001192092896,
+        3.200000047683716
+      ],
+      "dimensionsUnity": [
+        1.5000000596046448,
+        3.200000047683716,
+        0.6000000238418579
+      ],
+      "lod0Materials": [
+        "M_BS_WarIron",
+        "M_BS_StrataStone",
+        "M_BS_OldCloth"
+      ],
+      "lod1Materials": [
+        "M_BS_WarIron",
+        "M_BS_StrataStone",
+        "M_BS_OldCloth"
+      ]
+    },
+    {
+      "name": "SM_BS_CorruptedSpire",
+      "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_CorruptedSpire.fbx",
+      "triangles": [
+        320,
+        80,
+        20
+      ],
+      "minimumBlender": [
+        -0.44473496079444885,
+        -0.39283981919288635,
+        0.0
+      ],
+      "maximumBlender": [
+        0.5737671852111816,
+        0.3858855366706848,
+        4.088134765625
+      ],
+      "dimensionsUnity": [
+        1.0185021460056305,
+        4.088134765625,
+        0.7787253558635712
+      ],
+      "lod0Materials": [
+        "M_BS_CorruptedStone",
+        "M_BS_PaleVein"
+      ],
+      "lod1Materials": [
+        "M_BS_CorruptedStone",
+        "M_BS_PaleVein"
+      ],
+      "lod2Materials": [
+        "M_BS_CorruptedStone",
+        "M_BS_PaleVein"
+      ]
+    },
+    {
+      "name": "SM_BS_TwistedRoot",
+      "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_TwistedRoot.fbx",
+      "triangles": [
+        744,
+        296,
+        166
+      ],
+      "minimumBlender": [
+        -1.338894009590149,
+        -1.1824194192886353,
+        -0.013005489483475685
+      ],
+      "maximumBlender": [
+        0.8940425515174866,
+        1.2049659490585327,
+        3.060786008834839
+      ],
+      "dimensionsUnity": [
+        2.2329365611076355,
+        3.0737914983183146,
+        2.387385368347168
+      ],
+      "lod0Materials": [
+        "M_BS_CorruptedStone"
+      ],
+      "lod1Materials": [
+        "M_BS_CorruptedStone"
+      ],
+      "lod2Materials": [
+        "M_BS_CorruptedStone"
+      ]
+    },
+    {
+      "name": "SM_BS_TerrainTile",
+      "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_TerrainTile.fbx",
+      "triangles": [
+        2
+      ],
+      "minimumBlender": [
+        -2.0,
+        -2.0,
+        0.0
+      ],
+      "maximumBlender": [
+        2.0,
+        2.0,
+        0.0
+      ],
+      "dimensionsUnity": [
+        4.0,
+        0.0,
+        4.0
+      ],
+      "lod0Materials": [
+        "M_BS_HighlandGravel"
+      ]
+    }
+  ],
+  "placements": [
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -12,
+        0,
+        4
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -12,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -12,
+        0,
+        12
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -8,
+        0,
+        4
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -8,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -8,
+        0,
+        12
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -4,
+        0,
+        4
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -4,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -4,
+        0,
+        12
+      ],
+      "yaw": 0,
+      "material": "M_AF_ForestFloor"
+    },
+    {
+      "asset": "SM_AF_CampCairn01",
+      "position": [
+        -5,
+        0,
+        11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "position": [
+        -11,
+        0,
+        11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        -12,
+        0,
+        5
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        -4,
+        0,
+        9
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_TreeAncient01",
+      "position": [
+        -10,
+        0,
+        11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_GrassClump01",
+      "position": [
+        -10,
+        0,
+        5
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        4,
+        0,
+        4
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        4,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        4,
+        0,
+        12
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        8,
+        0,
+        4
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        8,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        8,
+        0,
+        12
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        12,
+        0,
+        4
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        12,
+        0,
+        8
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        12,
+        0,
+        12
+      ],
+      "yaw": 0,
+      "material": "M_BS_HighlandGravel"
+    },
+    {
+      "asset": "SM_AF_CampCairn01",
+      "position": [
+        11,
+        0,
+        11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "position": [
+        5,
+        0,
+        11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_StrataOutcrop",
+      "position": [
+        5,
+        0,
+        9
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_StrataOutcrop",
+      "position": [
+        11,
+        0,
+        6
+      ],
+      "yaw": -90,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_DeadTree01",
+      "position": [
+        12,
+        0,
+        11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -12,
+        0,
+        -12
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -12,
+        0,
+        -8
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -12,
+        0,
+        -4
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -8,
+        0,
+        -12
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -8,
+        0,
+        -8
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -8,
+        0,
+        -4
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -4,
+        0,
+        -12
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -4,
+        0,
+        -8
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -4,
+        0,
+        -4
+      ],
+      "yaw": 0,
+      "material": "M_BS_BattlefieldPaving"
+    },
+    {
+      "asset": "SM_AF_CampCairn01",
+      "position": [
+        -5,
+        0,
+        -5
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "position": [
+        -11,
+        0,
+        -5
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_RuinWall01",
+      "position": [
+        -11,
+        0,
+        -7
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_RuinPillar01",
+      "position": [
+        -5,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_ShatteredStandard",
+      "position": [
+        -10,
+        0,
+        -11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_FR_Crate",
+      "position": [
+        -5,
+        0,
+        -11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        4,
+        0,
+        -12
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        4,
+        0,
+        -8
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        4,
+        0,
+        -4
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        8,
+        0,
+        -12
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        8,
+        0,
+        -8
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        8,
+        0,
+        -4
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        12,
+        0,
+        -12
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        12,
+        0,
+        -8
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        12,
+        0,
+        -4
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedAsh"
+    },
+    {
+      "asset": "SM_AF_CampCairn01",
+      "position": [
+        11,
+        0,
+        -5
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_Rock01",
+      "position": [
+        5,
+        0,
+        -5
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_CorruptedSpire",
+      "position": [
+        5,
+        0,
+        -7
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_CorruptedSpire",
+      "position": [
+        11,
+        0,
+        -6
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_BS_TwistedRoot",
+      "position": [
+        5,
+        0,
+        -11
+      ],
+      "yaw": 0,
+      "material": ""
+    },
+    {
+      "asset": "SM_AF_RuinWall01",
+      "position": [
+        11,
+        0,
+        -10
+      ],
+      "yaw": 0,
+      "material": "M_BS_CorruptedStone"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -10,
+        0.02,
+        20
+      ],
+      "yaw": 0,
+      "material": "M_BS_TransitionForestRuins"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        -5,
+        0.02,
+        20
+      ],
+      "yaw": 0,
+      "material": "M_BS_TransitionHighlandsRuins"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        0,
+        0.02,
+        20
+      ],
+      "yaw": 0,
+      "material": "M_BS_TransitionForestCorrupted"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        5,
+        0.02,
+        20
+      ],
+      "yaw": 0,
+      "material": "M_BS_TransitionHighlandsCorrupted"
+    },
+    {
+      "asset": "SM_BS_TerrainTile",
+      "position": [
+        10,
+        0.02,
+        20
+      ],
+      "yaw": 0,
+      "material": "M_BS_TransitionRuinsCorrupted"
+    }
+  ],
+  "transitions": [
+    {
+      "name": "M_BS_TransitionForestRuins",
+      "first": "Forest",
+      "second": "Ruins",
+      "stem": "BS_TransitionForestRuins"
+    },
+    {
+      "name": "M_BS_TransitionHighlandsRuins",
+      "first": "Highlands",
+      "second": "Ruins",
+      "stem": "BS_TransitionHighlandsRuins"
+    },
+    {
+      "name": "M_BS_TransitionForestCorrupted",
+      "first": "Forest",
+      "second": "Corrupted",
+      "stem": "BS_TransitionForestCorrupted"
+    },
+    {
+      "name": "M_BS_TransitionHighlandsCorrupted",
+      "first": "Highlands",
+      "second": "Corrupted",
+      "stem": "BS_TransitionHighlandsCorrupted"
+    },
+    {
+      "name": "M_BS_TransitionRuinsCorrupted",
+      "first": "Ruins",
+      "second": "Corrupted",
+      "stem": "BS_TransitionRuinsCorrupted"
+    }
+  ],
+  "palette": [
+    {
+      "name": "M_BS_HighlandGravel",
+      "color": "96978C",
+      "roughness": 0.9,
+      "stem": "BS_HighlandGravel"
+    },
+    {
+      "name": "M_BS_BattlefieldPaving",
+      "color": "8E877A",
+      "roughness": 0.9,
+      "stem": "BS_BattlefieldPaving"
+    },
+    {
+      "name": "M_BS_CorruptedAsh",
+      "color": "756F7D",
+      "roughness": 0.94,
+      "stem": "BS_CorruptedAsh"
+    },
+    {
+      "name": "M_BS_StrataStone",
+      "color": "9A9E98",
+      "roughness": 0.88,
+      "stem": ""
+    },
+    {
+      "name": "M_BS_WarIron",
+      "color": "545D61",
+      "roughness": 0.55,
+      "stem": ""
+    },
+    {
+      "name": "M_BS_OldCloth",
+      "color": "B3AA93",
+      "roughness": 0.95,
+      "stem": ""
+    },
+    {
+      "name": "M_BS_CorruptedStone",
+      "color": "777080",
+      "roughness": 0.9,
+      "stem": ""
+    },
+    {
+      "name": "M_BS_PaleVein",
+      "color": "B1A4B8",
+      "roughness": 0.7,
+      "stem": ""
+    }
+  ],
+  "reuse": [
+    "SM_AF_TreeAncient01",
+    "SM_AF_DeadTree01",
+    "SM_AF_Rock01",
+    "SM_AF_RuinWall01",
+    "SM_AF_RuinPillar01",
+    "SM_AF_CampCairn01",
+    "SM_AF_GrassClump01",
+    "SM_FR_Crate"
+  ],
+  "accents": [
+    {
+      "biome": "Forest",
+      "color": "C6D0B7",
+      "intensity": 0.15,
+      "range": 4
+    },
+    {
+      "biome": "Highlands",
+      "color": "C2CED4",
+      "intensity": 0.15,
+      "range": 4
+    },
+    {
+      "biome": "Ruins",
+      "color": "D4BB91",
+      "intensity": 0.25,
+      "range": 4
+    },
+    {
+      "biome": "Corrupted",
+      "color": "B2A1BD",
+      "intensity": 0.15,
+      "range": 4
+    }
+  ]
+}

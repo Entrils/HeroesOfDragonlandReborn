@@ -1,0 +1,205 @@
+{
+  "blender": "5.3.0",
+  "assets": [
+    {
+      "asset": "SM_FR_WallStraight",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        396,
+        48,
+        48
+      ]
+    },
+    {
+      "asset": "SM_FR_WallDamaged",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        308,
+        48,
+        48
+      ]
+    },
+    {
+      "asset": "SM_FR_WallCorner",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        88,
+        24,
+        24
+      ]
+    },
+    {
+      "asset": "SM_FR_Tower",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        748,
+        204,
+        204
+      ]
+    },
+    {
+      "asset": "SM_FR_Gate",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        528,
+        120,
+        120
+      ]
+    },
+    {
+      "asset": "SM_FR_Arch",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        528,
+        120,
+        120
+      ]
+    },
+    {
+      "asset": "SM_FR_Stairs",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        440,
+        120,
+        120
+      ]
+    },
+    {
+      "asset": "SM_FR_Battlement",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        176,
+        48,
+        48
+      ]
+    },
+    {
+      "asset": "SM_FR_Pillar",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        132,
+        36,
+        36
+      ]
+    },
+    {
+      "asset": "SM_FR_FloorSection",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        44,
+        12,
+        12
+      ]
+    },
+    {
+      "asset": "SM_FR_BrokenWall",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        308,
+        48,
+        48
+      ]
+    },
+    {
+      "asset": "SM_FR_RuinedArch",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        308,
+        84,
+        84
+      ]
+    },
+    {
+      "asset": "SM_FR_CollapsedPillar",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        136,
+        56,
+        56
+      ]
+    },
+    {
+      "asset": "SM_FR_Rubble01",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        44,
+        12,
+        12
+      ]
+    },
+    {
+      "asset": "SM_FR_Rubble02",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        88,
+        24,
+        24
+      ]
+    },
+    {
+      "asset": "SM_FR_Rubble03",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        132,
+        36,
+        36
+      ]
+    },
+    {
+      "asset": "SM_FR_Crate",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        440,
+        60,
+        60
+      ]
+    },
+    {
+      "asset": "SM_FR_Barrel",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        372,
+        60,
+        60
+      ]
+    },
+    {
+      "asset": "SM_FR_TorchHolder",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        280,
+        96,
+        96
+      ]
+    },
+    {
+      "asset": "SM_FR_WoodenBarricade",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        352,
+        96,
+        96
+      ]
+    },
+    {
+      "asset": "SM_FR_WeaponRack",
+      "fbxRoundTrip": "PASS",
+      "triangles": [
+        440,
+        72,
+        72
+      ]
+    }
+  ],
+  "checks": [
+    "21 FBX reimports",
+    "LOD triangle counts",
+    "nonzero triangle area",
+    "UV0",
+    "closed manifold component shells",
+    "material slots",
+    "world bounds in meters",
+    "three basis markers"
+  ],
+  "limitation": "Blender round-trip only; Unity import, prefabs, static MeshCollider cooking and Play Mode pending."
+}
