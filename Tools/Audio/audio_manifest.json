@@ -1,0 +1,388 @@
+{
+  "sounds": [
+    {
+      "cue": "Footstep",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Footstep_01.wav",
+        "Assets/Art/Audio/Placeholders/Footstep_02.wav",
+        "Assets/Art/Audio/Placeholders/Footstep_03.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 10,
+      "maximumConcurrent": 4,
+      "cooldown": 0.14,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 14
+    },
+    {
+      "cue": "Jump",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Jump.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 35,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 18
+    },
+    {
+      "cue": "Dodge",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Dodge.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 45,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 18
+    },
+    {
+      "cue": "Attack",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Attack.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 65,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 25
+    },
+    {
+      "cue": "Hit",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Hit.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 60,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 24
+    },
+    {
+      "cue": "Block",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Block.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 70,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 26
+    },
+    {
+      "cue": "Parry",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Parry.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 85,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 28
+    },
+    {
+      "cue": "Death",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Death.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 65,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 28
+    },
+    {
+      "cue": "Chest",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Chest.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 35,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 18
+    },
+    {
+      "cue": "CampComplete",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/CampComplete.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 65,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 32
+    },
+    {
+      "cue": "ForestAmbience",
+      "category": "Ambience",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/ForestAmbience.wav"
+      ],
+      "loop": true,
+      "spatial": false,
+      "volume": 0.35,
+      "priority": 5,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "FortressAmbience",
+      "category": "Ambience",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/FortressAmbience.wav"
+      ],
+      "loop": true,
+      "spatial": false,
+      "volume": 0.35,
+      "priority": 5,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "EnemyAggro",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/EnemyAggro.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 50,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 28
+    },
+    {
+      "cue": "EnemyAttack",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/EnemyAttack.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 65,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 26
+    },
+    {
+      "cue": "EnemyDamage",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/EnemyDamage.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 45,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 22
+    },
+    {
+      "cue": "EnemyDeath",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/EnemyDeath.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 55,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 2,
+      "maxDistance": 28
+    },
+    {
+      "cue": "MatchStart",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/MatchStart.wav"
+      ],
+      "loop": false,
+      "spatial": false,
+      "volume": 0.7,
+      "priority": 100,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "KingUnderAttack",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/KingUnderAttack.wav"
+      ],
+      "loop": false,
+      "spatial": false,
+      "volume": 0.7,
+      "priority": 100,
+      "maximumConcurrent": 1,
+      "cooldown": 2,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "KingDeath",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/KingDeath.wav"
+      ],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 95,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 2,
+      "maxDistance": 70
+    },
+    {
+      "cue": "Victory",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Victory.wav"
+      ],
+      "loop": false,
+      "spatial": false,
+      "volume": 0.7,
+      "priority": 100,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "Defeat",
+      "category": "SFX",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/Defeat.wav"
+      ],
+      "loop": false,
+      "spatial": false,
+      "volume": 0.7,
+      "priority": 100,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "UiClick",
+      "category": "UI",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/UiClick.wav"
+      ],
+      "loop": false,
+      "spatial": false,
+      "volume": 0.7,
+      "priority": 30,
+      "maximumConcurrent": 4,
+      "cooldown": 0.08,
+      "pitchVariation": 0.04,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "MusicPlaceholder",
+      "category": "Music",
+      "clips": [
+        "Assets/Art/Audio/Placeholders/MusicPlaceholder.wav"
+      ],
+      "loop": true,
+      "spatial": false,
+      "volume": 0.35,
+      "priority": 5,
+      "maximumConcurrent": 1,
+      "cooldown": 0.08,
+      "pitchVariation": 0,
+      "minDistance": 1,
+      "maxDistance": 1
+    },
+    {
+      "cue": "VoicePlaceholder",
+      "category": "Voice",
+      "clips": [],
+      "loop": false,
+      "spatial": true,
+      "volume": 0.7,
+      "priority": 75,
+      "maximumConcurrent": 2,
+      "cooldown": 0.1,
+      "pitchVariation": 0,
+      "minDistance": 2,
+      "maxDistance": 24
+    }
+  ]
+}

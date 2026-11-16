@@ -10,6 +10,8 @@ namespace HeroesOfDragonland.Presentation.Vfx
     [DisallowMultipleComponent, RequireComponent(typeof(DamageReceiver))]
     public sealed class NetworkImpactVfx : NetworkBehaviour, IAfterTick
     {
+        // Local subscribers reuse this confirmed outcome; this adds no network payload.
+        public event System.Action<VfxKind, Vector3> Presented;
         private DamageReceiver receiver;
         private CombatDefense defense;
         private int sequence;
@@ -51,6 +53,10 @@ namespace HeroesOfDragonland.Presentation.Vfx
             if (number <= 0) return;
             if (!started) { received.Observe(0); started = true; }
             if (!received.Observe(number)) return;
+            if (Presented != null) foreach (System.Action<VfxKind, Vector3> handler in Presented.GetInvocationList())
+            {
+                try { handler(kind, point); } catch (System.Exception exception) { Debug.LogException(exception, this); }
+            }
             VfxAudience.Pool(Runner)?.Play(kind, point, VfxAudience.Relation(Runner, sourceTeam, true, friendlyFire));
         }
         private bool started;

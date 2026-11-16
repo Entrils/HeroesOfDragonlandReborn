@@ -1,0 +1,75 @@
+{
+  "note": "Source validation, not listening/Unity playback.",
+  "tracks": [
+    {
+      "state": "Lobby",
+      "seconds": 8.0,
+      "peak": 0.10648,
+      "rms": 0.03212,
+      "sha256": "665a032f31312e83de51f1801556d8ed16251677d4498c4b71347909da56785a"
+    },
+    {
+      "state": "MatchStart",
+      "seconds": 3.0,
+      "peak": 0.1041,
+      "rms": 0.02938,
+      "sha256": "908439e8f8f44f1101819c506320d65293e398b455c1a5038c504c9794b39336"
+    },
+    {
+      "state": "Exploration",
+      "seconds": 8.0,
+      "peak": 0.10101,
+      "rms": 0.03212,
+      "sha256": "83574e27ba5f35dfa17699498817af4cec2ca5fdca6f2b6158e4b95cc5b88b1b"
+    },
+    {
+      "state": "NeutralCampCombat",
+      "seconds": 8.0,
+      "peak": 0.10645,
+      "rms": 0.03219,
+      "sha256": "3d1ede384938ef392dc29194ff33049198dde89e0e10390138835448475650d0"
+    },
+    {
+      "state": "PvPCombat",
+      "seconds": 8.0,
+      "peak": 0.10538,
+      "rms": 0.03228,
+      "sha256": "e493fc73144275cb2c004538e656430bf5349bec912d792d9542a18e73abe32d"
+    },
+    {
+      "state": "BossEncounter",
+      "seconds": 8.0,
+      "peak": 0.10645,
+      "rms": 0.03241,
+      "sha256": "1e363d6c8551ecba047b3f1c2ef2a4a2da18bcb99b3307fe52c62b5343157111"
+    },
+    {
+      "state": "FortressAssault",
+      "seconds": 8.0,
+      "peak": 0.10538,
+      "rms": 0.03232,
+      "sha256": "7fb3f6001b8cb20370d6857e289740e0e5ea68fb26c3fda3c63a82edb7a93ca5"
+    },
+    {
+      "state": "KingDanger",
+      "seconds": 8.0,
+      "peak": 0.10541,
+      "rms": 0.03251,
+      "sha256": "5f16ae17cc542fd6d1667f7b640a49807a7cf478784c2f7adbee447539c2ed1c"
+    },
+    {
+      "state": "Victory",
+      "seconds": 4.0,
+      "peak": 0.09833,
+      "rms": 0.02893,
+      "sha256": "8fefcb9d9e8a818c33a42bf1f6257051b47cccd877041cd9e9aad5aec5186ee9"
+    },
+    {
+      "state": "Defeat",
+      "seconds": 4.0,
+      "peak": 0.10385,
+      "rms": 0.02847,
+      "sha256": "459a1af9c5bd79d8aca728c44a57128188042cc05caca357a24a03e0443a00fc"
+    }
+  ]
+}

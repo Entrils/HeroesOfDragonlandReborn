@@ -1,0 +1,56 @@
+{
+  "volume": 0.35,
+  "crossfadeSeconds": 1.25,
+  "tracks": [
+    {
+      "state": "Lobby",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_Lobby.wav",
+      "loop": true
+    },
+    {
+      "state": "MatchStart",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_MatchStart.wav",
+      "loop": false
+    },
+    {
+      "state": "Exploration",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_Exploration.wav",
+      "loop": true
+    },
+    {
+      "state": "NeutralCampCombat",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_NeutralCampCombat.wav",
+      "loop": true
+    },
+    {
+      "state": "PvPCombat",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_PvPCombat.wav",
+      "loop": true
+    },
+    {
+      "state": "BossEncounter",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_BossEncounter.wav",
+      "loop": true
+    },
+    {
+      "state": "FortressAssault",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_FortressAssault.wav",
+      "loop": true
+    },
+    {
+      "state": "KingDanger",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_KingDanger.wav",
+      "loop": true
+    },
+    {
+      "state": "Victory",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_Victory.wav",
+      "loop": false
+    },
+    {
+      "state": "Defeat",
+      "clip": "Assets/Art/Audio/MusicPlaceholders/Music_Defeat.wav",
+      "loop": false
+    }
+  ]
+}

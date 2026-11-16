@@ -1,0 +1,180 @@
+{
+  "note": "Source checks only; Unity playback/mixing/listening not tested.",
+  "clips": [
+    {
+      "path": "Assets/Art/Audio/Placeholders/Footstep_01.wav",
+      "seconds": 0.16,
+      "peak": 0.11276,
+      "rms": 0.02527,
+      "sha256": "786e93b44736f2f209394ed26a84bb3bad4347f0763a341e347dd31179a203c0"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Footstep_02.wav",
+      "seconds": 0.16,
+      "peak": 0.12589,
+      "rms": 0.02629,
+      "sha256": "99207898be4f409eca9bcb0e68989eb8c1a1e7ef73ab5352ee6e34226b9a8243"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Footstep_03.wav",
+      "seconds": 0.16,
+      "peak": 0.11963,
+      "rms": 0.02597,
+      "sha256": "11215daaf59be5898de034e73299f0cbb2d857e035e0d91eb7e7c16c69abb196"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Jump.wav",
+      "seconds": 0.25,
+      "peak": 0.21451,
+      "rms": 0.0452,
+      "sha256": "ca78075666e528d71b56f480c0d6dc843fe181534854aacc4afb2b2b2cc630d1"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Dodge.wav",
+      "seconds": 0.32,
+      "peak": 0.15726,
+      "rms": 0.03012,
+      "sha256": "b69302e98f8ad920c9fe4f00ff2622378f2728f3f2f2fd108bdd2d0ea5fcc4ea"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Attack.wav",
+      "seconds": 0.28,
+      "peak": 0.17752,
+      "rms": 0.03549,
+      "sha256": "bf3ad839e3f797d6990465dacf995d08737c05e6eec2635f7a43a59941a1cc3c"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Hit.wav",
+      "seconds": 0.22,
+      "peak": 0.1492,
+      "rms": 0.02991,
+      "sha256": "99cbe92cf594bdcfd6297c3da485f355599aff26619ff027f1b76c1d9770bef6"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Block.wav",
+      "seconds": 0.25,
+      "peak": 0.2337,
+      "rms": 0.06132,
+      "sha256": "deb76f6722a141644ec1cc38ddaca43e0f378dd4044e4c428e01ff3fc0e13807"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Parry.wav",
+      "seconds": 0.5,
+      "peak": 0.29407,
+      "rms": 0.07567,
+      "sha256": "09e1dbc4663259f5839bd659523de08cb55993cccdc8d0d5273bcd1aa9b2b95f"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Death.wav",
+      "seconds": 0.65,
+      "peak": 0.21255,
+      "rms": 0.04715,
+      "sha256": "fac634d9e115a962ff757efe4b97ea7169ec0a1aa084c873f13938c083f67922"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Chest.wav",
+      "seconds": 0.6,
+      "peak": 0.21835,
+      "rms": 0.04695,
+      "sha256": "9be5b9867f40f0cb61076a5d0883417951d5426ee026ae78079917e6da141c1a"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/CampComplete.wav",
+      "seconds": 0.8,
+      "peak": 0.32321,
+      "rms": 0.07325,
+      "sha256": "fb5727c8aca5583d8130848472ed5ce5f92010eea3f0a1e25c8282c98eab49d2"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/ForestAmbience.wav",
+      "seconds": 8.0,
+      "peak": 0.06451,
+      "rms": 0.03009,
+      "sha256": "9984641b53c7e5bb38fb48987b388b7a8d480ac6c450e781806ac66d4cfa996a"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/FortressAmbience.wav",
+      "seconds": 8.0,
+      "peak": 0.064,
+      "rms": 0.03008,
+      "sha256": "0df25cb6393f850e66ef7171356296c628a99a952455ba7cdb48974e63163e05"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/EnemyAggro.wav",
+      "seconds": 0.45,
+      "peak": 0.21252,
+      "rms": 0.0468,
+      "sha256": "b4ae8187c0ee541fc5be9e2ea8cdf3e06268b80a8d913ecbf7c35f281807a662"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/EnemyAttack.wav",
+      "seconds": 0.32,
+      "peak": 0.16373,
+      "rms": 0.0321,
+      "sha256": "505247f2aa33fa8f56811d99654f66cefdb1efc9cda7528849ab77fc36206bc7"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/EnemyDamage.wav",
+      "seconds": 0.2,
+      "peak": 0.15598,
+      "rms": 0.02874,
+      "sha256": "f2a43c1e56b30e3c6a424bef7d661631f37106e337b8bc3ccf0ccc245b37d127"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/EnemyDeath.wav",
+      "seconds": 0.65,
+      "peak": 0.2114,
+      "rms": 0.03924,
+      "sha256": "798ae9c31a7cde43d1eb1a8658d6758345bfc7755e5c3dd2052d5e127710dc94"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/MatchStart.wav",
+      "seconds": 1.1,
+      "peak": 0.32993,
+      "rms": 0.07392,
+      "sha256": "c76762e1bdd31a9c00cecee7e2906b5a3b4a801dd5a2b170f44c38a19caa0c81"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/KingUnderAttack.wav",
+      "seconds": 0.8,
+      "peak": 0.31403,
+      "rms": 0.07089,
+      "sha256": "00b91d2fc91b884861e7dd4615eb7aeb9545b867d9225484c635d8ef437c024e"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/KingDeath.wav",
+      "seconds": 1.3,
+      "peak": 0.23172,
+      "rms": 0.05541,
+      "sha256": "1a9c6bb04dd1a03ad6b8e05f07f97706da05cbaf54d5105ac63e960d1e455490"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Victory.wav",
+      "seconds": 1.5,
+      "peak": 0.33929,
+      "rms": 0.07352,
+      "sha256": "640bcc74a621b56628d80c5873916fd8da1477be4454bb1978ea6e8c568dee21"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/Defeat.wav",
+      "seconds": 1.5,
+      "peak": 0.33249,
+      "rms": 0.08687,
+      "sha256": "69cbf2ff1e3b1432ab1150361ee3a031543e93a9a9a35d7fa4f616fd51318d11"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/UiClick.wav",
+      "seconds": 0.08,
+      "peak": 0.26141,
+      "rms": 0.07313,
+      "sha256": "2775608aee2d5d0c444941027897fd3cd6ac159a08e416850716af61d266fe85"
+    },
+    {
+      "path": "Assets/Art/Audio/Placeholders/MusicPlaceholder.wav",
+      "seconds": 8.0,
+      "peak": 0.13382,
+      "rms": 0.05993,
+      "sha256": "414f84ff62926b81796671a955d5a1e54c0e4b46c77f94c1be7a135d4e32ab68"
+    }
+  ]
+}
