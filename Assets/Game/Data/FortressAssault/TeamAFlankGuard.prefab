@@ -248,6 +248,10 @@ GameObject:
   - component: {fileID: 4336577335630043764}
   - component: {fileID: 5946830410281146029}
   - component: {fileID: 1530405536305845678}
+  - component: {fileID: 3917838635928748642}
+  - component: {fileID: 119800649177870461}
+  - component: {fileID: 744322769714544026}
+  - component: {fileID: 8431234890863836354}
   m_Layer: 0
   m_Name: TeamAFlankGuard
   m_TagString: Untagged
@@ -443,6 +447,7 @@ MonoBehaviour:
   - {fileID: 1195611884951356768}
   - {fileID: 8724444617330302358}
   - {fileID: 7774775507930950904}
+  - {fileID: 119800649177870461}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &1195611884951356768
 MonoBehaviour:
@@ -608,3 +613,51 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 48bf64a24da423041ab85da18d55f72d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Combat.CharacterPoise
+--- !u!114 &3917838635928748642
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6925779332107957264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a1146d52c2b71469780dea6a94deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.ActorVfxPresentation
+--- !u!114 &119800649177870461
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6925779332107957264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc025032725176b4b81ced0eaa549206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.NetworkImpactVfx
+--- !u!114 &744322769714544026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6925779332107957264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ec15b8c5f62b3643a23b26a6d126bed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.ActorAudioPresentation
+--- !u!114 &8431234890863836354
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6925779332107957264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdfece0945edf241a1e25da575794fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.MusicContextSubject

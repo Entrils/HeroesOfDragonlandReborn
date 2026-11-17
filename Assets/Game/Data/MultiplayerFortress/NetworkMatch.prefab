@@ -11,6 +11,8 @@ GameObject:
   - component: {fileID: 5180749836792205273}
   - component: {fileID: 9135981848501712677}
   - component: {fileID: 6383800148502305765}
+  - component: {fileID: 2107322415880887628}
+  - component: {fileID: 4288217047579828817}
   m_Layer: 0
   m_Name: NetworkMatch
   m_TagString: Untagged
@@ -66,6 +68,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkMatch
   lifecycle: {fileID: 11400000, guid: 71f32bcd54959be40ac0b9c18fa59a70, type: 2}
+  balance: {fileID: 0}
   teamAKingPrefab: {fileID: 6988759492962262306, guid: e22178f07ca733e489c0b1faf35a876e, type: 3}
   teamBKingPrefab: {fileID: 4658928340434380134, guid: 24d0d748cd2187140b823428ba3741bd, type: 3}
   teamAGuardPrefab: {fileID: 7774775507930950904, guid: b61fe7523dadfcd4a8d6d57548a3f2f6, type: 3}
@@ -76,6 +79,7 @@ MonoBehaviour:
   teamBGuardPosition: {x: 10, y: 0, z: 3}
   _State: 0
   _RoundNumber: 0
+  _PlayingSeconds: 0
   _StateSequence: 0
   _RequiredPlayers: 0
   _TeamACount: 0
@@ -92,3 +96,29 @@ MonoBehaviour:
     Raw: 0
   _TeamBKingId:
     Raw: 0
+  _AllowShortMatch:
+    RawValue: 0
+--- !u!114 &2107322415880887628
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2488257776114685532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e87b80c14afa8414895303197d557118, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.WorldVfxPresentation
+--- !u!114 &4288217047579828817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2488257776114685532}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55475977439a4264c8fa6eace57103a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.WorldAudioPresentation

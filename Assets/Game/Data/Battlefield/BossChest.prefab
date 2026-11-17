@@ -127,6 +127,8 @@ GameObject:
   - component: {fileID: 1227726625423549960}
   - component: {fileID: 1909105823027814794}
   - component: {fileID: 5472945512594405666}
+  - component: {fileID: 3100126184428485569}
+  - component: {fileID: 8727198536902039693}
   m_Layer: 0
   m_Name: BossChest
   m_TagString: Untagged
@@ -279,6 +281,32 @@ MonoBehaviour:
     Raw: 0
   _IsOpen:
     RawValue: 0
+  _OpenedByBot:
+    Raw: 0
+--- !u!114 &3100126184428485569
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370300964980827842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e87b80c14afa8414895303197d557118, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.WorldVfxPresentation
+--- !u!114 &8727198536902039693
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1370300964980827842}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 55475977439a4264c8fa6eace57103a0, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.WorldAudioPresentation
 --- !u!1 &3014870127440070081
 GameObject:
   m_ObjectHideFlags: 0

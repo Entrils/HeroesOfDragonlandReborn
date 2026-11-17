@@ -1,5 +1,10 @@
 # Milestone 61 — Dynamic Music System
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Actual ten-state catalog/local director installed, validated and saved. Native no-restart/cursor/crossfade/reversal/queue/budget/lifecycle fixture passed; opposing real-peer Exploration and reconnect observation recorded. Extended King-danger/result checks are recorded in the linked live report; full camp/PvP/boss/fortress priority/listening matrix remains open.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Delivery and status
 
 Ten adaptive states, local context sampling, configurable release tails, a two-deck crossfader integrated into M60, a separate music ScriptableObject catalog, ten original synthetic music WAV fixtures, setup tools and validation. No music playback/state is networked. No gameplay/authority/map layout changes.

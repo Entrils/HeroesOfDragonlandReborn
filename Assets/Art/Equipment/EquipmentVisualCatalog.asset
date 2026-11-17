@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c5366f3fe40577499218cc70c159200, type: 3}
+  m_Name: EquipmentVisualCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.EquipmentVisualCatalog
+  items: []
+  weapons:
+  - archetype: 0
+    visual: {fileID: 11400000, guid: bea7c2fd34d8cff42aa7d1a39bccf9f1, type: 2}
+  - archetype: 1
+    visual: {fileID: 11400000, guid: 2d88444e45a0c394f9b4779681f42b77, type: 2}
+  - archetype: 2
+    visual: {fileID: 11400000, guid: 9dfd9af3902e1d448bd4e603a3e258be, type: 2}
+  - archetype: 3
+    visual: {fileID: 11400000, guid: 9bc99bc255080404abd631c49fb32efd, type: 2}
+  armorDefaults:
+  - {fileID: 11400000, guid: 63ad014885eaa694386f9bb155af8c58, type: 2}
+  - {fileID: 11400000, guid: c9e028e470c60f0448c42b94d0b0f2c9, type: 2}
+  - {fileID: 11400000, guid: f0da42ac658f75d48bb2620fc4a77aed, type: 2}
+  - {fileID: 11400000, guid: d31082377f3ba3e46a3246c27f596d8e, type: 2}

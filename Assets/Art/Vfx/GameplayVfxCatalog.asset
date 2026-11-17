@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 98bb09784deca0c47a9b0393c93a4814, type: 3}
+  m_Name: GameplayVfxCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.VfxCatalog
+  effects:
+  - kind: 0
+    prefab: {fileID: 5747638011812251389, guid: 9cf8f47017d1b4f4e88768f7e13dc0e2, type: 3}
+    priority: 1
+    maximumConcurrent: 6
+    duration: 0.24
+  - kind: 1
+    prefab: {fileID: 4303076148268650011, guid: 7a2fd595f723de7478504be50952e5fa, type: 3}
+    priority: 1
+    maximumConcurrent: 6
+    duration: 0.3
+  - kind: 2
+    prefab: {fileID: 2448937859045994242, guid: e016748e16804c043b4d9f8f3d75ff01, type: 3}
+    priority: 2
+    maximumConcurrent: 6
+    duration: 0.4
+  - kind: 3
+    prefab: {fileID: 1023528137087835229, guid: d8b329c5e68b4e34c836199b230cbfae, type: 3}
+    priority: 2
+    maximumConcurrent: 6
+    duration: 0.5
+  - kind: 4
+    prefab: {fileID: 6976031246350909919, guid: c4eab4f5434a02a4bbe18761233122c4, type: 3}
+    priority: 1
+    maximumConcurrent: 6
+    duration: 0.35
+  - kind: 5
+    prefab: {fileID: 6046315177743866530, guid: c64b3a57d50390c4d981d02db56f76b6, type: 3}
+    priority: 1
+    maximumConcurrent: 6
+    duration: 0.8
+  - kind: 6
+    prefab: {fileID: 4236461792469039337, guid: 9a4992773be8bbc46abb5f87c0f3f4e6, type: 3}
+    priority: 3
+    maximumConcurrent: 8
+    duration: 1.5
+  - kind: 7
+    prefab: {fileID: 518307953152879123, guid: 45dc527e592c8604c9b76ecfb7eeee38, type: 3}
+    priority: 2
+    maximumConcurrent: 6
+    duration: 0.65
+  - kind: 8
+    prefab: {fileID: 7001322277487700910, guid: a23e0fe5e8d30834095f5760a554b9b7, type: 3}
+    priority: 3
+    maximumConcurrent: 6
+    duration: 0.8
+  - kind: 9
+    prefab: {fileID: 864174100544346829, guid: 9c0edd10f17f76d4b9433c0bf0adc562, type: 3}
+    priority: 2
+    maximumConcurrent: 6
+    duration: 0.6
+  - kind: 10
+    prefab: {fileID: 1496454002712686225, guid: 00222090f1d368042a01be96f9f4c372, type: 3}
+    priority: 0
+    maximumConcurrent: 6
+    duration: 0.8
+  - kind: 11
+    prefab: {fileID: 3921575425029646501, guid: 4afb329294ecdca4889b1c18b1bff249, type: 3}
+    priority: 0
+    maximumConcurrent: 4
+    duration: 0.45
+  - kind: 12
+    prefab: {fileID: 873747572133636362, guid: b15f76f2dbbb0174ca56026445434fe0, type: 3}
+    priority: 0
+    maximumConcurrent: 4
+    duration: 0.65
+  - kind: 13
+    prefab: {fileID: 8982142342220096867, guid: 361ee187deede744cbaa14abf74d0ff8, type: 3}
+    priority: 0
+    maximumConcurrent: 4
+    duration: 0.8
+  - kind: 14
+    prefab: {fileID: 360992840057798215, guid: 2546e97579ffe764a8c958ad612efb3e, type: 3}
+    priority: 2
+    maximumConcurrent: 2
+    duration: 1.2
+  - kind: 15
+    prefab: {fileID: 540919378754484821, guid: 88ad7c3eeb8f941408347cb7966d7ca5, type: 3}
+    priority: 2
+    maximumConcurrent: 2
+    duration: 1.2
+  - kind: 16
+    prefab: {fileID: 5555748546501896951, guid: 1a2789839c4cf9541a52618e4fb9ef5d, type: 3}
+    priority: 0
+    maximumConcurrent: 1
+    duration: 1.3

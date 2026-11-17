@@ -1,5 +1,10 @@
 # Milestone 56 — Ancient Forest
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Asset validator and conservative battlefield pass completed through MCP. Both forest approaches were rendered and reviewed, original collider/camp invariants passed, and scene saved. Final solid-prop art placement and combined combat readability remain open.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Delivery and acceptance status
 
 Ancient Forest applies the approved [Weathered Dragonland direction](ArtDirection.md): aged pale bark, muted olive leaves, gray-green stone, readable warm dirt paths, restrained moss and sparse low vegetation. It is the requested forest biome treatment within the existing map; the earlier name Ashen Borderwood describes the same art theme, not another required region or a layout change.

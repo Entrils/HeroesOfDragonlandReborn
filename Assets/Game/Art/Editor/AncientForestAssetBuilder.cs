@@ -153,6 +153,8 @@ namespace HeroesOfDragonland.Art.Editor
                 }
                 if (lods.Length > 1)
                 {
+                    foreach (var importedGroup in model.GetComponentsInChildren<LODGroup>(true))
+                        UnityEngine.Object.DestroyImmediate(importedGroup);
                     var group = root.AddComponent<LODGroup>();
                     group.SetLODs(lods);
                     group.RecalculateBounds();

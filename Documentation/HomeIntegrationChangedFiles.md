@@ -1,0 +1,619 @@
+# Home integration file manifest
+
+Generated from the working tree after M54–M62 integration. No commit/push performed.
+The untracked list includes the 179 Unity-generated .meta files already present at initial inspection; they were preserved, not fabricated or replaced. Existing tracked .meta files have no Git diff. Builds contains ignored local commands, executables and evidence, so those files are outside this Git manifest.
+
+## Modified tracked files (62)
+
+- `Assets/Game/Art/Editor/AncientForestAssetBuilder.cs`
+- `Assets/Game/Art/Editor/BiomeSetBuilder.cs`
+- `Assets/Game/Art/Editor/FortressRuinsKitBuilder.cs`
+- `Assets/Game/Audio/AudioPolicy.cs`
+- `Assets/Game/Audio/GameAudioService.cs`
+- `Assets/Game/Data/Battlefield/BattlefieldMatch.prefab`
+- `Assets/Game/Data/Battlefield/BattlefieldPlayer.prefab`
+- `Assets/Game/Data/Battlefield/BossBear.prefab`
+- `Assets/Game/Data/Battlefield/BossCamp.prefab`
+- `Assets/Game/Data/Battlefield/BossChest.prefab`
+- `Assets/Game/Data/Battlefield/BossKnight.prefab`
+- `Assets/Game/Data/Battlefield/HighBear.prefab`
+- `Assets/Game/Data/Battlefield/HighCamp.prefab`
+- `Assets/Game/Data/Battlefield/HighChest.prefab`
+- `Assets/Game/Data/Battlefield/HighKnight.prefab`
+- `Assets/Game/Data/Battlefield/LowCamp.prefab`
+- `Assets/Game/Data/Battlefield/LowChest.prefab`
+- `Assets/Game/Data/Battlefield/LowWolf.prefab`
+- `Assets/Game/Data/Battlefield/MediumBear.prefab`
+- `Assets/Game/Data/Battlefield/MediumCamp.prefab`
+- `Assets/Game/Data/Battlefield/MediumChest.prefab`
+- `Assets/Game/Data/Battlefield/MediumWolf.prefab`
+- `Assets/Game/Data/Battlefield/WardenReliquary.prefab`
+- `Assets/Game/Data/EnemyArchetypes/Archer.prefab`
+- `Assets/Game/Data/EnemyArchetypes/Mage.prefab`
+- `Assets/Game/Data/FortressAssault/TeamAFlankGuard.prefab`
+- `Assets/Game/Data/FortressAssault/TeamAGate.prefab`
+- `Assets/Game/Data/FortressAssault/TeamAOuterGuard.prefab`
+- `Assets/Game/Data/FortressAssault/TeamARoyalGuard.prefab`
+- `Assets/Game/Data/FortressAssault/TeamBFlankGuard.prefab`
+- `Assets/Game/Data/FortressAssault/TeamBGate.prefab`
+- `Assets/Game/Data/FortressAssault/TeamBOuterGuard.prefab`
+- `Assets/Game/Data/FortressAssault/TeamBRoyalGuard.prefab`
+- `Assets/Game/Data/MultiplayerCamps/NetworkCampChest.prefab`
+- `Assets/Game/Data/MultiplayerCamps/NetworkCampPlayer.prefab`
+- `Assets/Game/Data/MultiplayerCamps/NetworkNeutralCamp.prefab`
+- `Assets/Game/Data/MultiplayerFortress/NetworkFortressPlayer.prefab`
+- `Assets/Game/Data/MultiplayerFortress/NetworkMatch.prefab`
+- `Assets/Game/Data/MultiplayerFortress/TeamAGuard.prefab`
+- `Assets/Game/Data/MultiplayerFortress/TeamAKing.prefab`
+- `Assets/Game/Data/MultiplayerFortress/TeamBGuard.prefab`
+- `Assets/Game/Data/MultiplayerFortress/TeamBKing.prefab`
+- `Assets/Game/Data/MultiplayerFoundation/NetworkTestPlayer.prefab`
+- `Assets/Game/Data/MultiplayerPve/NetworkBear.prefab`
+- `Assets/Game/Data/MultiplayerPve/NetworkKnight.prefab`
+- `Assets/Game/Data/MultiplayerPve/NetworkWolf.prefab`
+- `Assets/Game/UI/AudioSettingsView.cs`
+- `Assets/Game/UI/Minimap/TacticalMapSource.cs`
+- `Assets/Game/UI/Minimap/TacticalMinimapView.cs`
+- `Assets/Scenes/DragonlandBattlefield.unity`
+- `Documentation/AncientForest.md`
+- `Documentation/ArtDirection.md`
+- `Documentation/ArtPipeline.md`
+- `Documentation/AudioSystem.md`
+- `Documentation/Biomes.md`
+- `Documentation/DynamicMusic.md`
+- `Documentation/GameplayVfx.md`
+- `Documentation/ModularEnvironmentKit.md`
+- `Documentation/TacticalMinimap.md`
+- `Documentation/UnityIntegrationHandoff.md`
+- `Documentation/VisibleEquipment.md`
+- `Tools/Audio/AudioPolicyTests.cs`
+
+## New/untracked files (including retained initial metadata) (543)
+
+- `Assets/Art/Audio.meta`
+- `Assets/Art/Audio/DragonlandAudio.mixer`
+- `Assets/Art/Audio/DragonlandAudio.mixer.meta`
+- `Assets/Art/Audio/DragonlandAudioCatalog.asset`
+- `Assets/Art/Audio/DragonlandAudioCatalog.asset.meta`
+- `Assets/Art/Audio/DragonlandMusicCatalog.asset`
+- `Assets/Art/Audio/DragonlandMusicCatalog.asset.meta`
+- `Assets/Art/Audio/MusicPlaceholders.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_BossEncounter.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_Defeat.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_Exploration.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_FortressAssault.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_KingDanger.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_Lobby.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_MatchStart.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_NeutralCampCombat.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_PvPCombat.wav.meta`
+- `Assets/Art/Audio/MusicPlaceholders/Music_Victory.wav.meta`
+- `Assets/Art/Audio/Placeholders.meta`
+- `Assets/Art/Audio/Placeholders/Attack.wav.meta`
+- `Assets/Art/Audio/Placeholders/Block.wav.meta`
+- `Assets/Art/Audio/Placeholders/CampComplete.wav.meta`
+- `Assets/Art/Audio/Placeholders/Chest.wav.meta`
+- `Assets/Art/Audio/Placeholders/Death.wav.meta`
+- `Assets/Art/Audio/Placeholders/Defeat.wav.meta`
+- `Assets/Art/Audio/Placeholders/Dodge.wav.meta`
+- `Assets/Art/Audio/Placeholders/EnemyAggro.wav.meta`
+- `Assets/Art/Audio/Placeholders/EnemyAttack.wav.meta`
+- `Assets/Art/Audio/Placeholders/EnemyDamage.wav.meta`
+- `Assets/Art/Audio/Placeholders/EnemyDeath.wav.meta`
+- `Assets/Art/Audio/Placeholders/Footstep_01.wav.meta`
+- `Assets/Art/Audio/Placeholders/Footstep_02.wav.meta`
+- `Assets/Art/Audio/Placeholders/Footstep_03.wav.meta`
+- `Assets/Art/Audio/Placeholders/ForestAmbience.wav.meta`
+- `Assets/Art/Audio/Placeholders/FortressAmbience.wav.meta`
+- `Assets/Art/Audio/Placeholders/Hit.wav.meta`
+- `Assets/Art/Audio/Placeholders/Jump.wav.meta`
+- `Assets/Art/Audio/Placeholders/KingDeath.wav.meta`
+- `Assets/Art/Audio/Placeholders/KingUnderAttack.wav.meta`
+- `Assets/Art/Audio/Placeholders/MatchStart.wav.meta`
+- `Assets/Art/Audio/Placeholders/MusicPlaceholder.wav.meta`
+- `Assets/Art/Audio/Placeholders/Parry.wav.meta`
+- `Assets/Art/Audio/Placeholders/UiClick.wav.meta`
+- `Assets/Art/Audio/Placeholders/Victory.wav.meta`
+- `Assets/Art/Environment/Meshes.meta`
+- `Assets/Art/Environment/Meshes/FortressHeraldry.asset`
+- `Assets/Art/Environment/Meshes/FortressHeraldry.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Corrupted core_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Corrupted core_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Corrupted core_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Corrupted core_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest corner_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest corner_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest corner_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest corner_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest inner_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest inner_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest inner_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest inner_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest outer_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest outer_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest outer_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest outer_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest to corrupted_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest to corrupted_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest to corrupted_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest to corrupted_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest to ruins_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest to ruins_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Forest to ruins_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Forest to ruins_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highland corner_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highland corner_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highland corner_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highland corner_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highland inner_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highland inner_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highland inner_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highland inner_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highland outer_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highland outer_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highland outer_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highland outer_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highlands to corrupted_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highlands to corrupted_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highlands to corrupted_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highlands to corrupted_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highlands to ruins_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highlands to ruins_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Highlands to ruins_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Highlands to ruins_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Ruins center edge_-1.asset`
+- `Assets/Art/Environment/Meshes/M57_Ruins center edge_-1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Ruins center edge_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Ruins center edge_1.asset.meta`
+- `Assets/Art/Environment/Meshes/M57_Ruins central_1.asset`
+- `Assets/Art/Environment/Meshes/M57_Ruins central_1.asset.meta`
+- `Assets/Art/Environment/Models/AncientForest.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_Bush01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_Bush02.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_CampCairn01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_DeadTree01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_DeadTree02.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_DirtPathTile.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_DistantTreeline.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_FallenLog01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_ForestFloorTile.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_GrassClump01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_GrassClump02.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_Rock01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_Rock02.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_Rock03.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_RuinPillar01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_RuinWall01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_Stump01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_TreeAncient01.fbx.meta`
+- `Assets/Art/Environment/Models/AncientForest/SM_AF_TreeAncient02.fbx.meta`
+- `Assets/Art/Environment/Models/Biomes.meta`
+- `Assets/Art/Environment/Models/Biomes/SM_BS_CorruptedSpire.fbx.meta`
+- `Assets/Art/Environment/Models/Biomes/SM_BS_ShatteredStandard.fbx.meta`
+- `Assets/Art/Environment/Models/Biomes/SM_BS_StrataOutcrop.fbx.meta`
+- `Assets/Art/Environment/Models/Biomes/SM_BS_TerrainTile.fbx.meta`
+- `Assets/Art/Environment/Models/Biomes/SM_BS_TwistedRoot.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Arch.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Barrel.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Battlement.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_BrokenWall.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_CollapsedPillar.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Crate.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_FloorSection.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Gate.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Pillar.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Rubble01.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Rubble02.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Rubble03.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_RuinedArch.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Stairs.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_TorchHolder.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_Tower.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_WallCorner.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_WallDamaged.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_WallStraight.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_WeaponRack.fbx.meta`
+- `Assets/Art/Environment/Models/FortressRuins/SM_FR_WoodenBarricade.fbx.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/PF_AF_AmbientMotes.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/PF_AF_AmbientMotes.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Bush01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Bush01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Bush02.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Bush02.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_CampCairn01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_CampCairn01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DeadTree01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DeadTree01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DeadTree02.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DeadTree02.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DirtPathTile.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DirtPathTile.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DistantTreeline.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_DistantTreeline.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_FallenLog01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_FallenLog01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_ForestFloorTile.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_ForestFloorTile.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_GrassClump01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_GrassClump01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_GrassClump02.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_GrassClump02.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Rock01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Rock01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Rock02.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Rock02.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Rock03.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Rock03.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_RuinPillar01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_RuinPillar01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_RuinWall01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_RuinWall01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Stump01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_Stump01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_TreeAncient01.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_TreeAncient01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_TreeAncient02.prefab`
+- `Assets/Art/Environment/Prefabs/AncientForest/SM_AF_TreeAncient02.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentCorrupted.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentCorrupted.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentForest.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentForest.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentHighlands.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentHighlands.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentRuins.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/PV_BS_AccentRuins.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_CorruptedSpire.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_CorruptedSpire.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_ShatteredStandard.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_ShatteredStandard.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_StrataOutcrop.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_StrataOutcrop.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_TerrainTile.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_TerrainTile.prefab.meta`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_TwistedRoot.prefab`
+- `Assets/Art/Environment/Prefabs/Biomes/SM_BS_TwistedRoot.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Arch.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Arch.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Barrel.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Barrel.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Battlement.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Battlement.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_BrokenWall.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_BrokenWall.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_CollapsedPillar.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_CollapsedPillar.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Crate.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Crate.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_FloorSection.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_FloorSection.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Gate.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Gate.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Pillar.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Pillar.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Rubble01.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Rubble01.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Rubble02.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Rubble02.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Rubble03.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Rubble03.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_RuinedArch.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_RuinedArch.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Stairs.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Stairs.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_TorchHolder.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_TorchHolder.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Tower.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_Tower.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WallCorner.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WallCorner.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WallDamaged.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WallDamaged.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WallStraight.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WallStraight.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WeaponRack.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WeaponRack.prefab.meta`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WoodenBarricade.prefab`
+- `Assets/Art/Environment/Prefabs/FortressRuins/SM_FR_WoodenBarricade.prefab.meta`
+- `Assets/Art/Environment/Scenes/AncientForestLookDev.unity`
+- `Assets/Art/Environment/Scenes/AncientForestLookDev.unity.meta`
+- `Assets/Art/Environment/Scenes/BiomesLookDev.unity`
+- `Assets/Art/Environment/Scenes/BiomesLookDev.unity.meta`
+- `Assets/Art/Environment/Scenes/FortressRuinsKitTest.unity`
+- `Assets/Art/Environment/Scenes/FortressRuinsKitTest.unity.meta`
+- `Assets/Art/Environment/Scenes/VisualDirectionBenchmark.unity`
+- `Assets/Art/Environment/Scenes/VisualDirectionBenchmark.unity.meta`
+- `Assets/Art/Equipment.meta`
+- `Assets/Art/Equipment/Definitions.meta`
+- `Assets/Art/Equipment/Definitions/EV_Chest.asset`
+- `Assets/Art/Equipment/Definitions/EV_Chest.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Greatsword.asset`
+- `Assets/Art/Equipment/Definitions/EV_Greatsword.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Hands.asset`
+- `Assets/Art/Equipment/Definitions/EV_Hands.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Head.asset`
+- `Assets/Art/Equipment/Definitions/EV_Head.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Legs.asset`
+- `Assets/Art/Equipment/Definitions/EV_Legs.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Spear.asset`
+- `Assets/Art/Equipment/Definitions/EV_Spear.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Staff.asset`
+- `Assets/Art/Equipment/Definitions/EV_Staff.asset.meta`
+- `Assets/Art/Equipment/Definitions/EV_Sword.asset`
+- `Assets/Art/Equipment/Definitions/EV_Sword.asset.meta`
+- `Assets/Art/Equipment/EquipmentVisualCatalog.asset`
+- `Assets/Art/Equipment/EquipmentVisualCatalog.asset.meta`
+- `Assets/Art/Equipment/Materials.meta`
+- `Assets/Art/Equipment/Materials/M_EquipmentIron.mat`
+- `Assets/Art/Equipment/Materials/M_EquipmentIron.mat.meta`
+- `Assets/Art/Equipment/Prefabs.meta`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorChest.prefab`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorChest.prefab.meta`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorHand.prefab`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorHand.prefab.meta`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorHead.prefab`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorHead.prefab.meta`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorShin.prefab`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorShin.prefab.meta`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorThigh.prefab`
+- `Assets/Art/Equipment/Prefabs/PV_ArmorThigh.prefab.meta`
+- `Assets/Art/Materials/Benchmarks.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Bone.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Bone.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Brass.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Brass.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Crest.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Crest.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Danger.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Danger.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Dark.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Dark.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Ground.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Ground.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Stone.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Stone.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_TeamA.mat`
+- `Assets/Art/Materials/Benchmarks/M54_TeamA.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_TeamB.mat`
+- `Assets/Art/Materials/Benchmarks/M54_TeamB.mat.meta`
+- `Assets/Art/Materials/Benchmarks/M54_Wood.mat`
+- `Assets/Art/Materials/Benchmarks/M54_Wood.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_AmbientMotes.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_AmbientMotes.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Bark.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Bark.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_DirtPath.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_DirtPath.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_DirtPath_Map16.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_DirtPath_Map16.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_ForestFloor.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_ForestFloor.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_ForestFloor_Map.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_ForestFloor_Map.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Heartwood.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Heartwood.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Leaves.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Leaves.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_LeavesLight.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_LeavesLight.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Moss.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Moss.mat.meta`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Rock.mat`
+- `Assets/Art/Materials/Environment/AncientForest/M_AF_Rock.mat.meta`
+- `Assets/Art/Materials/Environment/Battlefield.meta`
+- `Assets/Art/Materials/Environment/Battlefield/M_FortressCrest.mat`
+- `Assets/Art/Materials/Environment/Battlefield/M_FortressCrest.mat.meta`
+- `Assets/Art/Materials/Environment/Battlefield/M_FortressTeamA.mat`
+- `Assets/Art/Materials/Environment/Battlefield/M_FortressTeamA.mat.meta`
+- `Assets/Art/Materials/Environment/Battlefield/M_FortressTeamB.mat`
+- `Assets/Art/Materials/Environment/Battlefield/M_FortressTeamB.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_AF_ForestFloor_Map.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_AF_ForestFloor_Map.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_BattlefieldPaving.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_BattlefieldPaving.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_BattlefieldPaving_Map.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_BattlefieldPaving_Map.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_CorruptedAsh.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_CorruptedAsh.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_CorruptedAsh_Map.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_CorruptedAsh_Map.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_CorruptedStone.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_CorruptedStone.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_HighlandGravel.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_HighlandGravel.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_HighlandGravel_Map.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_HighlandGravel_Map.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_OldCloth.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_OldCloth.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_PaleVein.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_PaleVein.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_StrataStone.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_StrataStone.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionForestCorrupted.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionForestCorrupted.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionForestRuins.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionForestRuins.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionHighlandsCorrupted.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionHighlandsCorrupted.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionHighlandsRuins.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionHighlandsRuins.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionRuinsCorrupted.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_TransitionRuinsCorrupted.mat.meta`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_WarIron.mat`
+- `Assets/Art/Materials/Environment/Biomes/M_BS_WarIron.mat.meta`
+- `Assets/Art/Materials/Environment/FortressRuins.meta`
+- `Assets/Art/Materials/Environment/FortressRuins/M_FR_Iron.mat`
+- `Assets/Art/Materials/Environment/FortressRuins/M_FR_Iron.mat.meta`
+- `Assets/Art/Materials/Environment/FortressRuins/M_FR_Stone.mat`
+- `Assets/Art/Materials/Environment/FortressRuins/M_FR_Stone.mat.meta`
+- `Assets/Art/Materials/Environment/FortressRuins/M_FR_Wood.mat`
+- `Assets/Art/Materials/Environment/FortressRuins/M_FR_Wood.mat.meta`
+- `Assets/Art/Textures/Environment/AncientForest.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_AmbientMote_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_Bark_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_Bark_Mask.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_Bark_Normal.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_DirtPath_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_DirtPath_Mask.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_DirtPath_Normal.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_ForestFloor_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_ForestFloor_Mask.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_ForestFloor_Normal.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_Rock_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_Rock_Mask.png.meta`
+- `Assets/Art/Textures/Environment/AncientForest/T_AF_Rock_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_BattlefieldPaving_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_BattlefieldPaving_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_BattlefieldPaving_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_CorruptedAsh_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_CorruptedAsh_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_CorruptedAsh_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_HighlandGravel_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_HighlandGravel_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_HighlandGravel_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionForestCorrupted_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionForestCorrupted_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionForestCorrupted_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionForestRuins_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionForestRuins_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionForestRuins_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionHighlandsCorrupted_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionHighlandsCorrupted_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionHighlandsCorrupted_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionHighlandsRuins_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionHighlandsRuins_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionHighlandsRuins_Normal.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionRuinsCorrupted_BaseColor.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionRuinsCorrupted_Mask.png.meta`
+- `Assets/Art/Textures/Environment/Biomes/T_BS_TransitionRuinsCorrupted_Normal.png.meta`
+- `Assets/Art/Vfx.meta`
+- `Assets/Art/Vfx/GameplayVfxCatalog.asset`
+- `Assets/Art/Vfx/GameplayVfxCatalog.asset.meta`
+- `Assets/Art/Vfx/Materials.meta`
+- `Assets/Art/Vfx/Materials/M_VfxGlyph.mat`
+- `Assets/Art/Vfx/Materials/M_VfxGlyph.mat.meta`
+- `Assets/Art/Vfx/Materials/M_VfxParticles.mat`
+- `Assets/Art/Vfx/Materials/M_VfxParticles.mat.meta`
+- `Assets/Art/Vfx/Prefabs.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_BlockedHit.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_BlockedHit.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_BossDeath.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_BossDeath.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_CampCleared.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_CampCleared.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_ChestOpening.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_ChestOpening.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_FireProjectile.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_FireProjectile.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_GuardBreak.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_GuardBreak.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_Healing.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_Healing.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_HeavyAttack.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_HeavyAttack.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_ItemPickup.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_ItemPickup.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_KingDeath.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_KingDeath.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_LevelUp.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_LevelUp.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_MagicShield.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_MagicShield.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_ManaCast.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_ManaCast.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_MeleeHit.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_MeleeHit.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_Parry.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_Parry.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_PlayerDeath.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_PlayerDeath.prefab.meta`
+- `Assets/Art/Vfx/Prefabs/VFX_Victory.prefab`
+- `Assets/Art/Vfx/Prefabs/VFX_Victory.prefab.meta`
+- `Assets/Game/Art/Editor/AncientForestAssetBuilder.cs.meta`
+- `Assets/Game/Art/Editor/AncientForestBattlefieldPass.cs.meta`
+- `Assets/Game/Art/Editor/AudioAmbiencePlayValidation.cs`
+- `Assets/Game/Art/Editor/AudioAmbiencePlayValidation.cs.meta`
+- `Assets/Game/Art/Editor/AudioMixerFactory.cs.meta`
+- `Assets/Game/Art/Editor/AudioSystemSetup.cs.meta`
+- `Assets/Game/Art/Editor/AudioSystemValidation.cs.meta`
+- `Assets/Game/Art/Editor/BattlefieldBiomeDetailPass.cs`
+- `Assets/Game/Art/Editor/BattlefieldBiomeDetailPass.cs.meta`
+- `Assets/Game/Art/Editor/BattlefieldModelPlayValidation.cs`
+- `Assets/Game/Art/Editor/BattlefieldModelPlayValidation.cs.meta`
+- `Assets/Game/Art/Editor/BattlefieldModelReplacement.cs`
+- `Assets/Game/Art/Editor/BattlefieldModelReplacement.cs.meta`
+- `Assets/Game/Art/Editor/BiomeSetBuilder.cs.meta`
+- `Assets/Game/Art/Editor/EnvironmentKitPlayValidation.cs`
+- `Assets/Game/Art/Editor/EnvironmentKitPlayValidation.cs.meta`
+- `Assets/Game/Art/Editor/FortressRuinsKitBuilder.cs.meta`
+- `Assets/Game/Art/Editor/GameplayVfxSetup.cs.meta`
+- `Assets/Game/Art/Editor/GameplayVfxValidation.cs.meta`
+- `Assets/Game/Art/Editor/IntegrationBakeValidation.cs`
+- `Assets/Game/Art/Editor/IntegrationBakeValidation.cs.meta`
+- `Assets/Game/Art/Editor/IntegrationPlaySession.cs`
+- `Assets/Game/Art/Editor/IntegrationPlaySession.cs.meta`
+- `Assets/Game/Art/Editor/MusicSystemSetup.cs.meta`
+- `Assets/Game/Art/Editor/MusicSystemValidation.cs.meta`
+- `Assets/Game/Art/Editor/TacticalMinimapSetup.cs.meta`
+- `Assets/Game/Art/Editor/TacticalMinimapValidation.cs.meta`
+- `Assets/Game/Art/Editor/VisibleEquipmentSetup.cs.meta`
+- `Assets/Game/Art/Editor/VisibleEquipmentValidation.cs.meta`
+- `Assets/Game/Art/Editor/VisualDirectionBenchmarkSetup.cs`
+- `Assets/Game/Art/Editor/VisualDirectionBenchmarkSetup.cs.meta`
+- `Assets/Game/Audio.meta`
+- `Assets/Game/Audio/ActorAudioPresentation.cs.meta`
+- `Assets/Game/Audio/AudioAmbienceController.cs.meta`
+- `Assets/Game/Audio/AudioAmbienceZone.cs.meta`
+- `Assets/Game/Audio/AudioAudience.cs.meta`
+- `Assets/Game/Audio/AudioCatalog.cs.meta`
+- `Assets/Game/Audio/AudioCue.cs.meta`
+- `Assets/Game/Audio/AudioPolicy.cs.meta`
+- `Assets/Game/Audio/AudioPreferences.cs.meta`
+- `Assets/Game/Audio/GameAudioService.cs.meta`
+- `Assets/Game/Audio/Music.meta`
+- `Assets/Game/Audio/Music/DynamicMusicDirector.cs.meta`
+- `Assets/Game/Audio/Music/LocalMusicContext.cs.meta`
+- `Assets/Game/Audio/Music/MusicCatalog.cs.meta`
+- `Assets/Game/Audio/Music/MusicContextSubject.cs.meta`
+- `Assets/Game/Audio/Music/MusicDecks.cs.meta`
+- `Assets/Game/Audio/Music/MusicPolicy.cs.meta`
+- `Assets/Game/Audio/WorldAudioPresentation.cs.meta`
+- `Assets/Game/Data/Minimap.meta`
+- `Assets/Game/Data/Minimap/BattlefieldTacticalMap.asset`
+- `Assets/Game/Data/Minimap/BattlefieldTacticalMap.asset.meta`
+- `Assets/Game/Presentation/EquipmentVisualCatalog.cs.meta`
+- `Assets/Game/Presentation/EquipmentVisualDefinition.cs.meta`
+- `Assets/Game/Presentation/EquipmentVisualSafety.cs.meta`
+- `Assets/Game/Presentation/PresentationAcceptanceProbe.cs`
+- `Assets/Game/Presentation/PresentationAcceptanceProbe.cs.meta`
+- `Assets/Game/Presentation/Vfx.meta`
+- `Assets/Game/Presentation/Vfx/ActorVfxPresentation.cs.meta`
+- `Assets/Game/Presentation/Vfx/NetworkImpactVfx.cs.meta`
+- `Assets/Game/Presentation/Vfx/PooledVfx.cs.meta`
+- `Assets/Game/Presentation/Vfx/VfxAudience.cs.meta`
+- `Assets/Game/Presentation/Vfx/VfxBudget.cs.meta`
+- `Assets/Game/Presentation/Vfx/VfxCatalog.cs.meta`
+- `Assets/Game/Presentation/Vfx/VfxPool.cs.meta`
+- `Assets/Game/Presentation/Vfx/WorldVfxPresentation.cs.meta`
+- `Assets/Game/Presentation/VisibleEquipmentNetworkProbe.cs.meta`
+- `Assets/Game/UI/AudioSettingsView.cs.meta`
+- `Assets/Game/UI/Minimap.meta`
+- `Assets/Game/UI/Minimap/TacticalMapDefinition.cs.meta`
+- `Assets/Game/UI/Minimap/TacticalMapRules.cs.meta`
+- `Assets/Game/UI/Minimap/TacticalMapSource.cs.meta`
+- `Assets/Game/UI/Minimap/TacticalMapSubject.cs.meta`
+- `Assets/Game/UI/Minimap/TacticalMinimapView.cs.meta`
+- `Assets/Game/UI/Minimap/TemporaryEnemyReveals.cs.meta`
+- `Documentation/HomeIntegrationChangedFiles.md`
+- `Documentation/HomeIntegrationValidation.md`
+- `Documentation/MapModelReplacement.md`
+
+## Deleted tracked files (0)
+
+None.

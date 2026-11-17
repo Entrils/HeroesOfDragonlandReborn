@@ -1,0 +1,336 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ed83b0aadf27544c9b74937b6466ac0, type: 3}
+  m_Name: DragonlandAudioCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.AudioCatalog
+  mixer: {fileID: 24100000, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  groups:
+  - {fileID: 24300002, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  - {fileID: -5374496525408830675, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  - {fileID: -8520359249928830971, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  - {fileID: 1650059583947892493, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  - {fileID: -6429294930131940988, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  - {fileID: -3353055216652709207, guid: 649a39ca84a47b34cba8517c0c481592, type: 2}
+  sounds:
+  - cue: 0
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: f5b15f0199a4da54caa9e979b1e8e19b, type: 3}
+    - {fileID: 8300000, guid: 3f72cac178e6f604387947b050af1053, type: 3}
+    - {fileID: 8300000, guid: d0c407e38bb276b409ad2a0ce2c85a2c, type: 3}
+    volume: 0.7
+    priority: 10
+    maximumConcurrent: 4
+    cooldown: 0.14
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 14
+  - cue: 1
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: d876b4004b940324ebfda5c3025b2f2a, type: 3}
+    volume: 0.7
+    priority: 35
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 18
+  - cue: 2
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: f13090ec4ae16b6459f5579dbb4ef08c, type: 3}
+    volume: 0.7
+    priority: 45
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 18
+  - cue: 3
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 8997c254e88070845b7e5751a75bb4cc, type: 3}
+    volume: 0.7
+    priority: 65
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 25
+  - cue: 4
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 5a6840b01f18602479cb567e23269420, type: 3}
+    volume: 0.7
+    priority: 60
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 24
+  - cue: 5
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: f2c3d48b0f5e12446b19b26805ae1f2c, type: 3}
+    volume: 0.7
+    priority: 70
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 26
+  - cue: 6
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: db8e668cbbcff3b4ba62b49470067455, type: 3}
+    volume: 0.7
+    priority: 85
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 28
+  - cue: 7
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 39a315d318a764843829326542dbf03d, type: 3}
+    volume: 0.7
+    priority: 65
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 28
+  - cue: 8
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: ab70b8747e4845540819ae16775f036e, type: 3}
+    volume: 0.7
+    priority: 35
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 18
+  - cue: 9
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: cef099503692cba42b247a71aaf2c0ce, type: 3}
+    volume: 0.7
+    priority: 65
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 32
+  - cue: 10
+    category: 4
+    clips:
+    - {fileID: 8300000, guid: da091b388564e2e45be0f5a9c1825753, type: 3}
+    volume: 0.35
+    priority: 5
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 0
+    loop: 1
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 11
+    category: 4
+    clips:
+    - {fileID: 8300000, guid: d20a16c6b9fdc4844ae6d2a6468da2ad, type: 3}
+    volume: 0.35
+    priority: 5
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 0
+    loop: 1
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 12
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 2b97168218b4fa34698b17c8bf3d2b0a, type: 3}
+    volume: 0.7
+    priority: 50
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 28
+  - cue: 13
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 831fec8820e32dd4fa80c91c8f089dd9, type: 3}
+    volume: 0.7
+    priority: 65
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 26
+  - cue: 14
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 9a22e571ba859de498aa6c6cda083256, type: 3}
+    volume: 0.7
+    priority: 45
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 22
+  - cue: 15
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 8c879be61fbf7da418c0542945331a78, type: 3}
+    volume: 0.7
+    priority: 55
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 2
+    maxDistance: 28
+  - cue: 16
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 53c6ab99ce1d7ed4187221f1f49e5fa8, type: 3}
+    volume: 0.7
+    priority: 100
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 0
+    loop: 0
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 17
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: b53747337d5498946b7da3d80cfc1dfd, type: 3}
+    volume: 0.7
+    priority: 100
+    maximumConcurrent: 1
+    cooldown: 2
+    spatial: 0
+    loop: 0
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 18
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 432a0e5a752a7b24f8a3651f76a860c3, type: 3}
+    volume: 0.7
+    priority: 95
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 1
+    loop: 0
+    pitchVariation: 0
+    minDistance: 2
+    maxDistance: 70
+  - cue: 19
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 489eed1a266775148bf5e99c20ebb019, type: 3}
+    volume: 0.7
+    priority: 100
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 0
+    loop: 0
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 20
+    category: 2
+    clips:
+    - {fileID: 8300000, guid: 21ee64d61259bb249ac9ab96523a1c7c, type: 3}
+    volume: 0.7
+    priority: 100
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 0
+    loop: 0
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 21
+    category: 3
+    clips:
+    - {fileID: 8300000, guid: a87e0965433508f499510d06efd63fa1, type: 3}
+    volume: 0.7
+    priority: 30
+    maximumConcurrent: 4
+    cooldown: 0.08
+    spatial: 0
+    loop: 0
+    pitchVariation: 0.04
+    minDistance: 1
+    maxDistance: 1
+  - cue: 22
+    category: 1
+    clips:
+    - {fileID: 8300000, guid: 1610a76af5765ec4299e3b1217abe7e4, type: 3}
+    volume: 0.35
+    priority: 5
+    maximumConcurrent: 1
+    cooldown: 0.08
+    spatial: 0
+    loop: 1
+    pitchVariation: 0
+    minDistance: 1
+    maxDistance: 1
+  - cue: 23
+    category: 5
+    clips: []
+    volume: 0.7
+    priority: 75
+    maximumConcurrent: 2
+    cooldown: 0.1
+    spatial: 1
+    loop: 0
+    pitchVariation: 0
+    minDistance: 2
+    maxDistance: 24

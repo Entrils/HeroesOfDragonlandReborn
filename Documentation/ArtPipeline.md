@@ -1,5 +1,10 @@
 # Milestone 39 — Blender → Unity art pipeline
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Existing Unity calibration passed. Safe Mode had bypassed first-import art defaults for the transferred assets; scoped reapplication restored calibrated axes without changing GUIDs, source FBXs or global importer policy.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Scope and project context
 
 This is the authoring/import contract for future Heroes of Dragonland 3D assets. The current renderer is URP, with gameplay in meters and a third-person camera. Gameplay, networking, targeting, equipment data and existing placeholders remain unchanged. The completed sample is **SM_TestCrate**, a 1m prop with Blender source, FBX, one small texture, an external URP material, a box collider, a linked Unity prefab and a separate calibration scene.

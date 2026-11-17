@@ -21,10 +21,10 @@ namespace HeroesOfDragonland.UI
             root = GetComponent<UIDocument>().rootVisualElement;
             root.Clear(); root.pickingMode = PickingMode.Ignore;
             var button = new Button(() => SetOpen(!open)) { text = "Audio [F10]" };
-            button.style.position = Position.Absolute; button.style.left = 18; button.style.bottom = 18;
+            button.style.position = Position.Absolute; button.style.left = 18; button.style.bottom = 58;
             root.Add(button);
             panel = new VisualElement(); panel.name = "AudioSettings";
-            panel.style.position = Position.Absolute; panel.style.left = 18; panel.style.bottom = 58;
+            panel.style.position = Position.Absolute; panel.style.left = 18; panel.style.bottom = 98;
             panel.style.width = 300; panel.style.maxWidth = Length.Percent(90);
             panel.style.paddingLeft = panel.style.paddingRight = 16; panel.style.paddingTop = panel.style.paddingBottom = 12;
             panel.style.backgroundColor = new Color(.07f, .08f, .09f, .98f); panel.style.color = Color.white;

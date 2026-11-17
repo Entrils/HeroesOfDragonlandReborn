@@ -1,5 +1,10 @@
 # Milestone 54 — Visual Direction Lock
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Unity benchmark saved separately from gameplay, with existing source visuals, matched crests and review cameras. Initial Unity overview was inspected and mirrored labels repaired; timed perception, grayscale/CVD and moving-warning approval remain open.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Scope and status
 
 Chosen direction: **Weathered Dragonland** — grounded, selectively stylized medieval fantasy. Ancient stone, worn iron, pale woodland and restrained dragon heraldry frame clearly visible combatants. Darkness comes from subject matter, architecture and weathering, not crushed blacks or obscuring fog. This document is the M54 authoring baseline; in-engine acceptance remains pending.

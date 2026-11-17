@@ -1,5 +1,10 @@
 # Milestone 59 — Combat and Gameplay VFX
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** 17 actual prefabs/catalog and scene/prefab adapters created, validated and saved through MCP. Fusion impact behavior membership/scene baking checked; matching development peers built and run. Native pool fixture passed. Full block/parry/magic/late active-effect and overlapping-boss acceptance remains open.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Status and visual language
 
 The initial language is **compact elemental glyphs + sparse bursts + separate audience markers**. Ivory contact sparks, a steel shield mark, a gold parry star and a split guard symbol distinguish outcomes by shape. Fire keeps a warm core; healing uses a cross; shield uses an open ward; Mana uses a narrow rune. Gameplay rewards use brass/bone icons rather than attack-shaped ground rings.

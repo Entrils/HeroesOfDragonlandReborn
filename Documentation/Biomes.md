@@ -1,6 +1,13 @@
 # Milestone 57 — Production Biome Set
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Shared assets validated; actual region boundaries inspected; split top surfaces and four adjoining transition pairs saved with sparse paired cover accents. The fifth Ruins/Corruption transition is not forced across the existing route gap. Collision/layout/camps retained; final regional art and overlapping boss-warning approval remain open.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Direction and delivery status
+
+**Director-requested map follow-up (2026-11-17):** Remaining rocky outcrops, corrupted spires, stone ridges and ruin props now use imported models on the actual battlefield. ShatteredStandard material roles were corrected for both LODs. See [the replacement report](MapModelReplacement.md) for actual checks and remaining art/performance review.
 
 The four regions share the approved [ArtDirection](ArtDirection.md), the [modular fortress/ruin kit](ModularEnvironmentKit.md) and [Ancient Forest](AncientForest.md). They differ through broad terrain patterns, shape language, prop selection and restrained local light accents. Gameplay readability takes priority over density. A recognizable place must not require a different renderer, shader family, export profile or team visibility rule.
 

@@ -1,0 +1,273 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e19d7955ceb6d3b4f8d9097c614e81c8, type: 3}
+  m_Name: BattlefieldTacticalMap
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.Minimap.TacticalMapDefinition
+  center: {x: 0, y: 0}
+  size: {x: 88, y: 88}
+  landmarks:
+  - id: fortress:TeamA
+    label: TeamA Fortress
+    kind: 2
+    team: 1
+    position: {x: -36, y: 1, z: -5}
+  - id: fortress:TeamB
+    label: TeamB Fortress
+    kind: 2
+    team: 2
+    position: {x: 36, y: 1, z: 5}
+  - id: camp:0
+    label: Neutral camp 1
+    kind: 4
+    team: 0
+    position: {x: -33, y: 0, z: 18}
+  - id: camp:1
+    label: Neutral camp 2
+    kind: 4
+    team: 0
+    position: {x: -33, y: 0, z: -18}
+  - id: camp:2
+    label: Neutral camp 3
+    kind: 4
+    team: 0
+    position: {x: 33, y: 0, z: -18}
+  - id: camp:3
+    label: Neutral camp 4
+    kind: 4
+    team: 0
+    position: {x: 33, y: 0, z: 18}
+  - id: camp:4
+    label: Neutral camp 5
+    kind: 4
+    team: 0
+    position: {x: -10, y: 0, z: 34}
+  - id: camp:5
+    label: Neutral camp 6
+    kind: 4
+    team: 0
+    position: {x: -10, y: 0, z: -34}
+  - id: camp:6
+    label: Neutral camp 7
+    kind: 4
+    team: 0
+    position: {x: 10, y: 0, z: -34}
+  - id: camp:7
+    label: Neutral camp 8
+    kind: 4
+    team: 0
+    position: {x: 10, y: 0, z: 34}
+  - id: camp:8
+    label: Boss camp
+    kind: 5
+    team: 0
+    position: {x: 0, y: 0, z: 0}
+  - id: camp:9
+    label: Neutral camp 10
+    kind: 4
+    team: 0
+    position: {x: 0, y: 0, z: 18}
+  - id: camp:10
+    label: Neutral camp 11
+    kind: 4
+    team: 0
+    position: {x: 0, y: 0, z: -18}
+  - id: gate:0
+    label: TeamA Gate
+    kind: 6
+    team: 1
+    position: {x: -24, y: 0, z: 0}
+  - id: gate:1
+    label: TeamB Gate
+    kind: 6
+    team: 2
+    position: {x: 24, y: 0, z: 0.000000786805}
+  regions:
+  - label: Forest
+    center: {x: -23, y: 25}
+    size: {x: 38, y: 34}
+    color: {r: 0.13, g: 0.23, b: 0.18, a: 1}
+  - label: Rocky Highlands
+    center: {x: 23, y: 25}
+    size: {x: 38, y: 34}
+    color: {r: 0.24, g: 0.27, b: 0.3, a: 1}
+  - label: Corrupted reach
+    center: {x: 0, y: 30}
+    size: {x: 12, y: 24}
+    color: {r: 0.23, g: 0.16, b: 0.25, a: 1}
+  - label: Forest
+    center: {x: 23, y: -25}
+    size: {x: 38, y: 34}
+    color: {r: 0.13, g: 0.23, b: 0.18, a: 1}
+  - label: Rocky Highlands
+    center: {x: -23, y: -25}
+    size: {x: 38, y: 34}
+    color: {r: 0.24, g: 0.27, b: 0.3, a: 1}
+  - label: Corrupted reach
+    center: {x: 0, y: -30}
+    size: {x: 12, y: 24}
+    color: {r: 0.23, g: 0.16, b: 0.25, a: 1}
+  - label: Ruined Battlefield
+    center: {x: 0, y: 0}
+    size: {x: 47, y: 20}
+    color: {r: 0.28, g: 0.25, b: 0.22, a: 1}
+  - label: Trail junction
+    center: {x: -27, y: 0}
+    size: {x: 19.500002, y: 3.200003}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -9, y: 0}
+    size: {x: 19.500002, y: 3.200003}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 9, y: 0}
+    size: {x: 19.500002, y: 3.200003}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 27, y: 0}
+    size: {x: 19.500002, y: 3.200003}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -27, y: 18.5}
+    size: {x: 9.534058, y: 15.702926}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -18, y: 28}
+    size: {x: 14.772725, y: 9.532987}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -6, y: 32.5}
+    size: {x: 14.231328, y: 6.468259}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 6, y: 32.5}
+    size: {x: 14.23133, y: 6.4682627}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 18, y: 28}
+    size: {x: 14.772725, y: 9.532987}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 27, y: 18.5}
+    size: {x: 9.534056, y: 15.702928}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -19, y: 6}
+    size: {x: 13.418586, y: 15.200922}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -7, y: 14}
+    size: {x: 16.321392, y: 7.4889584}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 7, y: 14}
+    size: {x: 16.321392, y: 7.4889565}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 19, y: 6}
+    size: {x: 13.418587, y: 15.200924}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -19.5, y: 15}
+    size: {x: 13.849171, y: 9.527545}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -13, y: 18.5}
+    size: {x: 5.390876, y: 14.96914}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 19.5, y: 15}
+    size: {x: 13.849171, y: 9.527545}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 13, y: 18.5}
+    size: {x: 5.390876, y: 14.96914}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -4, y: 8}
+    size: {x: 11.532989, y: 18.772724}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 0, y: 25}
+    size: {x: 3.2, y: 19.5}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 4, y: 8}
+    size: {x: 11.532989, y: 18.772724}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -27, y: -18.5}
+    size: {x: 9.534056, y: 15.702928}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -18, y: -28}
+    size: {x: 14.772725, y: 9.532987}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -6, y: -32.5}
+    size: {x: 14.23133, y: 6.4682627}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 6, y: -32.5}
+    size: {x: 14.231328, y: 6.468259}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 18, y: -28}
+    size: {x: 14.772725, y: 9.532987}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 27, y: -18.5}
+    size: {x: 9.534058, y: 15.702926}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -19, y: -6}
+    size: {x: 13.418587, y: 15.200924}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -7, y: -14}
+    size: {x: 16.321392, y: 7.4889565}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 7, y: -14}
+    size: {x: 16.321392, y: 7.4889584}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 19, y: -6}
+    size: {x: 13.418586, y: 15.200922}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -19.5, y: -15}
+    size: {x: 13.849171, y: 9.527545}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -13, y: -18.5}
+    size: {x: 5.390876, y: 14.969143}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 19.5, y: -15}
+    size: {x: 13.849171, y: 9.527545}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 13, y: -18.5}
+    size: {x: 5.390876, y: 14.969143}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: -4, y: -8}
+    size: {x: 11.532986, y: 18.772726}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 0, y: -25}
+    size: {x: 3.2000017, y: 19.5}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}
+  - label: Trail junction
+    center: {x: 4, y: -8}
+    size: {x: 11.532986, y: 18.772726}
+    color: {r: 0.36, g: 0.32, b: 0.23, a: 1}

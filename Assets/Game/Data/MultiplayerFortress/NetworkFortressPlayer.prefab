@@ -411,6 +411,12 @@ GameObject:
   - component: {fileID: 8496817811448618263}
   - component: {fileID: 4613540443596445124}
   - component: {fileID: 2497716176131209479}
+  - component: {fileID: 9059602156566064834}
+  - component: {fileID: 5841462159748080894}
+  - component: {fileID: 7841848508824442802}
+  - component: {fileID: 6340474301577463728}
+  - component: {fileID: 320844462955850843}
+  - component: {fileID: 7447391038296851545}
   m_Layer: 0
   m_Name: NetworkFortressPlayer
   m_TagString: Untagged
@@ -468,6 +474,7 @@ MonoBehaviour:
   - {fileID: 8138339929408888723}
   - {fileID: 674641152699617684}
   - {fileID: 4613540443596445124}
+  - {fileID: 7841848508824442802}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &6370806309770207683
 MonoBehaviour:
@@ -526,6 +533,8 @@ MonoBehaviour:
   _Team: 0
   _ParticipantNumber: 0
   _SpawnLane: 0
+  _Suspended:
+    RawValue: 0
   _IsBot:
     RawValue: 0
 --- !u!114 &8149975904543610302
@@ -1100,6 +1109,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterEquipmentVisual
   visual: {fileID: 1992838907265756711}
+  visualCatalog: {fileID: 11400000, guid: 346b29b443f301e4087799791ab1c790, type: 2}
 --- !u!114 &674641152699617684
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1186,6 +1196,79 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Abilities.AbilityPresentation
   animator: {fileID: 0}
+  externalVfx: 1
+--- !u!114 &9059602156566064834
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa65a45dd0c0af8469ff63c91663ad18, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.VisibleEquipmentNetworkProbe
+--- !u!114 &5841462159748080894
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a1146d52c2b71469780dea6a94deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.ActorVfxPresentation
+--- !u!114 &7841848508824442802
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc025032725176b4b81ced0eaa549206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.NetworkImpactVfx
+--- !u!114 &6340474301577463728
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ec15b8c5f62b3643a23b26a6d126bed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.ActorAudioPresentation
+--- !u!114 &320844462955850843
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdfece0945edf241a1e25da575794fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.MusicContextSubject
+--- !u!114 &7447391038296851545
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8746021135126716059}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f026e72511ed8b4dbe1f847d2336215, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.Minimap.TacticalMapSubject
 --- !u!1001 &5820826128032561952
 PrefabInstance:
   m_ObjectHideFlags: 0

@@ -45,6 +45,11 @@ internal static class AudioPolicyTests
             if (bounded.ActiveCount > 24) throw new Exception("6-player burst escaped cap");
         }
         Check(bounded.ActiveCount == 24, "Sustained multiplayer burst remains bounded");
+        var identities = new AudioVoiceBudget(4);
+        long owner64 = (1L << 32) | 10;
+        Check(identities.Acquire(1, owner64, 10, 4, 1, .5, out a) >= 0, "64-bit actor admitted");
+        Check(identities.Acquire(1, 10, 10, 4, 1.1, .5, out b) >= 0, "Actors sharing low 32 bits have independent cooldowns");
+        Check(identities.Acquire(1, owner64, 10, 4, 1.1, .5, out c) < 0, "Full 64-bit actor identity retains cooldown");
         Console.WriteLine("PASS: " + checks + " audio policy checks (including 6000-request burst).");
         return 0;
     }

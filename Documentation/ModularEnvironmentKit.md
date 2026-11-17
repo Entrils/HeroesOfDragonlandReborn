@@ -1,6 +1,13 @@
 # Milestone 55 — Fortress + Ruins modular kit
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** 21 linked prefabs/test section created and validated. Duplicate imported/wrapper LOD ownership repaired in place. Native gate/arch openings, wall/LOD collision, ascending stairs and sphere/floor settling passed; human traversal and visual LOD-distance approval remain open.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Delivery and status
+
+**Director-requested map follow-up (2026-11-17):** Both actual fortresses now use imported walls, battlements, eight towers, gate frames and royal-chamber stonework. Ruins, cover and authoritative gate visuals were also replaced, retaining original collision and camp anchors. This extends the earlier offline scope; see [actual map changes and checks](MapModelReplacement.md). Offline status below is historical.
 
 This is a small reusable **prototype environment kit**, following the approved [ArtDirection.md](ArtDirection.md): broad limestone forms, restrained bevels, dark matte timber and limited iron. It is not final map art. No gameplay scene, existing art, collision footprint or gameplay behavior has been replaced.
 

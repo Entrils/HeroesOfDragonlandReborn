@@ -1,5 +1,10 @@
 # Milestone 58 — Visible Equipment System
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Native fixture passed all four weapon families/four armor slots. Actual opposing peers passed sword/chest equip/unequip, stale rejection, observer reenable, death/respawn/reconnect. Existing requirements rejected Greatsword/Spear/Staff at base 10; accepted real-peer coverage of those families and production Head/Hands/Legs remains open. No gear/stats were invented.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Scope and current status
 
 M58 extends the existing `EquipmentVisualHooks → CharacterEquipmentVisual → CharacterVisual` presentation path to all six equipment slots. Sword, Greatsword, Spear and Staff continue to use their actual existing WeaponDefinition prefabs. Head, Chest, Hands and Legs use configurable modular rigid armor pieces attached to Humanoid bones.

@@ -14,7 +14,7 @@ namespace HeroesOfDragonland.Audio
     public sealed class AudioVoiceBudget
     {
         private struct Slot { internal bool Active; internal int Cue, Priority, Generation; }
-        private struct Recent { internal long Key; internal double Until; }
+        private struct Recent { internal long Owner; internal int Cue; internal double Until; }
         private readonly Slot[] slots;
         private readonly Recent[] recent = new Recent[128];
         private int cursor;
@@ -24,11 +24,10 @@ namespace HeroesOfDragonland.Audio
         public bool IsAlive(int slot, int generation)
         { return slot >= 0 && slot < slots.Length && slots[slot].Active && slots[slot].Generation == generation; }
         public void Release(int slot, int generation) { if (IsAlive(slot, generation)) slots[slot].Active = false; }
-        public int Acquire(int cue, int owner, int priority, int maximum, double now, double cooldown, out int generation)
+        public int Acquire(int cue, long owner, int priority, int maximum, double now, double cooldown, out int generation)
         {
             generation = 0;
-            long key = ((long)owner << 32) | (uint)cue;
-            foreach (var entry in recent) if (entry.Key == key && entry.Until > now) return -1;
+            foreach (var entry in recent) if (entry.Owner == owner && entry.Cue == cue && entry.Until > now) return -1;
             int count = 0, free = -1, weakest = -1;
             for (int i = 0; i < slots.Length; i++)
             {
@@ -41,7 +40,7 @@ namespace HeroesOfDragonland.Audio
             if (chosen < 0 || (free < 0 && slots[chosen].Priority >= priority)) return -1;
             generation = unchecked(slots[chosen].Generation + 1);
             slots[chosen] = new Slot { Active = true, Cue = cue, Priority = priority, Generation = generation };
-            recent[cursor++ % recent.Length] = new Recent { Key = key, Until = now + Math.Max(0, Math.Min(10, cooldown)) };
+            recent[cursor++ % recent.Length] = new Recent { Owner = owner, Cue = cue, Until = now + Math.Max(0, Math.Min(10, cooldown)) };
             if (cursor == int.MaxValue) cursor = 0;
             return chosen;
         }

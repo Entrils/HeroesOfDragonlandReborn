@@ -30,7 +30,8 @@ Transform:
   m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1.2, y: 4, z: 5.8}
   m_ConstrainProportionsScale: 0
-  m_Children: []
+  m_Children:
+  - {fileID: 5238631973176497196}
   m_Father: {fileID: 4254070413805566990}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9028266099071376752
@@ -48,7 +49,7 @@ MeshRenderer:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 9765659315925247}
-  m_Enabled: 1
+  m_Enabled: 0
   m_CastShadows: 1
   m_ReceiveShadows: 1
   m_DynamicOccludee: 1
@@ -216,6 +217,11 @@ GameObject:
   - component: {fileID: 919638139989039616}
   - component: {fileID: 4449401799196987619}
   - component: {fileID: 6735323399301697479}
+  - component: {fileID: 6740530224173764182}
+  - component: {fileID: 7591380244142286745}
+  - component: {fileID: 1174264324826180635}
+  - component: {fileID: 4302996570487989233}
+  - component: {fileID: 2843727134030369313}
   m_Layer: 0
   m_Name: TeamAGate
   m_TagString: Untagged
@@ -260,6 +266,7 @@ MonoBehaviour:
   NetworkedBehaviours:
   - {fileID: 4251655650779035105}
   - {fileID: 4449401799196987619}
+  - {fileID: 7591380244142286745}
   ForceRemoteRenderTimeframe: 0
 --- !u!114 &251324579332239218
 MonoBehaviour:
@@ -444,3 +451,138 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.FortressGatePresentation
   label: {fileID: 6133785567507798602}
+--- !u!114 &6740530224173764182
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2864406927261568647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e8a1146d52c2b71469780dea6a94deff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.ActorVfxPresentation
+--- !u!114 &7591380244142286745
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2864406927261568647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: bc025032725176b4b81ced0eaa549206, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.Vfx.NetworkImpactVfx
+--- !u!114 &1174264324826180635
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2864406927261568647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ec15b8c5f62b3643a23b26a6d126bed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.ActorAudioPresentation
+--- !u!114 &4302996570487989233
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2864406927261568647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cdfece0945edf241a1e25da575794fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.MusicContextSubject
+--- !u!114 &2843727134030369313
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2864406927261568647}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6f026e72511ed8b4dbe1f847d2336215, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.Minimap.TacticalMapSubject
+--- !u!1001 &1766189153089150075
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2774996794960206017}
+    m_Modifications:
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.33333334
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.625
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.99999994
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0.7071068
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: -0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7390528333325694099, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_Name
+      value: Imported wooden gate
+      objectReference: {fileID: 0}
+    m_RemovedComponents:
+    - {fileID: 8849705094920582808, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+--- !u!4 &5238631973176497196 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+  m_PrefabInstance: {fileID: 1766189153089150075}
+  m_PrefabAsset: {fileID: 0}

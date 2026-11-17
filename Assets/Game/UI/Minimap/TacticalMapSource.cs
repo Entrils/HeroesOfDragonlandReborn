@@ -47,7 +47,7 @@ namespace HeroesOfDragonland.UI.Minimap
             if (definition == null || match == null || match.Object == null || !match.Object.IsValid
                 || (match.State != MatchPhase.Playing && match.State != MatchPhase.Finished) || viewer == MapTeam.None || player.IsSuspended)
             { reveals.Bind(null, MapTeam.None); return; }
-            reveals.Bind(runner.GetInstanceID() + ":" + match.Object.Id + ":" + match.RoundNumber + ":" + local.Id, viewer);
+            reveals.Bind(runner.GetEntityId() + ":" + match.Object.Id + ":" + match.RoundNumber + ":" + local.Id, viewer);
             Visible = true; Heading = local.transform.eulerAngles.y;
             foreach (var landmark in definition.Landmarks)
                 markers.Add(new MapMarker { Id = "landmark:" + landmark.id, Label = landmark.label, Kind = landmark.kind,

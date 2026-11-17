@@ -1,5 +1,10 @@
 # Milestone 62 — Tactical Minimap
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Actual 15-landmark definition/subjects/UI installed and validated. Native match validator and actual opposing-peer normal enemy exclusion with allied bots/death/respawn/reconnect passed; ten disable/reenable cycles cleared marker/UI/scope state. HUD overlap repaired and real 720p captures reviewed. Full camp/boss/gate/spectator/world-icon matrix remains open; optional world icons remain disabled.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Delivery and limits
 
 Offline implementation: public map definition/setup, passive subject registry, local authoritative-state adapter, UI Toolkit schematic minimap/compass, optional projected world objective icons, bounded temporary-reveal snapshot cache and tests. No gameplay/map layout/network authority changes. No new minimap RPC, NetworkBehaviour, replicated positions or render-to-texture camera.

@@ -9,7 +9,7 @@ namespace HeroesOfDragonland.UI.Minimap
     public sealed class TacticalMinimapView : MonoBehaviour
     {
         [SerializeField] private TacticalMapSource source;
-        [SerializeField, Min(0)] private float topOffset = 270;
+        [SerializeField, Min(0)] private float topOffset = 210;
         [SerializeField] private bool showWorldObjectiveIcons;
         private VisualElement root, panel, map, background, symbols, worldLayer;
         private Label compass;
@@ -22,7 +22,7 @@ namespace HeroesOfDragonland.UI.Minimap
             root = GetComponent<UIDocument>().rootVisualElement; root.Clear(); root.pickingMode = PickingMode.Ignore;
             worldLayer = new VisualElement(); Fill(worldLayer); root.Add(worldLayer);
             panel = new VisualElement { name = "TacticalMinimap" }; panel.pickingMode = PickingMode.Ignore;
-            panel.style.position = Position.Absolute; panel.style.right = 18; panel.style.top = topOffset;
+            panel.style.position = Position.Absolute; panel.style.left = 18; panel.style.top = topOffset;
             panel.style.width = 226; panel.style.backgroundColor = new Color(.045f, .055f, .065f, .96f); panel.style.color = Color.white;
             panel.style.paddingLeft = panel.style.paddingRight = 8; panel.style.paddingTop = panel.style.paddingBottom = 6;
             panel.Add(new Label("TACTICAL MAP  |  N ^"));
@@ -33,8 +33,9 @@ namespace HeroesOfDragonland.UI.Minimap
             compass = new Label(); compass.style.fontSize = 11; panel.Add(compass);
             var legend = new Label("@ You  o Ally  F Fort  K King\nC Camp  B Boss  G Objective\nx Cleared  ? Unknown  ! Reveal"); legend.style.fontSize = 10; panel.Add(legend);
             root.Add(panel); revision = -1; drawnDefinition = null; icons.Clear(); worldIcons.Clear();
-            root.RegisterCallback<GeometryChangedEvent>(_ => Layout()); Layout();
+            root.RegisterCallback<GeometryChangedEvent>(GeometryChanged); Layout();
         }
+        private void GeometryChanged(GeometryChangedEvent change) => Layout();
         private static void Fill(VisualElement element)
         { element.pickingMode = PickingMode.Ignore; element.style.position = Position.Absolute; element.style.left = element.style.top = element.style.right = element.style.bottom = 0; }
         private void Layout()
@@ -118,6 +119,10 @@ namespace HeroesOfDragonland.UI.Minimap
             }
             for (int i = count; i < worldIcons.Count; i++) worldIcons[i].style.display = DisplayStyle.None;
         }
-        private void OnDisable() { root?.Clear(); icons.Clear(); worldIcons.Clear(); revision = -1; VisibleMarkerCount = 0; }
+        private void OnDisable()
+        {
+            root?.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
+            root?.Clear(); icons.Clear(); worldIcons.Clear(); revision = -1; VisibleMarkerCount = 0;
+        }
     }
 }

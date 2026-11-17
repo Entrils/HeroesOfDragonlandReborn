@@ -149,6 +149,9 @@ namespace HeroesOfDragonland.Art.Editor
                     var collider = collision.gameObject.AddComponent<MeshCollider>();
                     collider.sharedMesh = collision.sharedMesh;
                     collider.convex = false; // Static kit only. Never attach this to a dynamic Rigidbody.
+                    // FBX LOD names also create an imported group. The wrapper owns LOD selection.
+                    foreach (var importedGroup in model.GetComponentsInChildren<LODGroup>(true))
+                        UnityEngine.Object.DestroyImmediate(importedGroup);
                     var group = wrapper.AddComponent<LODGroup>();
                     group.SetLODs(new[] { new LOD(.18f, new UnityEngine.Renderer[] { lod0 }),
                         new LOD(.015f, new UnityEngine.Renderer[] { lod1 }) });

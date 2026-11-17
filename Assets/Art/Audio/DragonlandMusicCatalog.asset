@@ -1,0 +1,54 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2ed146afea992594d92f340779d99c27, type: 3}
+  m_Name: DragonlandMusicCatalog
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Audio.MusicCatalog
+  tracks:
+  - state: 0
+    clip: {fileID: 8300000, guid: 3d6bdfa1482f0994ba14cba2eada52f4, type: 3}
+    loop: 1
+  - state: 1
+    clip: {fileID: 8300000, guid: 18e9948de2e0cb04795c696e8aae4700, type: 3}
+    loop: 0
+  - state: 2
+    clip: {fileID: 8300000, guid: fa028ca148d435843be27c86ea203285, type: 3}
+    loop: 1
+  - state: 3
+    clip: {fileID: 8300000, guid: 996cd5ad32bbdf647a962550b40ce0d2, type: 3}
+    loop: 1
+  - state: 4
+    clip: {fileID: 8300000, guid: bf0540b032ad41541a369d1897c14eb2, type: 3}
+    loop: 1
+  - state: 5
+    clip: {fileID: 8300000, guid: 4e0f82cd1b4a9a84b8897fe0b25d014a, type: 3}
+    loop: 1
+  - state: 6
+    clip: {fileID: 8300000, guid: 7d8f6b3155af8744482b476bba64fbcb, type: 3}
+    loop: 1
+  - state: 7
+    clip: {fileID: 8300000, guid: 72392ab11da100847b6ffa23a1e1acf3, type: 3}
+    loop: 1
+  - state: 8
+    clip: {fileID: 8300000, guid: c10d5ae52c8613542ae87af59485e672, type: 3}
+    loop: 0
+  - state: 9
+    clip: {fileID: 8300000, guid: 32ada514f2eb3784ea8742d4624bb623, type: 3}
+    loop: 0
+  volume: 0.35
+  crossfadeSeconds: 1.25
+  timing:
+    matchStartSeconds: 3
+    campRelease: 4
+    pvpRelease: 6
+    bossRelease: 6
+    fortressRelease: 6
+    kingRelease: 8

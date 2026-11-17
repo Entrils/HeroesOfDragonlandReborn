@@ -91,6 +91,20 @@ namespace HeroesOfDragonland.Art.Editor
                 ?? throw new InvalidOperationException("Missing M57 prefab: " + name)
             : AncientForestAssetBuilder.LoadPrefab(name);
 
+        // FBX submesh order differs between this standard's LOD0 and LOD1.
+        internal static Material[] StandardMaterials(Mesh mesh, Material cloth = null)
+        {
+            var result = new Material[mesh.subMeshCount];
+            for (int i = 0; i < result.Length; i++)
+            {
+                var bounds = mesh.GetSubMesh(i).bounds;
+                result[i] = bounds.center.y > 2 && bounds.size.y < 1.2f
+                    ? cloth ?? LoadMaterial("M_BS_OldCloth")
+                    : bounds.size.y > 2 && bounds.size.x < .3f ? LoadMaterial("M_BS_WarIron") : LoadMaterial("M_BS_StrataStone");
+            }
+            return result;
+        }
+
         private static void BuildMaterial(string name, string stem, Color color, float roughness)
         {
             string path = Materials + "/" + name + ".mat";
@@ -165,13 +179,17 @@ namespace HeroesOfDragonland.Art.Editor
                     var renderer = model.GetComponentsInChildren<MeshRenderer>(true).Single(r => r.name == entry.name + "_LOD" + i);
                     renderer.gameObject.SetActive(true);
                     renderer.enabled = true;
-                    renderer.sharedMaterials = names[i].Select(LoadMaterial).ToArray();
+                    renderer.sharedMaterials = entry.name == "SM_BS_ShatteredStandard"
+                        ? StandardMaterials(renderer.GetComponent<MeshFilter>().sharedMesh)
+                        : names[i].Select(LoadMaterial).ToArray();
                     if (lods.Length == 1 || i == 2) renderer.shadowCastingMode = ShadowCastingMode.Off;
                     lods[i] = new LOD(i == lods.Length - 1 ? .012f : i == 0 ? .2f : .07f, new UnityEngine.Renderer[] { renderer });
                     last = renderer.GetComponent<MeshFilter>();
                 }
                 if (lods.Length > 1)
                 {
+                    foreach (var importedGroup in model.GetComponentsInChildren<LODGroup>(true))
+                        UnityEngine.Object.DestroyImmediate(importedGroup);
                     var group = root.AddComponent<LODGroup>();
                     group.SetLODs(lods);
                     group.RecalculateBounds();

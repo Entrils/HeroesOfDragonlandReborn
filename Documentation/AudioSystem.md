@@ -1,5 +1,10 @@
 # Milestone 60 — Audio System
 
+<!-- HOME-INTEGRATION-2026-11-17 -->
+**Home integration update (2026-11-17):** Actual mixer/groups/volume bindings/catalog/settings/zones installed and validated. Native audio/UI/input checks passed; actual peer cue delivery, 27-source bound after reconnect and restart persistence passed, original volumes restored. Isolated forest/fortress/forest and service/controller recovery passed after a bounded timing observation. Listening and all block/parry/objective cues remain open. Audio policy now retains 64-bit EntityId owners; 25 standalone checks pass.
+
+See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
+
 ## Delivery status
 
 Offline implementation: modular playback/settings/presentation code, 24 catalog recipes, 25 original synthetic WAV placeholders, Unity mixer/catalog/prefab/scene setup tools, native Play validator and source tests. Voice is intentionally an empty category/recipe; no voice chat or recorded dialogue is implemented.

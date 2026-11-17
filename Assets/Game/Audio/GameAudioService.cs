@@ -27,6 +27,7 @@ namespace HeroesOfDragonland.Audio
         public bool MusicTransitioning => musicDecks.Fading;
         public int MusicStarts { get; private set; }
         public int PlaybackGeneration { get; private set; }
+        public event System.Action<AudioCue> CuePlayed;
         private void OnEnable() => PlaybackGeneration++;
         private void Awake()
         {
@@ -61,10 +62,12 @@ namespace HeroesOfDragonland.Audio
             // Unity rolloff can retain a quiet tail beyond maxDistance: reject inaudible requests explicitly.
             if (sound.spatial && (listener == null || (listener.position - point).sqrMagnitude > sound.maxDistance * sound.maxDistance)) return false;
             Reclaim();
-            int index = budget.Acquire((int)cue, owner != null ? owner.GetInstanceID() : 0, sound.priority,
+            int index = budget.Acquire((int)cue, owner != null ? unchecked((long)EntityId.ToULong(owner.GetEntityId())) : 0, sound.priority,
                 sound.maximumConcurrent, Time.unscaledTimeAsDouble, sound.cooldown, out int generation);
             if (index < 0) return false;
-            generations[index] = generation; Configure(voices[index], sound, point); voices[index].Play(); return true;
+            generations[index] = generation; Configure(voices[index], sound, point); voices[index].Play();
+            try { CuePlayed?.Invoke(cue); } catch (System.Exception error) { Debug.LogException(error, this); }
+            return true;
         }
         private void Reclaim()
         {
