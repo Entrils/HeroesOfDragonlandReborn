@@ -14,6 +14,7 @@ namespace HeroesOfDragonland.Multiplayer
         private Vector3 lastPosition;
         private float stuck;
         private bool hasPath;
+        public bool HasPath => hasPath;
         public Vector3 Steer(NetworkTestPlayer player, Vector3 goal, float deltaTime)
         {
             Vector3 position = player.transform.position - Vector3.up;
@@ -30,7 +31,10 @@ namespace HeroesOfDragonland.Multiplayer
             if (!hasPath) return Vector3.zero;
             var corners = path.corners;
             if (corners.Length == 0) return Vector3.zero;
-            while (corner < corners.Length - 1 && Planar(corners[corner] - position).sqrMagnitude < .0004f) corner++;
+            // A capsule cannot reliably reach a NavMesh corner within two centimetres.
+            // Advance only when the next segment is also traversable, retaining wall safety.
+            while (corner < corners.Length - 1 && Planar(corners[corner] - position).sqrMagnitude < .25f
+                && !NavMesh.Raycast(position, corners[corner + 1], out _, NavMesh.AllAreas)) corner++;
             Vector3 delta = Planar(corners[Mathf.Min(corner, corners.Length - 1)] - position);
             Vector3 direction = delta.normalized * Mathf.Clamp01(delta.magnitude / .3f);
             if ((position - lastPosition).sqrMagnitude < .00001f) stuck += deltaTime; else stuck = 0;
@@ -43,7 +47,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (stuck > 2) { refresh = 0; stuck = 0; }
             }
             direction = AvoidCollisions(player, direction);
-            Vector3 probe = position + direction * .8f;
+            Vector3 probe = position + direction * .25f;
             if (!NavMesh.SamplePosition(probe, out var hit, .6f, NavMesh.AllAreas)
                 || NavMesh.Raycast(position, hit.position, out _, NavMesh.AllAreas)) return Vector3.zero;
             return direction;
@@ -66,7 +70,7 @@ namespace HeroesOfDragonland.Multiplayer
         {
             var root = player.transform;
             foreach (var hit in Physics.CapsuleCastAll(root.position + Vector3.up * .5f, root.position - Vector3.up * .5f,
-                .48f, direction.normalized, .55f, ~0, QueryTriggerInteraction.Ignore))
+                .48f, direction.normalized, .2f, ~0, QueryTriggerInteraction.Ignore))
                 if (hit.transform != root && !hit.transform.IsChildOf(root) && hit.normal.y < .7f) return false;
             return true;
         }

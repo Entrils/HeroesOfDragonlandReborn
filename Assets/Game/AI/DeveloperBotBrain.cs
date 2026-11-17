@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
 {
-    public enum DeveloperBotGoal { Roam, EnemyPlayer, NeutralCamp, Chest, FortressGuard, King }
+    public enum DeveloperBotGoal { Roam, EnemyPlayer, NeutralCamp, Chest, FortressGuard, King, FortressGate }
 
     // Simple server decision loop. No transforms, health or inventory bypasses.
     public sealed class DeveloperBotBrain
@@ -25,6 +25,9 @@ namespace HeroesOfDragonland.Multiplayer
         public int ChestOpens { get; private set; }
         public string LastChestResult { get; private set; }
         public float DistanceTravelled { get; private set; }
+        public Vector3 Destination => destination;
+        public bool WantsTravel { get; private set; }
+        public bool HasNavigationPath => navigation.HasPath;
         private Vector3 previousPosition;
         private uint attackPress;
         private float nextAttackPress;
@@ -36,6 +39,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
         public NetworkPlayerInput Tick(float deltaTime)
         {
+            WantsTravel = false;
             if (!NetworkParticipant.IsAdmitted(player.Object) || !NetworkMatch.AllowsGameplay(player.Runner) || stats.IsDead) return default;
             DistanceTravelled += Vector3.Distance(previousPosition, player.transform.position); previousPosition = player.transform.position;
             age += deltaTime; think -= deltaTime;
@@ -44,8 +48,9 @@ namespace HeroesOfDragonland.Multiplayer
             Vector3 facing = destination - player.transform.position; facing.y = 0;
             float distance = facing.magnitude;
             float stop = Goal == DeveloperBotGoal.Chest ? 1.3f : AttackDistance();
+            WantsTravel = distance > stop + .5f;
             bool canAttack = Goal == DeveloperBotGoal.EnemyPlayer || Goal == DeveloperBotGoal.NeutralCamp
-                || Goal == DeveloperBotGoal.FortressGuard || Goal == DeveloperBotGoal.King;
+                || Goal == DeveloperBotGoal.FortressGuard || Goal == DeveloperBotGoal.King || Goal == DeveloperBotGoal.FortressGate;
             if (canAttack && distance <= stop + .25f && age >= nextAttackPress)
             { attackPress = unchecked(attackPress + 1); nextAttackPress = age + .22f; }
             Vector3 move = distance > stop ? navigation.Steer(player, destination, deltaTime) : Vector3.zero;
@@ -115,6 +120,13 @@ namespace HeroesOfDragonland.Multiplayer
                 if (Eligible(enemy.Object) && enemy.GetComponent<NetworkFortressGuard>() == null && Distance(enemy.transform.position) < nearest)
                 { nearest = Distance(enemy.transform.position); target = enemy.Object; }
             if (target != null) { Goal = DeveloperBotGoal.NeutralCamp; return; }
+            // Siege needs to remove the real closed gate, rather than path indefinitely
+            // toward an objective behind it. Damage still uses the ordinary melee policy.
+            nearest = float.PositiveInfinity;
+            foreach (var gate in Object.FindObjectsByType<NetworkFortressGate>(FindObjectsSortMode.None))
+                if (gate.Team != player.Team && !gate.IsOpen && Eligible(gate.Object) && Distance(gate.transform.position) < nearest)
+                { nearest = Distance(gate.transform.position); target = gate.Object; }
+            if (target != null) { Goal = DeveloperBotGoal.FortressGate; return; }
             nearest = float.PositiveInfinity;
             foreach (var guard in Object.FindObjectsByType<NetworkFortressGuard>(FindObjectsSortMode.None))
             {

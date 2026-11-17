@@ -20,6 +20,7 @@ namespace HeroesOfDragonland.Multiplayer
         private MultiplayerBootstrap bootstrap;
         private float retryAt;
         public int RequestedBots => requestedBots;
+        private int MaximumBots => bootstrap != null && bootstrap.SimulationSpectator ? 6 : 5;
         public void StartLocalMatch()
         {
             if (!bootstrap.Running && !bootstrap.Busy) _ = bootstrap.StartSession(GameMode.Single, "developer-bots");
@@ -46,20 +47,20 @@ namespace HeroesOfDragonland.Multiplayer
         private void OnSessionStarted(NetworkRunner runner) { if (runner.IsServer) Reconcile(); }
         public bool SetBotCount(int count)
         {
-            if (count < 0 || count > 5 || (bootstrap.Running && !bootstrap.Runner.IsServer)) return false;
+            if (count < 0 || count > MaximumBots || (bootstrap.Running && !bootstrap.Runner.IsServer)) return false;
             requestedBots = count;
             if (bootstrap.Running) Reconcile();
             return true;
         }
         private void Update()
         {
-            if (!bootstrap.Running || !bootstrap.Runner.IsServer || Time.unscaledTime < retryAt) return;
+            if (bootstrap.Busy || !bootstrap.Running || !bootstrap.Runner.IsServer || Time.unscaledTime < retryAt) return;
             retryAt = Time.unscaledTime + .5f;
             Reconcile();
         }
         private void Reconcile()
         {
-            requestedBots = Mathf.Clamp(requestedBots, 0, 5);
+            requestedBots = Mathf.Clamp(requestedBots, 0, MaximumBots);
             while (slots.Count > requestedBots)
             {
                 var slot = slots[slots.Count - 1]; Despawn(slot);

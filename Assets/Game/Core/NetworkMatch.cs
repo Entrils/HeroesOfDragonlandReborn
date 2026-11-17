@@ -64,7 +64,11 @@ namespace HeroesOfDragonland.Multiplayer
                     if (!slot.IsBot) humans++;
                     if (slot.Team == TeamId.TeamA) a++; else if (slot.Team == TeamId.TeamB) b++;
                 }
-                return humans > 0 && MatchLifecycleRules.HasEnoughPlayers(a, b, AllowShortMatch ? 2 : 6);
+                bool participantsAllowed = humans > 0;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                participantsAllowed |= bootstrap != null && bootstrap.SimulationSpectator;
+#endif
+                return participantsAllowed && MatchLifecycleRules.HasEnoughPlayers(a, b, AllowShortMatch ? 2 : 6);
             }
         }
         // Sender identity comes from Fusion, never from a client-supplied player ID.
@@ -206,6 +210,9 @@ namespace HeroesOfDragonland.Multiplayer
             int index = 0, a = 0, b = 0;
             foreach (var player in Runner.ActivePlayers)
             {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (bootstrap.SimulationSpectator && player == Runner.LocalPlayer) continue;
+#endif
                 if (index >= NetworkTeamRoster.PlayerCapacity) break;
                 bootstrap.TryGetTeam(player, out var team);
                 bool ready = Runner.TryGetPlayerObject(player, out var obj) && obj != null && obj.IsValid

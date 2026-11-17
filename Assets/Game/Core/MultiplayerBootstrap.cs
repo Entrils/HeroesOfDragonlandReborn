@@ -70,6 +70,7 @@ namespace HeroesOfDragonland.Multiplayer
             }
         }
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
+        internal bool SimulationSpectator { get; set; }
         internal Vector2? TestInput { get; set; }
         internal bool? TestAttack { get; set; }
         internal bool? TestDodge { get; set; }
@@ -89,6 +90,9 @@ namespace HeroesOfDragonland.Multiplayer
         private void Start()
         {
             string[] args = Environment.GetCommandLineArgs();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (Array.IndexOf(args, "-hodrSoak") >= 0) return; // The opt-in driver owns startup.
+#endif
             string mode = null, room = "dragonland-m1";
             for (int i = 0; i + 1 < args.Length; i++)
             {
@@ -364,6 +368,9 @@ namespace HeroesOfDragonland.Multiplayer
         public void OnPlayerJoined(NetworkRunner source, PlayerRef player)
         {
             if (source != runner || !source.IsServer || players.ContainsKey(player)) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (SimulationSpectator && player == source.LocalPlayer) { pendingSpawns.Remove(player); return; }
+#endif
             bool active = false;
             foreach (var connected in source.ActivePlayers) if (connected == player) { active = true; break; }
             if (!active) { pendingSpawns.Remove(player); return; }

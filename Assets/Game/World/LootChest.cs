@@ -18,6 +18,10 @@ namespace HeroesOfDragonland.World
         private InventorySlot[] pending = Array.Empty<InventorySlot>();
         private bool processing;
         private bool networkLootRolled;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private string simulationRollId;
+        private long simulationRollAmount;
+#endif
         public bool IsOpen { get; private set; }
         public long Revision { get; private set; }
         public bool HasAuthority => GetComponent<ILootChestAuthority>()?.CanMutateChest ?? hasAuthority;
@@ -69,12 +73,20 @@ namespace HeroesOfDragonland.World
                     {
                         if (!lootTable.TryRoll(new System.Random(Guid.NewGuid().GetHashCode()), out pending, out message)) return false;
                         networkLootRolled = true;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        simulationRollId = Guid.NewGuid().ToString("N");
+                        foreach (var reward in pending) simulationRollAmount += reward.Amount;
+                        HeroesOfDragonland.Multiplayer.MatchSimulationLootAudit.Roll(simulationRollId, simulationRollAmount);
+#endif
                     }
                     if (pending.Length == 0)
                     {
                         claimant = player;
                         IsOpen = true;
                         Revision++;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        HeroesOfDragonland.Multiplayer.MatchSimulationLootAudit.Claim(simulationRollId, simulationRollAmount, player.name);
+#endif
                         Changed?.Invoke();
                         message = "Chest opened. No loot.";
                         return true;
@@ -86,6 +98,9 @@ namespace HeroesOfDragonland.World
                         IsOpen = true;
                         Revision++;
                         // Commit replicated state before inventory observers can reenter.
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                        HeroesOfDragonland.Multiplayer.MatchSimulationLootAudit.Claim(simulationRollId, simulationRollAmount, player.name);
+#endif
                         Changed?.Invoke();
                     }, requireAll: true);
                     message = granted ? "Chest looted." : "Make room for all chest rewards and try again.";
