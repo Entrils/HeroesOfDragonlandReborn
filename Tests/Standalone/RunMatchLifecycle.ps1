@@ -9,7 +9,7 @@ function StartPeer([string]$mode) {
     $log = Join-Path $matchRoot ($mode + '.log')
     $matchPeers.Add((Start-Process -FilePath $matchExe -WindowStyle Hidden -PassThru -ArgumentList @(
         '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$matchRoom,
-        '-hodrLifecycle','-logFile',('"' + $log + '"'))))
+        '-hodrLifecycle','-hodrPlaytestReady','2','-logFile',('"' + $log + '"'))))
 }
 function WaitLog([string]$mode, [string]$pattern) {
     $deadline = [DateTime]::UtcNow.AddSeconds(100)

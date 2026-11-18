@@ -441,7 +441,7 @@ Transform:
   - {fileID: 6571138153239207144}
   - {fileID: 6895631980470835757}
   - {fileID: 3593645514804794027}
-  - {fileID: 4652012875593861200}
+  - {fileID: 6077293051847167265}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &5588261316771400867
@@ -720,7 +720,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3f8ea948f025e1e4eb058a86d6bef69a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Targeting.Targetable
-  aimPoint: {fileID: 2964046483834223177}
+  aimPoint: {fileID: 3338755569292232034}
   localAimOffset: {x: 0, y: 1, z: 0}
   stats: {fileID: 0}
 --- !u!114 &8481436319266034475
@@ -1097,7 +1097,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 863ea12ccebc4a544a497e3710ad7a2b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.NetworkCharacterVisual
-  visual: {fileID: 3829529409023718459}
+  visual: {fileID: 4404269216936273503}
 --- !u!114 &8399068704665186079
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1110,8 +1110,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 13606b7c85cb263499f692cdf2da5595, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterEquipmentVisual
-  visual: {fileID: 3829529409023718459}
-  visualCatalog: {fileID: 11400000, guid: 346b29b443f301e4087799791ab1c790, type: 2}
+  visual: {fileID: 4404269216936273503}
+  visualCatalog: {fileID: 11400000, guid: 99fc9418f4bd67341aa6d498c1637c94, type: 2}
+  hairRenderer: {fileID: 1584658743314229638}
 --- !u!114 &2832831941121429343
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1285,7 +1286,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f026e72511ed8b4dbe1f847d2336215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.Minimap.TacticalMapSubject
---- !u!1001 &9098817563144708412
+--- !u!1001 &3916551993134691147
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
@@ -1293,47 +1294,47 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 68213562686561407}
     m_Modifications:
-    - target: {fileID: 2021994863300850082, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 189753172964702070, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_Name
       value: CharacterVisual
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalPosition.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalPosition.y
       value: -1
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalPosition.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalRotation.w
       value: 1
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalRotation.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalRotation.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalRotation.z
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.y
       value: 0
       objectReference: {fileID: 0}
-    - target: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
+    - target: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
       objectReference: {fileID: 0}
@@ -1341,16 +1342,21 @@ PrefabInstance:
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
-  m_SourcePrefab: {fileID: 100100000, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
---- !u!4 &2964046483834223177 stripped
-Transform:
-  m_CorrespondingSourceObject: {fileID: 6298027682516720501, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
-  m_PrefabInstance: {fileID: 9098817563144708412}
+  m_SourcePrefab: {fileID: 100100000, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
+--- !u!137 &1584658743314229638 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2569222164940200653, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
+  m_PrefabInstance: {fileID: 3916551993134691147}
   m_PrefabAsset: {fileID: 0}
---- !u!114 &3829529409023718459 stripped
+--- !u!4 &3338755569292232034 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: 1733824048814716457, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
+  m_PrefabInstance: {fileID: 3916551993134691147}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &4404269216936273503 stripped
 MonoBehaviour:
-  m_CorrespondingSourceObject: {fileID: 5431419115113174279, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
-  m_PrefabInstance: {fileID: 9098817563144708412}
+  m_CorrespondingSourceObject: {fileID: 812188133659022612, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
+  m_PrefabInstance: {fileID: 3916551993134691147}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 0}
   m_Enabled: 1
@@ -1358,8 +1364,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 92ff599adc92b284ea110e2c245297ef, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterVisual
---- !u!4 &4652012875593861200 stripped
+--- !u!4 &6077293051847167265 stripped
 Transform:
-  m_CorrespondingSourceObject: {fileID: 4524493980414749036, guid: c1cf677c59492364d941125b04bd1ace, type: 3}
-  m_PrefabInstance: {fileID: 9098817563144708412}
+  m_CorrespondingSourceObject: {fileID: 7065165528815959658, guid: 7eda1d89a3117bb4088db2c436bb4db8, type: 3}
+  m_PrefabInstance: {fileID: 3916551993134691147}
   m_PrefabAsset: {fileID: 0}

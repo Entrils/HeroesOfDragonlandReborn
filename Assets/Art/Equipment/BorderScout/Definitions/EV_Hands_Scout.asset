@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9aaa5c704c2e6f4a81ba6d6fa8b98f4, type: 3}
+  m_Name: EV_Hands_Scout
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.EquipmentVisualDefinition
+  slot: 5
+  parts:
+  - prefab: {fileID: 5696702324556621798, guid: 76d949637a38e86488c6c34207cc9b59, type: 3}
+    socket: 0
+    bone: 17
+    pose:
+      position: {x: -0.00000005960466, y: 0.059999973, z: 0.00000021517278}
+      eulerAngles: {x: -0.0000034150946, y: 90, z: 270}
+      scale: {x: 1, y: 1, z: 1}
+  - prefab: {fileID: 5841989351667468682, guid: 97525fb0ab14d4240acd71b6edda3b69, type: 3}
+    socket: 0
+    bone: 18
+    pose:
+      position: {x: 0.00000005960466, y: 0.059999973, z: 0.00000021517278}
+      eulerAngles: {x: -0.0000034150946, y: 270, z: 90}
+      scale: {x: 1, y: 1, z: 1}
+  stowedPose:
+    position: {x: 0, y: 0, z: 0}
+    eulerAngles: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}

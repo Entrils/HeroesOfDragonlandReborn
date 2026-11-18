@@ -28,15 +28,20 @@ namespace HeroesOfDragonland.Presentation
         private void OnEnable() => sampled = false;
         private void LateUpdate()
         {
-            if (visual == null || player.Object == null || !player.Object.IsValid) { sampled = false; return; }
+            if (visual == null || player.Object == null || !player.Object.IsValid
+                || !player.Runner.IsRunning) { sampled = false; return; }
+            double tickSeconds;
+            try { tickSeconds = player.Runner.DeltaTime; }
+            catch (System.InvalidOperationException error) when (error.Message.StartsWith("RuntimeConfig can only be read", System.StringComparison.Ordinal))
+            { sampled = false; return; }
             var delta = sampled ? transform.position - previousPosition : Vector3.zero;
             previousPosition = transform.position; sampled = true; delta.y = 0;
             var velocity = delta.magnitude < 3 && Time.deltaTime > .0001f ? delta / Time.deltaTime : Vector3.zero;
             var local = transform.InverseTransformDirection(velocity);
             bool playing = NetworkMatch.AllowsGameplay(player.Runner);
             double time = player.HasStateAuthority ? player.Runner.LocalRenderTime : player.Runner.RemoteRenderTime;
-            float attackAge = (float)(time - combat.AttackStartTick * (double)player.Runner.DeltaTime);
-            float dodgeAge = (float)(time - dodge.StartTick * (double)player.Runner.DeltaTime);
+            float attackAge = (float)(time - combat.AttackStartTick * tickSeconds);
+            float dodgeAge = (float)(time - dodge.StartTick * tickSeconds);
             bool attacking = playing && combat.AttackBusy && combat.AttackSequence > 0 && attackAge >= 0 && attackAge < combat.AttackSwingDuration;
             bool dodging = playing && dodge.Busy && dodge.DodgeSequence > 0 && dodgeAge >= 0 && dodgeAge < dodge.ActiveDuration;
             var gear = GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>();
@@ -50,7 +55,7 @@ namespace HeroesOfDragonland.Presentation
                 moveIndex = combat.AttackMoveIndex;
             }
             visual.SetWeaponPresentation(weapon, attacking && combat.HeavyAttack, moveIndex);
-            float hitAge=animationState!=null?(float)(time-animationState.HitTick*(double)player.Runner.DeltaTime):100;
+            float hitAge=animationState!=null?(float)(time-animationState.HitTick*tickSeconds):100;
             var state=new CharacterVisualState {
                 Speed = playing ? Mathf.Min(velocity.magnitude, 8) : 0,
                 LocalVelocity = playing ? new Vector2(local.x, local.z) : Vector2.zero,
@@ -70,10 +75,10 @@ namespace HeroesOfDragonland.Presentation
                 case CharacterAction.HitReaction:
                     state.ActionAge=hitAge;state.ActionDuration=.25f;state.ActionSequence=animationState.HitSequence;break;
                 case CharacterAction.Stagger:
-                    state.ActionAge=animationState!=null?(float)(time-animationState.StaggerTick*(double)player.Runner.DeltaTime):0;
+                    state.ActionAge=animationState!=null?(float)(time-animationState.StaggerTick*tickSeconds):0;
                     state.ActionSequence=animationState!=null?animationState.StaggerTick:0;break;
                 case CharacterAction.Death:
-                    state.ActionAge=animationState!=null?(float)(time-animationState.DeathTick*(double)player.Runner.DeltaTime):0;
+                    state.ActionAge=animationState!=null?(float)(time-animationState.DeathTick*tickSeconds):0;
                     state.ActionSequence=animationState!=null?animationState.DeathTick:0;break;
             }
             visual.Apply(state, Time.deltaTime);

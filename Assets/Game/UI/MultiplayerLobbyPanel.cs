@@ -1,4 +1,6 @@
 using Fusion;
+using HeroesOfDragonland.Player;
+using HeroesOfDragonland.UI;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -11,28 +13,91 @@ namespace HeroesOfDragonland.Multiplayer
         private MultiplayerBootstrap bootstrap;
         private Vector2 scroll;
         private GUIStyle messageStyle;
-        private void Awake() => bootstrap = GetComponent<MultiplayerBootstrap>();
+        private PlaytestSettings settings;
+        private LocalGameplayInputGate inputGate;
+        private bool settingsOpen, quitting;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private PlaytestDiagnostics diagnostics;
+#endif
+        private void Awake()
+        {
+            bootstrap = GetComponent<MultiplayerBootstrap>();
+            settings = GetComponent<PlaytestSettings>();
+            inputGate = GetComponent<LocalGameplayInputGate>();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            diagnostics = GetComponent<PlaytestDiagnostics>();
+#endif
+        }
+
+        private void SetSettingsOpen(bool value)
+        {
+            settingsOpen = value;
+            inputGate?.SetBlocked(this, value);
+            if (!value) settings?.Save();
+        }
+
+        private async void Quit()
+        {
+            if (quitting) return;
+            quitting = true;
+            settings?.Save();
+            try
+            {
+                if (bootstrap.Running || bootstrap.Busy) await bootstrap.Disconnect();
+            }
+            finally
+            {
+#if UNITY_EDITOR
+                UnityEditor.EditorApplication.isPlaying = false;
+#else
+                Application.Quit();
+#endif
+            }
+        }
+
+        private void OnDisable() => SetSettingsOpen(false);
         private void OnGUI()
         {
             if (Application.isBatchMode) return;
             var match = GetComponent<NetworkFortressSpawner>()?.Match;
             bool valid = match != null && match.Object != null && match.Object.IsValid;
-            if (bootstrap.Running && valid && match.State != MatchPhase.Lobby
-                && bootstrap.ConnectionState == NetworkConnectionState.Connected)
+            bool inMatch = bootstrap.Running && valid && match.State != MatchPhase.Lobby
+                && bootstrap.ConnectionState == NetworkConnectionState.Connected;
+            if (inMatch && !settingsOpen)
             {
-                if (GUI.Button(new Rect(Screen.width - 142, Screen.height - 42, 130, 30), "Leave match") && !bootstrap.Busy)
-                    _ = bootstrap.Disconnect();
+                var camera = Camera.main;
+                if (camera != null && camera.TryGetComponent<HeroesOfDragonland.World.BattlefieldCamera>(out var battlefield) && battlefield.IsCaptured)
+                    return;
+                GUILayout.BeginArea(new Rect(Screen.width - 224, 24, 208, 164), GUI.skin.box);
+                if (match.CanPlay) GUILayout.Label("Press Enter to resume");
+                if (settings != null && GUILayout.Button("Settings")) SetSettingsOpen(true);
+                if (GUILayout.Button("Leave match") && !bootstrap.Busy) _ = bootstrap.Disconnect();
+                if (GUILayout.Button("Quit game")) Quit();
+                GUILayout.EndArea();
                 return;
             }
-            float width = Mathf.Min(520, Screen.width - 24);
-            var bounds = new Rect((Screen.width - width) / 2, 24, width, Mathf.Min(620, Screen.height - 48));
+            float width = Mathf.Min(520, Mathf.Max(1, Screen.width - 24));
+            var bounds = new Rect((Screen.width - width) / 2, 24, width, Mathf.Min(620, Mathf.Max(1, Screen.height - 48)));
             var tint = GUI.color;
             GUI.color = new Color(.04f, .06f, .08f, .97f);
             GUI.DrawTexture(bounds, Texture2D.whiteTexture);
             GUI.color = tint;
             GUILayout.BeginArea(bounds, GUI.skin.box);
             scroll = GUILayout.BeginScrollView(scroll);
-            GUILayout.Label("DRAGONLAND / MULTIPLAYER LOBBY");
+            if (settingsOpen)
+            {
+                GUILayout.Label("Settings");
+                settings.Draw();
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+                if (diagnostics != null)
+                    diagnostics.SetRecording(GUILayout.Toggle(diagnostics.Recording, "Record playtest diagnostics"));
+#endif
+                if (GUILayout.Button("Back")) SetSettingsOpen(false);
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
+                return;
+            }
+            GUILayout.Label(bootstrap.Running ? "Multiplayer lobby" : "Heroes of Dragonland — Playtest Alpha");
             messageStyle ??= new GUIStyle(GUI.skin.label) { wordWrap = true };
             GUILayout.Label(NetworkFailureMessages.Title(bootstrap.ConnectionState));
             GUILayout.Label(bootstrap.NetworkMessage, messageStyle);
@@ -75,15 +140,15 @@ namespace HeroesOfDragonland.Multiplayer
                     if (match.IsServerOwner)
                     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-                        bool shortMatch = GUILayout.Toggle(match.AllowShortMatch, "Development: allow fewer than 6 participants (both teams required)");
+                        bool shortMatch = GUILayout.Toggle(match.AllowShortMatch, "Allow short match (ready players on both teams)");
                         if (shortMatch != match.AllowShortMatch) match.SetShortMatch(shortMatch);
                         var bots = GetComponent<DeveloperBotService>();
                         if (bots != null)
                         {
                             int humans = 0;
                             foreach (var player in bootstrap.Runner.ActivePlayers) humans++;
-                            if (GUILayout.Button("Development: fill empty slots with bots")) bots.SetBotCount(Mathf.Clamp(6 - humans, 0, 5));
-                            if (GUILayout.Button("Development: remove bots")) bots.SetBotCount(0);
+                            if (GUILayout.Button("Fill empty slots with bots")) bots.SetBotCount(Mathf.Clamp(6 - humans, 0, 5));
+                            if (GUILayout.Button("Remove bots")) bots.SetBotCount(0);
                         }
 #endif
                         GUILayout.Label("All humans must be ready. Both teams must have an avatar.");
@@ -99,6 +164,8 @@ namespace HeroesOfDragonland.Multiplayer
                 if (GUILayout.Button("Leave lobby")) _ = bootstrap.Disconnect();
             }
             GUI.enabled = previous;
+            if (settings != null && GUILayout.Button("Settings")) SetSettingsOpen(true);
+            if (GUILayout.Button("Quit game")) Quit();
             GUILayout.EndScrollView();
             GUILayout.EndArea();
         }

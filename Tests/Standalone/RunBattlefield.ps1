@@ -8,7 +8,7 @@ $battlePeers = [System.Collections.Generic.List[System.Diagnostics.Process]]::ne
 function StartBattlePeer([string]$label, [string]$mode) {
     $battleLog = Join-Path $battleRoot ($label + '.log')
     $battlePeers.Add((Start-Process -FilePath $battleExecutable -WindowStyle Hidden -PassThru -ArgumentList @(
-        '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$battleRoom,'-hodrBattlefield','-logFile',('"' + $battleLog + '"'))))
+        '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$battleRoom,'-hodrBattlefield','-hodrPlaytestReady','6','-hodrPlaytestLog','-logFile',('"' + $battleLog + '"'))))
 }
 function WaitBattleLog([string]$label, [string]$pattern) {
     $battleDeadline = [DateTime]::UtcNow.AddSeconds(130)
@@ -27,10 +27,14 @@ function WaitBattleLog([string]$label, [string]$pattern) {
 try {
     StartBattlePeer 'host' 'host'
     WaitBattleLog 'host' '\[MatchLifecycle\] round=0 state=Lobby'
-    for ($battleIndex = 1; $battleIndex -le 5; $battleIndex++) { StartBattlePeer ('client' + $battleIndex) 'client' }
+    for ($battleIndex = 1; $battleIndex -le 5; $battleIndex++) {
+        $label = 'client' + $battleIndex
+        StartBattlePeer $label 'client'
+        WaitBattleLog $label '\[NetworkState\] Connected'
+    }
     WaitBattleLog 'host' '\[BattlefieldComplete\]'
     for ($battleIndex = 1; $battleIndex -le 5; $battleIndex++) { WaitBattleLog ('client' + $battleIndex) '\[BattlefieldComplete\]' }
-    Write-Output "PASS: actual 3v3, eight active camps and delayed center, reward tiers, clear owned spawns and all six players walking out of their fortresses. Logs: $battleRoot"
+    Write-Output "PASS: actual 3v3, eight opening camps, three delayed camps, AI ownership, and replicated movement and dodge for all six players. Logs: $battleRoot"
 } finally {
     foreach ($battlePeer in $battlePeers) {
         $battlePeer.Refresh()

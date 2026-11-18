@@ -31,11 +31,19 @@ namespace HeroesOfDragonland.Multiplayer
             bootstrap = owner; emit = sink;
             Application.logMessageReceivedThreaded += Log;
             MatchSimulationLootAudit.Recorded += Loot;
+            bootstrap.ConnectionStateChanged += ConnectionChanged;
+        }
+        private void ConnectionChanged(NetworkConnectionState state)
+        {
+            bool failed = state is NetworkConnectionState.FailedJoin or NetworkConnectionState.SessionFull
+                or NetworkConnectionState.SessionClosed or NetworkConnectionState.SessionNotFound or NetworkConnectionState.JoinRejected
+                or NetworkConnectionState.Interrupted or NetworkConnectionState.ConnectionLost or NetworkConnectionState.ReconnectExpired;
+            if (failed) { Total.networkErrors++; Round.networkErrors++; }
+            emit(failed ? "network-failure" : "network-state", state + ": " + bootstrap.NetworkMessage, null);
         }
         private void Log(string condition, string trace, LogType type)
         {
-            if (type != LogType.Error && type != LogType.Exception && type != LogType.Assert
-                && condition.IndexOf("[NetworkState]", StringComparison.Ordinal) < 0) return;
+            if (type != LogType.Error && type != LogType.Exception && type != LogType.Assert) return;
             if (System.Threading.Interlocked.Increment(ref queuedLogs) > 256)
             { System.Threading.Interlocked.Decrement(ref queuedLogs); System.Threading.Interlocked.Increment(ref droppedLogs); return; }
             string message = condition + "\n" + trace;
@@ -69,16 +77,17 @@ namespace HeroesOfDragonland.Multiplayer
             while (logs.TryDequeue(out var log))
             {
                 System.Threading.Interlocked.Decrement(ref queuedLogs);
-                bool network = log.message.IndexOf("Fusion", StringComparison.OrdinalIgnoreCase) >= 0
-                    || log.message.IndexOf("[NetworkState]", StringComparison.Ordinal) >= 0;
-                bool error = log.type == LogType.Error || log.type == LogType.Exception || log.type == LogType.Assert;
-                if (error) { Total.exceptions++; Round.exceptions++; }
-                if (network && (error || log.message.Contains("Failed") || log.message.Contains("Lost") || log.message.Contains("Timeout")))
+                Total.exceptions++; Round.exceptions++;
+                if (log.message.IndexOf("Fusion", StringComparison.OrdinalIgnoreCase) >= 0)
                 { Total.networkErrors++; Round.networkErrors++; }
-                emit(error ? "error" : "network", log.message, null);
+                emit("error", log.type + ": " + log.message, null);
             }
             int dropped = System.Threading.Interlocked.Exchange(ref droppedLogs, 0);
-            if (dropped > 0) emit("log-overflow", "Dropped " + dropped + " messages; diagnosis incomplete", null);
+            if (dropped > 0)
+            {
+                Total.droppedLogs += dropped; Round.droppedLogs += dropped;
+                emit("log-overflow", "Dropped " + dropped + " messages; diagnosis incomplete", null);
+            }
         }
         private void SampleActors(double now, float threshold, bool playing)
         {
@@ -104,7 +113,11 @@ namespace HeroesOfDragonland.Multiplayer
                         if (!stats.IsDead || !dead.Add(id)) return;
                         Total.deaths++; Round.deaths++; emit("death", "Damage source=" + (source != null ? source.name : "none"), player);
                         var killer = source != null ? source.GetComponentInParent<NetworkTestPlayer>() : null;
-                        if (killer != null) { Total.kills++; Round.kills++; emit("kill", "victim=" + player.Object.Id, killer); }
+                        if (killer != null)
+                        {
+                            Total.kills++; Round.kills++; Total.playerKills++; Round.playerKills++;
+                            emit("kill", "victim=" + player.Object.Id + " type=player", killer);
+                        }
                     };
                     if (receiver != null) { receiver.DamageTaken += damage; release.Add(() => { if (receiver != null) receiver.DamageTaken -= damage; }); }
                     stalls[id] = new MatchSimulationStall();
@@ -125,11 +138,15 @@ namespace HeroesOfDragonland.Multiplayer
                 if (actor == null || !actor.IsValid || actor.Runner != bootstrap.Runner || receiver.GetComponent<NetworkTestPlayer>() != null
                     || !observed.Add(receiver.GetEntityId())) continue;
                 var stats = receiver.GetComponent<CharacterStats>();
+                bool gate = receiver.GetComponent<NetworkFortressGate>() != null;
+                bool king = receiver.GetComponent<NetworkKingObjective>() != null;
                 bool killed = false;
                 Action<float, GameObject> damage = (amount, source) =>
                 {
                     if (killed || !stats.IsDead) return;
                     killed = true;
+                    if (gate) { Total.gatesDestroyed++; Round.gatesDestroyed++; }
+                    if (king) { Total.kingsKilled++; Round.kingsKilled++; }
                     var killer = source != null ? source.GetComponentInParent<NetworkTestPlayer>() : null;
                     if (killer != null) { Total.kills++; Round.kills++; emit("kill", "victim=" + actor.Id + " type=" + actor.name, killer); }
                 };
@@ -171,6 +188,7 @@ namespace HeroesOfDragonland.Multiplayer
         {
             Application.logMessageReceivedThreaded -= Log;
             MatchSimulationLootAudit.Recorded -= Loot;
+            bootstrap.ConnectionStateChanged -= ConnectionChanged;
             ClearSubscriptions();
         }
     }

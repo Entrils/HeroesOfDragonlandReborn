@@ -54,11 +54,12 @@ namespace HeroesOfDragonland.Combat
                     : stage == 2 ? teamA && phase > .5f && phase < .65f
                     : stage == 3 ? teamA && (int)(age * 10) % 2 == 0
                     : stage == 4 && teamA && age > 34.5f && age < 34.65f;
-                bootstrap.TestParry = (stage == 0 ? !teamA : stage == 1 && teamA) && tap;
-                if (stage == 1 && teamA)
+                bootstrap.TestParry = false;
+                if ((stage == 0 && !teamA) || (stage == 1 && teamA))
                 {
-                    // React to the accepted remote strike rather than assuming symmetric input transit time.
-                    var incoming = humans.First(p => p.Team != TeamId.TeamA).GetComponent<NetworkPlayerCombat>();
+                    // React to the accepted remote strike instead of assuming symmetric input transit time.
+                    var ownTeam = teamA ? TeamId.TeamA : TeamId.TeamB;
+                    var incoming = humans.First(p => p.Team != ownTeam).GetComponent<NetworkPlayerCombat>();
                     bool react = incoming.AttackBusy && incoming.AttackSequence != reactedAttack;
                     bootstrap.TestParry = react;
                     if (react) reactedAttack = incoming.AttackSequence;

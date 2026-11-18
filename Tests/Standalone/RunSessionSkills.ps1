@@ -8,7 +8,7 @@ $skillPeers = [System.Collections.Generic.List[System.Diagnostics.Process]]::new
 function StartSkillPeer([string]$mode) {
     $skillLog = Join-Path $skillRoot ($mode + '.log')
     $skillPeers.Add((Start-Process -FilePath $skillExecutable -WindowStyle Hidden -PassThru -ArgumentList @(
-        '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$skillRoom,'-hodrSkills','-logFile',('"' + $skillLog + '"'))))
+        '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$skillRoom,'-hodrSkills','-hodrPlaytestReady','2','-logFile',('"' + $skillLog + '"'))))
 }
 function WaitSkillLog([string]$mode, [string]$pattern) {
     $skillDeadline = [DateTime]::UtcNow.AddSeconds(100)

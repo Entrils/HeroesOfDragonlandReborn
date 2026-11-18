@@ -47189,6 +47189,8 @@ GameObject:
   - component: {fileID: 863030354}
   - component: {fileID: 863030353}
   - component: {fileID: 863030355}
+  - component: {fileID: 863030357}
+  - component: {fileID: 863030356}
   m_Layer: 0
   m_Name: Multiplayer Bootstrap
   m_TagString: Untagged
@@ -47712,6 +47714,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 75a80476102fc4c4ebfc8f54a44bbfa9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.PresentationAcceptanceProbe
+--- !u!114 &863030356
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863030319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 169ef1035136f8b48b62af063a7e6e11, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.PlaytestDiagnostics
+--- !u!114 &863030357
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 863030319}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b10406d5cca64a64fa1011c20f7e1fc9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.PlaytestSettings
+  audio: {fileID: 863030349}
 --- !u!1001 &867399826
 PrefabInstance:
   m_ObjectHideFlags: 0

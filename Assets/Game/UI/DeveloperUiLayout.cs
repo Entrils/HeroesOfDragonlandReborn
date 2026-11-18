@@ -5,10 +5,13 @@ namespace HeroesOfDragonland.UI
     // Share UI Toolkit's 1280x720 fit scaling with the remaining developer IMGUI panels.
     public static class DeveloperUiLayout
     {
+        private static readonly bool Enabled = Application.isEditor
+            || System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-hodrDebugUi") >= 0;
         public static bool Visible
         {
             get
             {
+                if (!Enabled) return false;
                 var camera = Camera.main != null ? Camera.main.GetComponent<HeroesOfDragonland.World.BattlefieldCamera>() : null;
                 return camera == null || !camera.IsCaptured;
             }

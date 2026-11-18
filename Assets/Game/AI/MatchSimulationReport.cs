@@ -27,7 +27,8 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class MatchSimulationCounters
     {
         public int started, completed, failed, resets, kills, deaths, campsCleared, exceptions, networkErrors;
-        public int stuckAI, invalidInventories, duplicateLoot, highestLevel;
+        public int playerKills, gatesDestroyed, kingsKilled;
+        public int stuckAI, invalidInventories, duplicateLoot, highestLevel, droppedLogs;
         public long itemsGenerated, itemsClaimed;
     }
 
@@ -36,8 +37,9 @@ namespace HeroesOfDragonland.Multiplayer
     {
         public string utc = DateTime.UtcNow.ToString("O");
         public string kind, message, actor, team, position, goal;
-        public int round;
+        public int round = -1;
         public double seconds;
+        public float playingSeconds;
         public MatchSimulationCounters counters;
     }
 
@@ -52,8 +54,7 @@ namespace HeroesOfDragonland.Multiplayer
                 ? Path.Combine(Application.persistentDataPath, "MatchSimulation", DateTime.UtcNow.ToString("yyyyMMdd-HHmmss") + "-" + Guid.NewGuid().ToString("N").Substring(0, 8))
                 : directory);
             Directory.CreateDirectory(DirectoryPath);
-            if (File.Exists(Path.Combine(DirectoryPath, "events.jsonl"))) throw new IOException("Choose a fresh simulation report directory.");
-            writer = new StreamWriter(Path.Combine(DirectoryPath, "events.jsonl"), false) { AutoFlush = true };
+            writer = new StreamWriter(new FileStream(Path.Combine(DirectoryPath, "events.jsonl"), FileMode.CreateNew, FileAccess.Write, FileShare.Read)) { AutoFlush = true };
         }
         public void Write(MatchSimulationRecord record) => writer.WriteLine(JsonUtility.ToJson(record));
         public void Summary(string status, MatchSimulationCounters counters, double seconds)

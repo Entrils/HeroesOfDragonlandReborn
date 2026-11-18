@@ -14,6 +14,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Simple server decision loop. No transforms, health or inventory bypasses.
     public sealed class DeveloperBotBrain
     {
+        private static readonly Unity.Profiling.ProfilerMarker TickMarker = new("Dragonland.BotTick");
         private readonly NetworkTestPlayer player;
         private readonly DeveloperBotNavigation navigation = new DeveloperBotNavigation();
         private readonly CharacterStats stats;
@@ -39,6 +40,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
         public NetworkPlayerInput Tick(float deltaTime)
         {
+            using var marker = TickMarker.Auto();
             WantsTravel = false;
             if (!NetworkParticipant.IsAdmitted(player.Object) || !NetworkMatch.AllowsGameplay(player.Runner) || stats.IsDead) return default;
             DistanceTravelled += Vector3.Distance(previousPosition, player.transform.position); previousPosition = player.transform.position;
@@ -104,17 +106,20 @@ namespace HeroesOfDragonland.Multiplayer
         private void SelectGoal()
         {
             target = null;
-            float nearest = 9;
+            // One bot per side keeps pressure on the objective once the opening farm is over.
+            // Its teammates still clear guards and engage the enemy ahead of it.
+            bool siegeLead = AutomatedMatchSimulation.Active != null && player.SpawnLane == 0 && age > 90;
+            float nearest = siegeLead ? 4 : 9;
             foreach (var enemy in Object.FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None))
                 if (Eligible(enemy.Object) && enemy.Team != player.Team && Distance(enemy.transform.position) < nearest)
                 { nearest = Distance(enemy.transform.position); target = enemy.Object; }
             if (target != null) { Goal = DeveloperBotGoal.EnemyPlayer; return; }
-            nearest = 14;
+            nearest = siegeLead ? 4 : 14;
             if (age >= chestAt) foreach (var chest in Object.FindObjectsByType<NetworkLootChest>(FindObjectsSortMode.None))
                 if (chest.Object != null && chest.Object.IsValid && chest.Runner == player.Runner && !chest.IsOpen && Distance(chest.transform.position) < nearest)
                 { nearest = Distance(chest.transform.position); target = chest.Object; }
             if (target != null) { Goal = DeveloperBotGoal.Chest; return; }
-            bool farm = (age + player.SpawnLane * 13) % 100 < 45;
+            bool farm = !siegeLead && (age + player.SpawnLane * 13) % 100 < 45;
             nearest = float.PositiveInfinity;
             if (farm) foreach (var enemy in Object.FindObjectsByType<NetworkEnemy>(FindObjectsSortMode.None))
                 if (Eligible(enemy.Object) && enemy.GetComponent<NetworkFortressGuard>() == null && Distance(enemy.transform.position) < nearest)
@@ -127,6 +132,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (gate.Team != player.Team && !gate.IsOpen && Eligible(gate.Object) && Distance(gate.transform.position) < nearest)
                 { nearest = Distance(gate.transform.position); target = gate.Object; }
             if (target != null) { Goal = DeveloperBotGoal.FortressGate; return; }
+            if (siegeLead && TrySelectKing()) return;
             nearest = float.PositiveInfinity;
             foreach (var guard in Object.FindObjectsByType<NetworkFortressGuard>(FindObjectsSortMode.None))
             {
@@ -135,10 +141,21 @@ namespace HeroesOfDragonland.Multiplayer
                 { nearest = Distance(guard.transform.position); target = enemy.Object; }
             }
             if (target != null) { Goal = DeveloperBotGoal.FortressGuard; return; }
-            foreach (var king in Object.FindObjectsByType<NetworkKingObjective>(FindObjectsSortMode.None))
-                if (king.Team != player.Team && Eligible(king.Object)) { target = king.Object; Goal = DeveloperBotGoal.King; return; }
+            if (TrySelectKing()) return;
             Goal = DeveloperBotGoal.Roam;
             destination = new Vector3(Mathf.Sin(age * .05f + player.ParticipantNumber) * 25, 1, Mathf.Cos(age * .05f + player.ParticipantNumber) * 25);
+        }
+
+        private bool TrySelectKing()
+        {
+            foreach (var king in Object.FindObjectsByType<NetworkKingObjective>(FindObjectsSortMode.None))
+            {
+                if (king.Team == player.Team || !Eligible(king.Object)) continue;
+                target = king.Object;
+                Goal = DeveloperBotGoal.King;
+                return true;
+            }
+            return false;
         }
     }
 }

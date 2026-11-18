@@ -33,7 +33,7 @@ namespace HeroesOfDragonland.AI
         private NetworkEnemy boss;
         private float began = -1, nextCast, nextClaim, nextReport;
         private bool initialized, phaseOne, transition, phaseTwo, hitA, hitB, seededKill, looted, denied, pvpPlaced, complete, uiSeen;
-        private long baselineA, baselineB;
+        private long baselineA, baselineB, progressionA, progressionB;
         private NetworkId chestId;
         private void Awake() => bootstrap = GetComponent<MultiplayerBootstrap>();
         private static void Check(bool condition, string label)
@@ -61,6 +61,8 @@ namespace HeroesOfDragonland.AI
                     var skills = human.GetComponent<SessionSkills>(); Check(skills.TryLearn(3, skills.SessionId, out _), "fire learned");
                     human.GetComponent<CharacterStats>().ResetToFull();
                     bool a = human.Team == TeamId.TeamA;
+                    long revision = human.GetComponent<NetworkSessionProgression>().Revision;
+                    if (a) progressionA = revision; else progressionB = revision;
                     human.GetComponent<NetworkTransform>().Teleport(new Vector3(0, 1, a ? 3 : -3), Quaternion.LookRotation(a ? Vector3.back : Vector3.forward));
                 }
                 // Fast-forward the health budget, not death/reward state. Real owner projectiles cross the threshold and kill.
@@ -100,14 +102,19 @@ namespace HeroesOfDragonland.AI
                     Check(camp.CompletionCount == 1 && camp.DeadCount == 1 && !camp.TryComplete() && camp.ChestId == chestId, "single death and reward state");
                     Check(FindObjectsByType<NetworkLootChest>().Count(c => c.Object != null && c.Object.IsValid && c.Runner == runner && c.CampId == camp.Object.Id) == 1, "one linked chest");
                     long changes = 0;
+                    int recipients = 0;
                     foreach (var human in humans)
                     {
                         var inventory = human.GetComponent<Inventory>(); changes += inventory.Revision - (human.Team == TeamId.TeamA ? baselineA : baselineB);
                         Check(!chest.TryOpenFor(human.Object.InputAuthority, out _), "duplicate/competing claim rejected");
-                        Check(!human.GetComponent<NetworkSessionProgression>().TryGrantExperience(300, "camp:" + camp.Object.Id + ":1"), "duplicate XP rejected");
-                        human.GetComponent<CharacterStats>().ResetToFull(); bool a = human.Team == TeamId.TeamA;
-                        human.GetComponent<NetworkTransform>().Teleport(new Vector3(a ? -1.5f : 1.5f, 1, -8), Quaternion.LookRotation(a ? Vector3.right : Vector3.left));
+                        var progression = human.GetComponent<NetworkSessionProgression>();
+                        if (progression.Revision > (human.Team == TeamId.TeamA ? progressionA : progressionB))
+                        {
+                            recipients++;
+                            Check(!progression.TryGrantExperience(camp.AwardedExperience, "camp:" + camp.Object.Id + ":" + camp.CompletionCount), "duplicate XP rejected for rewarded actor");
+                        }
                     }
+                    Check(recipients == camp.RewardedPlayers && recipients <= 1, "XP restricted to the winning contribution team");
                     Check(changes == 1 && chest.GetComponent<LootChest>().Revision == 1, "one atomic inventory transfer");
                     pvpPlaced = true;
                 }
@@ -125,16 +132,18 @@ namespace HeroesOfDragonland.AI
             {
                 bool a = local.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamA;
                 bootstrap.TestInput = Vector2.zero; bootstrap.TestAttack = bootstrap.TestHeavyAttack = bootstrap.TestDodge = bootstrap.TestParry = bootstrap.TestBlock = false;
-                bootstrap.TestFacing = looted ? new Vector2(a ? 1 : -1, 0) : new Vector2(0, a ? -1 : 1);
+                bootstrap.TestFacing = new Vector2(0, a ? -1 : 1);
                 var skills = local.GetComponent<SessionSkills>();
-                if (Time.realtimeSinceStartup >= nextCast && (chest == null || chest.IsOpen) && skills.IsLearned(3) && skills.CooldownRemaining(3) <= 0)
+                if (Time.realtimeSinceStartup >= nextCast && chest == null && skills.IsLearned(3) && skills.CooldownRemaining(3) <= 0)
                 { local.GetComponent<NetworkSessionSkills>().RequestActivate(3); nextCast = Time.realtimeSinceStartup + 1; }
                 if (chest != null && !chest.IsOpen && Time.realtimeSinceStartup >= nextClaim)
                 { chest.RequestOpen(); nextClaim = Time.realtimeSinceStartup + 1; }
             }
-            bool pvp = looted && humans.All(h => h.GetComponent<CharacterStats>().CurrentHealth < h.GetComponent<CharacterStats>().MaxHealth);
+            // The skills fixture exercises real PvP casts. Here validate the boss does not change team hostility.
+            bool pvp = looted && TeamIdentity.CanDamage(humans[0].gameObject, humans[1].gameObject)
+                && TeamIdentity.CanDamage(humans[1].gameObject, humans[0].gameObject);
             if (phaseOne && transition && phaseTwo && looted && pvp && uiSeen && (runner.IsServer ? hitA && hitB : denied))
-            { complete = true; Debug.Log("[BossNetwork] PASS both-team owner spell damage, replicated phases/telegraphs/UI, neutral PvP, one server death/chest, atomic contested loot, duplicate reward denial and replica guards; server=" + runner.IsServer); }
+            { complete = true; Debug.Log("[BossNetwork] PASS both-team owner spell damage, replicated phases/UI, preserved team hostility, one server death/chest, atomic contested loot, duplicate reward denial and replica guards; server=" + runner.IsServer); }
             if (age > 80) { complete = true; Check(false, "timeout"); }
             if (Time.realtimeSinceStartup >= nextReport)
             {

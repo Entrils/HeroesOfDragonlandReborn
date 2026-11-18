@@ -1,11 +1,44 @@
 using System;
 using HeroesOfDragonland.Multiplayer;
+using UnityEditor;
+using UnityEditor.Build.Reporting;
 using UnityEngine;
 
 namespace HeroesOfDragonland.World.Editor
 {
     public static class MatchSimulationValidation
     {
+        [MenuItem("Tools/Dragonland/Match Simulation/Start Soak")]
+        private static void StartSoak() => AutomatedMatchSimulation.StartRun(new MatchSimulationOptions());
+
+        [MenuItem("Tools/Dragonland/Match Simulation/Start Soak", true)]
+        private static bool CanStartSoak() => EditorApplication.isPlaying && AutomatedMatchSimulation.Active == null;
+
+        [MenuItem("Tools/Dragonland/Match Simulation/Stop Soak")]
+        private static void StopSoak() => _ = AutomatedMatchSimulation.Active.StopRun("explicit developer stop");
+
+        [MenuItem("Tools/Dragonland/Match Simulation/Stop Soak", true)]
+        private static bool CanStopSoak() => AutomatedMatchSimulation.Active != null;
+
+        [MenuItem("Tools/Dragonland/Match Simulation/Build Windows Player")]
+        private static void BuildSoakPlayer() => BuildPlayer();
+
+        [MenuItem("Tools/Dragonland/Match Simulation/Build Windows Player", true)]
+        private static bool CanBuildSoakPlayer() => !EditorApplication.isPlayingOrWillChangePlaymode;
+
+        public static BuildSummary BuildPlayer()
+        {
+            var summary = BuildPipeline.BuildPlayer(new BuildPlayerOptions
+            {
+                scenes = new[] { "Assets/Scenes/DragonlandBattlefield.unity" },
+                locationPathName = "Builds/M52/Player/Dragonland.exe",
+                target = BuildTarget.StandaloneWindows64,
+                options = BuildOptions.Development
+            }).summary;
+            if (summary.result != BuildResult.Succeeded) throw new InvalidOperationException("M52 player build: " + summary.result);
+            return summary;
+        }
+
         public static int Validate()
         {
             int checks = 0;

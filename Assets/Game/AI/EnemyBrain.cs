@@ -13,6 +13,9 @@ namespace HeroesOfDragonland.AI
     [RequireComponent(typeof(DamageReceiver), typeof(Targetable))]
     public sealed class EnemyBrain : MonoBehaviour
     {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private static readonly Unity.Profiling.ProfilerMarker TickMarker = new("Dragonland.EnemyTick");
+#endif
         [SerializeField] private EnemyDefinition definition;
         [SerializeField] private bool hasAuthority = true;
         private CharacterStats stats;
@@ -90,6 +93,9 @@ namespace HeroesOfDragonland.AI
         // Manual ticking is for deterministic checks; don't also run Update that frame.
         public void Tick(float deltaTime)
         {
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            using var marker = TickMarker.Auto();
+#endif
             if (!isActiveAndEnabled || !HasAuthority || definition == null || deltaTime <= 0
                 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime) || State == EnemyState.Dead) return;
             if (stats.IsDead) { Die(); return; }

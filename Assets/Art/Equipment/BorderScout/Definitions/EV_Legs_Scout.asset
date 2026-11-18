@@ -1,0 +1,48 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b9aaa5c704c2e6f4a81ba6d6fa8b98f4, type: 3}
+  m_Name: EV_Legs_Scout
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.EquipmentVisualDefinition
+  slot: 6
+  parts:
+  - prefab: {fileID: 8745168222174670749, guid: 9de628278bd7ff944ae40d11ca8515dc, type: 3}
+    socket: 0
+    bone: 1
+    pose:
+      position: {x: 0, y: 0.2000001, z: 0.000000017484565}
+      eulerAngles: {x: -0.0000068301892, y: 180, z: 180}
+      scale: {x: 1, y: 1, z: 1}
+  - prefab: {fileID: 8825388234665645070, guid: 1967f8720becd464288ab26bb16802f7, type: 3}
+    socket: 0
+    bone: 2
+    pose:
+      position: {x: 0, y: 0.2000001, z: 0.000000017484565}
+      eulerAngles: {x: -0.0000068301892, y: 180, z: 180}
+      scale: {x: 1, y: 1, z: 1}
+  - prefab: {fileID: 3894426432875481732, guid: 5f4401104c234a04ca31c3cd2a5cb3f7, type: 3}
+    socket: 0
+    bone: 3
+    pose:
+      position: {x: 4.6238593e-15, y: 0.20500004, z: 0.000000052890787}
+      eulerAngles: {x: -0.0000068301892, y: 180, z: 180}
+      scale: {x: 1, y: 1, z: 1}
+  - prefab: {fileID: 5215088298828862163, guid: f0957c58fc7226640a519f9349e35535, type: 3}
+    socket: 0
+    bone: 4
+    pose:
+      position: {x: 4.6238593e-15, y: 0.20500004, z: 0.000000052890787}
+      eulerAngles: {x: -0.0000068301892, y: 180, z: 180}
+      scale: {x: 1, y: 1, z: 1}
+  stowedPose:
+    position: {x: 0, y: 0, z: 0}
+    eulerAngles: {x: 0, y: 0, z: 0}
+    scale: {x: 1, y: 1, z: 1}

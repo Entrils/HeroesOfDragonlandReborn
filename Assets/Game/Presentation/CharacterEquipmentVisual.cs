@@ -10,6 +10,7 @@ namespace HeroesOfDragonland.Presentation
     {
         [SerializeField] private CharacterVisual visual;
         [SerializeField] private EquipmentVisualCatalog visualCatalog;
+        [SerializeField] private Renderer hairRenderer;
         private EquipmentVisualHooks equipment;
         private NetworkTestPlayer player;
         private bool stowed;
@@ -75,6 +76,7 @@ namespace HeroesOfDragonland.Presentation
         }
         private void Clear(EquipmentSlot slot)
         {
+            if (slot == EquipmentSlot.Head && hairRenderer != null) hairRenderer.forceRenderingOff = false;
             if (!views.Remove(slot, out var previous)) return;
             if (previous.Weapon && visual != null && visual.GetAttachment(previous.Socket) == previous.Parts[0])
                 visual.ClearAttachment(previous.Socket);
@@ -130,6 +132,7 @@ namespace HeroesOfDragonland.Presentation
                 }
             }
             views[slot] = next;
+            if (slot == EquipmentSlot.Head && hairRenderer != null) hairRenderer.forceRenderingOff = true;
         }
         // Local presentation hook only. No replicated stow action or inventory mutation is introduced.
         public void SetWeaponStowed(bool value)

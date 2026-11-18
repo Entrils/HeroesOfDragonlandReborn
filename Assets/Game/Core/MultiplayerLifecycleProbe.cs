@@ -100,7 +100,9 @@ namespace HeroesOfDragonland.Multiplayer
                         Check(king.GetComponent<NetworkCharacterStats>().Health == king.GetComponent<NetworkCharacterStats>().MaxHealth, "king-health-reset");
                     foreach (var enemy in InSession<NetworkEnemy>(runner)) Check(!enemy.GetComponent<NetworkCharacterStats>().Dead, "ai-alive-after-reset");
                     foreach (var currentCamp in InSession<NetworkCamp>(runner))
-                        Check(currentCamp.State == NetworkCampState.Active && currentCamp.DeadCount == 0 && currentCamp.CompletionCount == 0, "camp-reset-and-active");
+                        Check(currentCamp.State == (currentCamp.ConfiguredFirstSpawn > match.PlayingSeconds
+                            ? NetworkCampState.Pending : NetworkCampState.Active)
+                            && currentCamp.DeadCount == 0 && currentCamp.CompletionCount == 0, "camp-reset-and-scheduled");
                     if (!runner.IsServer) Check(!match.RetryPreparation(), "client-transition-rejected");
                 }
                 if (!runner.IsServer) return;
@@ -128,7 +130,7 @@ namespace HeroesOfDragonland.Multiplayer
                     oldWorld.AddRange(InSession<NetworkEnemy>(runner).Select(o => o.Object.Id));
                     oldWorld.AddRange(InSession<NetworkKingObjective>(runner).Select(o => o.Object.Id));
                     oldWorld.AddRange(InSession<NetworkCamp>(runner).Select(o => o.Object.Id));
-                    camp = InSession<NetworkCamp>(runner).First();
+                    camp = InSession<NetworkCamp>(runner).First(c => c.State == NetworkCampState.Active);
                 }
                 if (!campKilled)
                 {
@@ -141,7 +143,9 @@ namespace HeroesOfDragonland.Multiplayer
                 {
                     var player = players.First(p => p.HasInputAuthority);
                     player.GetComponent<NetworkTransform>().Teleport(chestObject.transform.position + Vector3.up);
-                    Check(chestObject.GetComponent<NetworkLootChest>().TryOpenFor(player.InputAuthority, out _), "open-round-chest");
+                    var chest = chestObject.GetComponent<NetworkLootChest>();
+                    Check(chest.TryOpenFor(player.InputAuthority, out _), "open-round-chest");
+                    Check(!chest.TryOpenFor(player.InputAuthority, out _), "reject-duplicate-chest-claim");
                     chestOpened = true; oldWorld.Add(chestObject.Id);
                     InSession<NetworkKingObjective>(runner).First(k => k.Team == TeamId.TeamA).Stats.ApplyDamage(99999);
                 }

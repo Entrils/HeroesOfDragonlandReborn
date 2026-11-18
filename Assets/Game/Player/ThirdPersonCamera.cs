@@ -70,7 +70,7 @@ namespace HeroesOfDragonland.Player
                 return;
             }
             // Pointer delta is already per frame; sticks represent a rate.
-            float scale = pointerInput ? mouseSensitivity : stickSensitivity * deltaTime;
+            float scale = pointerInput ? mouseSensitivity * HeroesOfDragonland.UI.PlaytestSettings.MouseMultiplier : stickSensitivity * deltaTime;
             yaw = Mathf.Repeat(yaw + look.x * scale, 360f);
             pitch = Mathf.Clamp(pitch - look.y * scale, minimumPitch, maximumPitch);
             transform.rotation = Quaternion.Euler(pitch, yaw, 0f);

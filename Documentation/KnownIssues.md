@@ -1,0 +1,25 @@
+# Playtest Alpha known issues
+
+- **AI can stall on fortress approaches.** The pre-alpha M52 repeat completed two natural rounds but reported 26 stuck episodes. A separate three-attempt run had one timeout. Capture the bot's position and goal. Camp and fortress layout remain as authored.
+- **Flank exit traversal still needs a human pass.** Scripted straight-line movement worked from separated spawns. Automated paths from the courtyard to the flank intermittently stopped at corners even with a complete NavMesh path. One player exited and dodged in the six-peer route run `Builds/BattlefieldAcceptance-6e96831f`. The production map retains both flank exits and closed destructible main gates.
+- **Low-end and peak-battle performance are unqualified.** Border Scout is a high-density presentation asset. Use 75% render scale when GPU-bound and include hardware and resolution in reports. The measured match was a two-peer local fixture filled out with four bots. A rendered crowded battle, low-tier GPUs and external WAN soak still need coverage.
+- **Optional URP effects.** On the DX11 smoke machine, the player reported stripped or unsupported Gaussian/Bokeh depth of field and Panini shaders. Those passes are optional for this alpha. Record any missing core world/UI rendering as a blocker.
+- **Headless engine startup.** One 6-process run encountered a Unity 6.6 UI Toolkit `UIDocument` type-initialization exception during a concurrent startup. The harness now starts each client after its predecessor connects. The rendered Windows run and Unity Editor settings test initialized normally.
+- **Human coverage.** Follow [PlaytestChecklist.md](PlaytestChecklist.md) for player-controlled targeting, boss play, balance, and reconnect under real WAN latency. Scripted fixtures cover selected inputs and authority boundaries.
+
+## Build and verification evidence
+
+Windows x64 Development Build was produced from `DragonlandBattlefield.unity` in Unity 6000.6.0f1 with zero build errors and 143 warnings. The Unity Console reported zero errors after the final build. The scene was saved in Edit Mode.
+
+| Area | Evidence |
+| --- | --- |
+| Settings and menu | Unity Play Mode rendered main menu and settings. A volume change reached the Audio Mixer, render scale switched to 0.75, mouse sensitivity updated, Quit exited Play Mode and settings reloaded on restart. The test restored the prior preferences. Windows graphics startup rendered and produced frame telemetry. Native image capture of the standalone window timed out. |
+| Targeting | A controlled Play Mode check acquired the centered target, switched to the right and cleared an invalid target. In-match camera/input feel is in the manual checklist. |
+| Movement, dodge, teams and AI | `Builds/BattlefieldAcceptance-312426dd` passed with one host and five client processes. All six slots had distinct spawn positions and each owner moved in the courtyard and received a replicated dodge result. Eight camps started active and three were scheduled. The server owned camp mutation and client replicas did not simulate enemy AI. |
+| Blocking, parry and combat authority | `Builds/Playtest-Defense-5d4ac5cbd92e` passed on host and client. Both parry directions, guard break, interruption, poise and replica mutation denial were verified. |
+| Magic and progression | `Builds/SkillsAcceptance-fd81e017` passed owner casts, mana, cooldowns, prerequisites, damage, passive behavior and reset on host and client. |
+| Inventory, equipment, loot and victory | `Builds/LifecycleAcceptance-c778784a` passed seeded progression and equipment, the real chest transfer and duplicate-claim denial, replicated King victories, and two resets with fresh avatar/world state. |
+| Fortress | `Builds/Playtest-Fortress-d5b2d9fa1932` passed friendly/enemy spell rules, server-only gate health, replicated collision after breach and full reset on host and client. |
+| Boss | `Builds/Playtest-Boss-3efacc6b917a` passed spell damage from both teams, replicated phase and HUD state, one death/chest, atomic loot transfer, duplicate reward denial, and denial of replica AI and reward mutations. The fixture advances the early encounter and health budget. |
+| Connection and disconnect | `Builds/Playtest-Resilience-27fd00c9` passed six human slots and seventh-peer rejection, missing room, join cancellation, temporary transport interruption, repeated reconnects, disconnect during death and chest claim, and bounded recovery after host and dedicated server loss. Avatar, team, equipment, inventory and progression restoration were checked on the development fixture. |
+| Performance | `Builds/hodr-alpha-perf-efb937b212` used a DX11 RTX 4060 Laptop GPU at 1280×720, one rendered host, one headless client and four developer bots. Four host windows recorded 59.7–59.8 FPS, 4.26–5.03 ms GPU, 16.72–16.74 ms main-thread frame time including pacing, 39–40 KB GC allocation per frame, 0.11–0.13 ms bot time and 0.10–0.14 ms enemy AI time. Host traffic was about 1.7 KB/s in and 5.3–6.6 KB/s out. The client reported 16.8–33.4 ms RTT and a 441 ms maximum frame interval in the initial Playing window. |
