@@ -1,0 +1,112 @@
+{
+  "source": "SK_BorderScout.blend",
+  "blender": "5.3.0",
+  "nativeFPS": 30,
+  "framesIncludingRest": 436,
+  "inclusiveFrameRanges": {
+    "AN_PrototypeHumanoid_Attack": [
+      1,
+      21
+    ],
+    "AN_PrototypeHumanoid_Backward": [
+      1,
+      31
+    ],
+    "AN_PrototypeHumanoid_Block": [
+      1,
+      31
+    ],
+    "AN_PrototypeHumanoid_Death": [
+      1,
+      31
+    ],
+    "AN_PrototypeHumanoid_Dodge": [
+      1,
+      21
+    ],
+    "AN_PrototypeHumanoid_Fall": [
+      1,
+      31
+    ],
+    "AN_PrototypeHumanoid_HeavyAttack": [
+      1,
+      33
+    ],
+    "AN_PrototypeHumanoid_HitReaction": [
+      1,
+      13
+    ],
+    "AN_PrototypeHumanoid_Idle": [
+      1,
+      31
+    ],
+    "AN_PrototypeHumanoid_Jump": [
+      1,
+      19
+    ],
+    "AN_PrototypeHumanoid_Land": [
+      1,
+      13
+    ],
+    "AN_PrototypeHumanoid_LightAttack": [
+      1,
+      21
+    ],
+    "AN_PrototypeHumanoid_Run": [
+      1,
+      21
+    ],
+    "AN_PrototypeHumanoid_Stagger": [
+      1,
+      25
+    ],
+    "AN_BorderScout_StrafeLeft": [
+      1,
+      31
+    ],
+    "AN_BorderScout_StrafeRight": [
+      1,
+      31
+    ],
+    "AN_PrototypeHumanoid_Walk": [
+      1,
+      31
+    ]
+  },
+  "rigidParts": [
+    "Backplate",
+    "Breastplate",
+    "Cuisse_Left",
+    "Cuisse_Right",
+    "Greave_Left",
+    "Greave_Right",
+    "HandGuard_Left",
+    "HandGuard_Right",
+    "Skullcap"
+  ],
+  "garmentPairs": [
+    [
+      "Body",
+      "Shirt_Linen"
+    ],
+    [
+      "Body",
+      "Breeches"
+    ],
+    [
+      "Shirt_Linen",
+      "Jerkin_Russet"
+    ],
+    [
+      "Breeches",
+      "Boot_L"
+    ],
+    [
+      "Breeches",
+      "Boot_R"
+    ]
+  ],
+  "loadout": "Complete adapted armor, hair hidden, neutral grip shapes",
+  "scope": "Evaluated garment pairs, all unordered plate pairs and all plate-to-visible-costume pairs. Integer Blender frames.",
+  "detectedSurfaceCrossings": []
+}

@@ -1,0 +1,78 @@
+﻿# Border Scout — исходник, визуальные проверки и домашняя интеграция
+
+Короткий [разворот головы на 360°](../ArtSource/Characters/SK_BorderScout/Review/PortraitTurntable.mp4) показывает объём причёски с непрерывной сменой ракурса. Для художественной оценки откройте [портрет](../ArtSource/Characters/SK_BorderScout/Review/Face.png), [макушку и линию роста](../ArtSource/Characters/SK_BorderScout/Review/GroomStudy.png), [профиль](../ArtSource/Characters/SK_BorderScout/Review/GroomProfile.png) и [примерку всех слотов](../ArtSource/Characters/SK_BorderScout/Review/ArmorFit.png). В папке Review также есть вид с дистанции игровой камеры, развороты, кисть, хват и кадры движения. Нейтральный студийный свет позволяет сравнить материалы, Borderwood.png использует холодный ключ и тёплый контровой свет.
+
+## Исходник и экспорт
+
+| Данные | Путь |
+| --- | --- |
+| Редактируемый Blender 5.3.0 | `ArtSource/Characters/SK_BorderScout/SK_BorderScout.blend` |
+| Скин персонажа | `Assets/Art/Characters/Models/SK_BorderScout.fbx` |
+| Карты PNG | `Assets/Art/Textures/Characters/BorderScout/` |
+| Девять жёстких деталей четырёх слотов | `Assets/Art/Equipment/Models/BorderScout/` |
+| Два визуальных клипа бокового шага | `Assets/Art/Animations/BorderScout/` |
+| Счётчики по модулям, опорные точки, веса и морфы | `ArtSource/Characters/SK_BorderScout/MeshReport.json` |
+| Покадровая проверка посадки в Blender | `ArtSource/Characters/SK_BorderScout/Review/FitChecks.json` |
+
+EXPORT содержит общий скелет и выкройки по предметам. У Body сохранены непрерывная четырёхугольная сетка, веки, отдельные пальцы и редактируемые ключи Grip_Left и Grip_Right. Три модификатора Covered скрывают участки тела под полным костюмом. Чтобы увидеть всё тело, выключите их и скройте группы одежды. В Pattern • Hair отдельно доступны нижний слой, крупные изогнутые пряди, более мелкие пряди у лица и объёмные волоски контура. Группы Eyes и Brows содержат глаза, оптическую поверхность роговицы, края век, ресницы и волоски бровей. У волос, бровей и глаз есть собственные рендереры в FBX.
+
+Коллекция Fitted rigid equipment содержит новую примерку. Previous groom reference и Fitting room • M58 содержат скрытые предыдущие образцы для сравнения. Все используемые карты упакованы. Работа ведётся на сохранённом исходнике, автономные экспортёры собирают игровые меши в памяти.
+
+```powershell
+$blender = 'C:/Program Files (x86)/Steam/steamapps/common/Blender/blender.exe'
+$source = 'ArtSource/Characters/SK_BorderScout'
+& $blender -b "$source/SK_BorderScout.blend" --python-exit-code 1 --python "$source/export_scout.py"
+& $blender -b "$source/SK_BorderScout.blend" --python-exit-code 1 --python "$source/export_fitted_armor.py"
+```
+
+Для повторной проверки посадки запустить check_fit.py тем же способом. Отчёт записывается в Review/FitChecks.json. Первый вызов записывает скин и два клипа, второй — статические детали. Оба используют функцию export_collection проекта. Обратный импорт в Blender подтвердил 13 skinned-мешей и 305 294 треугольников с полной скрытой анатомией. Базовый костюм показывает 260 198. Волосы занимают 77 188 треугольников, брови 24 810. Это бюджет крупного плана, отдельный LOD для дальнего вида ещё предстоит измерить и подготовить по результатам профилирования. У всех модулей есть UV и нормализованные веса, максимум четыре влияния. Иерархия и матрицы покоя 22 костей совпали с контрольным FBX при одинаковом обратном импорте.
+
+## Материалы в URP
+
+Импортёр проекта отключает автоматический импорт материалов модели. Назначьте URP Lit по слотам на новом визуальном префабе. Для BaseColor включить sRGB, Normal импортировать как tangent-space Normal Map, Mask — Linear RGBA с альфа-каналом. R хранит metallic, G — AO, B равен нулю, A — smoothness. Mask назначить в Metallic Map и Occlusion Map, Smoothness Source = Metallic Alpha. Для костюма G равен единице. Множитель smoothness и tiling для карт — 1. Mipmaps включены.
+
+| Материал | Карты T_Scout и настройка |
+| --- | --- |
+| Skin | Skin_BaseColor 2048², Skin_Normal и Skin_Mask 1024². Локальная окраска щёк, носа, век и щетины находится в UV-атласе. |
+| Flax_FoldBake, Twill_FoldBake | Sleeve и Breeches соответственно. По три карты 1024². Изгибы у локтя и колена заданы геометрией и запечённым в координатах касательной мелким рельефом. |
+| Flax, Twill, Russet, Bridle | Лён отделки, ткань, рыжая и тёмная кожа. По три карты 1024². BurnishedEdge использует собственную BaseColor и карты Bridle_Normal и Bridle_Mask. |
+| HairRoots, SweptLocks | HairRoots_BaseColor 2048×1024 и SweptLocks_BaseColor 512×1024. Для обоих включить Alpha Clipping и Render Face = Both. Начать с порога 0,3 и проверить силуэт в движении и mipmaps. У SweptLocks smoothness около 0,32. |
+| LooseFibres, BrowFibres, Lashes | Отдельная тонкая объёмная геометрия, непрозрачные коричневые материалы. Цвет брать из Blender, smoothness около 0,35 / 0,21 / 0,44. |
+| Eyes, LidMargin, Cornea | Eyes_BaseColor 1024², гладкая оболочка глаза и тёплый влажный край века. Для отдельной роговицы начать с прозрачного спекулярного материала с низкой альфой и smoothness около 0,96. Сверить блик и сортировку с Face.png. В Blender прозрачность роговицы смешивается с отражением по Френелю. |
+| OldBrass, WaxedThread | Однотонные латунь и нить. Metallic / smoothness 0,83 / 0,58 и 0 / 0,18. |
+| BluedIron, RolledIron | Два непрозрачных слота каждой жёсткой детали. Metallic / smoothness 0,78 / 0,56 и 0,77 / 0,61. |
+
+Карты прежней причёски и бровей относятся к архивной примерке. Выполнено преобразование рельефа ткани в tangent-space normal; отдельной высокополигональной скульптуры головы для запекания в этом комплекте нет.
+
+## Домашняя сборка
+
+1. Открыть проект в его версии Unity, дождаться создания новых .meta и проверить Console. Для пробы создать отдельную сцену и копию PV_PrototypeHumanoid. Для модели проверить Scale Factor 1, Use File Scale, Bake Axis Conversion, Preserve Hierarchy, Optimize Game Objects off, Normals Import, Tangents Calculate Mikktspace, без генерации коллайдеров. В Rig выбрать Humanoid / Create From This Model, проверить Configure, T-pose, стороны и Avatar valid. Для кистей включить Import BlendShapes.
+2. У полного костюма включить Scout_HeadNeck, Hands, Eyes, Brows, Hair, Shirt, Jerkin, Breeches, Footwear и Belt с префиксом Scout_. Выключить Scout_TrunkCovered, Scout_ArmsCovered и Scout_LegsCovered. Границы у запястья и шеи проверить на движении. Grip_Left и Grip_Right задаются на Scout_Hands значениями от 0 до 100. Автоматическое управление хватом от предмета пока отсутствует. Посадку ладони проверить с каждым оружием.
+3. Назначить новый Avatar и копию существующего контроллера с той же библиотекой параметров, слоями и отключённым Apply Root Motion. Два новых animation-only FBX импортировать как Humanoid / Copy From Other с тем же исходным Avatar, что у рабочих клипов PrototypeHumanoid, включить Preserve Hierarchy и Loop Time, сверить параметры запекания root с исходными StrafeLeft/Right. В тестовой копии заменить только два соответствующих motion бокового движения. Старые стрейфы сводят ноги через одну траекторию; в новых клипах сохранены длительность, ключи корня и верх тела, переработаны углы ног и стоп. Для остальных состояний использовать существующие клипы.
+4. Сохранить положение CharacterVisual (0, −1, 0) под исходным игровым корнем. Перенести на одноимённые кости пять Socket_* с трансформами рабочего визуала, назначить ссылки в CharacterVisual и Targetable.aimPoint. Для Back контрольная позиция в системе визуального корня Unity (0, 1,25, −0,17), исходный поворот (−90°, 0°, −20°). Привязать NetworkCharacterVisual и CharacterEquipmentVisual к новому визуалу. В bodyRenderers перечислять только согласованные поверхности командного цвета, так как SetTint меняет первый слот. Проверить хват, спину, reach и обе команды.
+5. Для подогнанной брони собрать отдельные копии рецептов EV_Head, EV_Chest, EV_Hands, EV_Legs и отдельный каталог для тестового визуала. В копиях жёстких префабов использовать новые статические меши с локальным identity. Сохранить исходные bone, position, eulerAngles и scale рецептов. Для Chest установить Breastplate и Backplate на одном корне. Hands и Legs используют разные левые и правые детали. При примерке Skullcap выключить весь Scout_Hair, при снятии восстановить его. Для runtime потребуется связать видимость волос с состоянием Head. Сцена Blender и новые FBX сами по себе не переключают каталог или видимость объектов в игре.
+6. Проверить смену предметов на владельце и удалённой реплике, снятие шлема, диагональные переходы в Blend Tree, атаку в движении, блок, смерть и возрождение. Осмотреть bounds, силуэт на 5 м, alpha clipping при движении камеры, стоимость скиннинга и материалов. Убедиться, что капсула, игровой корень, управление, события попадания и оружейные сокеты продолжают работать с прежними настройками.
+
+## Посадочные ориентиры
+
+Blender +Y вперёд, +Z вверх, единица — метр. Формы закрытого костюма определяются самим .blend. Ниже приведены центры привязки статических деталей в общей T-pose. FBX каждой детали уже имеет начало координат в своём центре привязки.
+
+| Деталь | Кость | Опорная точка XYZ, м |
+| --- | --- | --- |
+| Skullcap | Head | (0, 0, 1,685) |
+| Breastplate и Backplate | Chest | (0, 0, 1,28) |
+| HandGuard_Left / Right | LeftHand / RightHand | (±0,84, 0, 1,42) |
+| Cuisse_Left / Right | LeftUpperLeg / RightUpperLeg | (±0,11, 0, 0,73) |
+| Greave_Left / Right | LeftLowerLeg / RightLowerLeg | (±0,11, 0, 0,325) |
+
+Слева X отрицательный. Открытая накладка на тыл кисти оставляет пальцы свободными. Края голенища полые, брючина входит внутрь. Покадровая проверка использовала новые жёсткие детали, два адаптированных боковых шага и исходные остальные движения. Проверялись поверхности брони друг с другом, со всеми модулями видимого костюма при скрытой под шлемом причёске, а также пять пар слоёв одежды и тела. Результат — 436 положений, включая T-pose, без зарегистрированных пересечений этих пар. Межкадровые переходы Animator, самопересечение каждой поверхности, посадка произвольных предметов и физическое давление материала в этот тест не входят.
+
+Смена базовой skinned-одежды потребует отдельного сопоставления bones/rootBone и bind poses и согласованного включения зон. Текущий механизм жёстких предметов это не выполняет. При обратном воспроизведении отдельного исходного Run FBX в Blender использована передача мировой позы между одноимёнными костями. Домашняя проверка выполняется через Unity Humanoid.
+
+## Источники
+
+Анатомия использует CC0-сетку hm08, формы взрослого тела и исходные веса MPFB. Кожа основана на middleage_caucasian_male, глаза — на high-poly и grey_eye. Веса фаланг использованы при авторинге двух форм хвата; в игровом скелете по-прежнему 22 кости. Архивные short02 и eyebrow002 сохранены для сравнения. Новая причёска построена по поверхности головы из собственных направленных прядей. Авторы исходных CC0-ресурсов включают Data Collection AB, Joel Palmius и Jonas Hauquier. [Закреплённая версия MPFB](https://github.com/makehumancommunity/mpfb2/tree/9de0707fdc88438d7c53a1a2ac7937d9221e2431/src/mpfb/data) · [MakeHuman system assets](https://files2.makehumancommunity.org/asset_packs/makehuman_system_assets/makehuman_system_assets_cc0.zip)
+
+В Unity для этой версии персонажа ещё не проверялись Avatar, URP, Console, сокеты, Play Mode и сетевое отображение. Совместимость редактируемого файла Blender 5.3 с закреплённым Blender 4.5 LTS отдельно не проверялась.
+
+

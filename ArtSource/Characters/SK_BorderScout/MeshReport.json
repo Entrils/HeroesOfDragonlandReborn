@@ -1,0 +1,342 @@
+{
+  "triangles": {
+    "Scout_ArmsCovered": 6160,
+    "Scout_Belt": 5136,
+    "Scout_Breeches": 15696,
+    "Scout_Brows": 24810,
+    "Scout_Eyes": 8284,
+    "Scout_Footwear": 7096,
+    "Scout_Hair": 77188,
+    "Scout_Hands": 26636,
+    "Scout_HeadNeck": 35292,
+    "Scout_Jerkin": 34268,
+    "Scout_LegsCovered": 26876,
+    "Scout_Shirt": 25792,
+    "Scout_TrunkCovered": 12060
+  },
+  "total": 305294,
+  "visibleBaseTriangles": 260198,
+  "restBones": [
+    "Root",
+    "Hips",
+    "Spine",
+    "Chest",
+    "Neck",
+    "Head",
+    "LeftShoulder",
+    "LeftUpperArm",
+    "LeftLowerArm",
+    "LeftHand",
+    "RightShoulder",
+    "RightUpperArm",
+    "RightLowerArm",
+    "RightHand",
+    "LeftUpperLeg",
+    "LeftLowerLeg",
+    "LeftFoot",
+    "LeftToes",
+    "RightUpperLeg",
+    "RightLowerLeg",
+    "RightFoot",
+    "RightToes"
+  ],
+  "texturesInSource": {
+    "T_Scout_Breeches_BaseColor": [
+      1024,
+      1024
+    ],
+    "T_Scout_Breeches_Mask": [
+      1024,
+      1024
+    ],
+    "T_Scout_Breeches_Normal.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Bridle_BaseColor.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Bridle_Mask.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Bridle_Normal.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Brows_BaseColor.png": [
+      512,
+      512
+    ],
+    "T_Scout_BurnishedEdge_BaseColor.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Eyes_BaseColor.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Flax_BaseColor.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Flax_Mask.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Flax_Normal.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Hair_BaseColor.png": [
+      2048,
+      2048
+    ],
+    "T_Scout_Hair_Normal.png": [
+      2048,
+      2048
+    ],
+    "T_Scout_HairRoots_BaseColor.png": [
+      2048,
+      1024
+    ],
+    "T_Scout_Russet_BaseColor.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Russet_Mask.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Russet_Normal.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Skin_BaseColor.png": [
+      2048,
+      2048
+    ],
+    "T_Scout_Skin_Mask.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Skin_Normal.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Sleeve_BaseColor": [
+      1024,
+      1024
+    ],
+    "T_Scout_Sleeve_Mask": [
+      1024,
+      1024
+    ],
+    "T_Scout_Sleeve_Normal.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_SweptLocks_BaseColor.png": [
+      512,
+      1024
+    ],
+    "T_Scout_Twill_BaseColor.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Twill_Mask.png": [
+      1024,
+      1024
+    ],
+    "T_Scout_Twill_Normal.png": [
+      1024,
+      1024
+    ]
+  },
+  "roundtrip": {
+    "maxRestMatrixDifferenceVsPrototypeFBX": 0.0,
+    "maxBoneInfluences": 4,
+    "boundsMeters": [
+      [
+        -0.9800525903701782,
+        -0.14377868175506592,
+        0.003999963868409395
+      ],
+      [
+        0.9800525903701782,
+        0.23134104907512665,
+        1.8263906240463257
+      ]
+    ],
+    "grips": {
+      "Grip_Left": {
+        "verticesMoved": 6145,
+        "maxDisplacement_m": 0.1271393100715329
+      },
+      "Grip_Right": {
+        "verticesMoved": 6132,
+        "maxDisplacement_m": 0.12751523413538238
+      }
+    },
+    "gripDefaults": {
+      "Grip_Left": 0.0,
+      "Grip_Right": 0.0
+    }
+  },
+  "rigidFittings": {
+    "Breastplate": {
+      "bone": "Chest",
+      "centerBlender": [
+        0.0,
+        0.0,
+        1.28
+      ],
+      "triangles": 2144
+    },
+    "Backplate": {
+      "bone": "Chest",
+      "centerBlender": [
+        0.0,
+        0.0,
+        1.28
+      ],
+      "triangles": 2144
+    },
+    "Cuisse_Left": {
+      "bone": "LeftUpperLeg",
+      "centerBlender": [
+        -0.11,
+        0.0,
+        0.73
+      ],
+      "triangles": 1416
+    },
+    "Greave_Left": {
+      "bone": "LeftLowerLeg",
+      "centerBlender": [
+        -0.11,
+        0.0,
+        0.325
+      ],
+      "triangles": 1416
+    },
+    "HandGuard_Left": {
+      "bone": "LeftHand",
+      "centerBlender": [
+        -0.84,
+        0.0,
+        1.42
+      ],
+      "triangles": 920
+    },
+    "Cuisse_Right": {
+      "bone": "RightUpperLeg",
+      "centerBlender": [
+        0.11,
+        0.0,
+        0.73
+      ],
+      "triangles": 1416
+    },
+    "Greave_Right": {
+      "bone": "RightLowerLeg",
+      "centerBlender": [
+        0.11,
+        0.0,
+        0.325
+      ],
+      "triangles": 1416
+    },
+    "HandGuard_Right": {
+      "bone": "RightHand",
+      "centerBlender": [
+        0.84,
+        0.0,
+        1.42
+      ],
+      "triangles": 920
+    },
+    "Skullcap": {
+      "bone": "Head",
+      "centerBlender": [
+        0.0,
+        0.0,
+        1.685
+      ],
+      "triangles": 8444
+    }
+  },
+  "animationFBX": {
+    "StrafeLeft": {
+      "roundtripFrameRange": [
+        2.0,
+        32.0
+      ],
+      "sampleCount": 31,
+      "maxWorldMatrixDifferenceRootAndBothHandsVsOriginal": 0.0
+    },
+    "StrafeRight": {
+      "roundtripFrameRange": [
+        2.0,
+        32.0
+      ],
+      "sampleCount": 31,
+      "maxWorldMatrixDifferenceRootAndBothHandsVsOriginal": 0.0
+    }
+  },
+  "fitSectionsMeters": {
+    "Scout_Jerkin": {
+      "z_m": 1.28,
+      "sectionHalfHeight_m": 0.02,
+      "xMinMax_m": [
+        -0.1948,
+        0.1944
+      ],
+      "yMinMax_m": [
+        -0.1387,
+        0.1587
+      ],
+      "positiveXOnly": false
+    },
+    "Scout_Belt": {
+      "z_m": 1.027,
+      "sectionHalfHeight_m": 0.02,
+      "xMinMax_m": [
+        -0.1839,
+        0.1836
+      ],
+      "yMinMax_m": [
+        -0.1241,
+        0.1577
+      ],
+      "positiveXOnly": false
+    },
+    "Scout_Breeches": {
+      "z_m": 0.73,
+      "sectionHalfHeight_m": 0.02,
+      "xMinMax_m": [
+        0.0006,
+        0.1905
+      ],
+      "yMinMax_m": [
+        -0.0701,
+        0.1252
+      ],
+      "positiveXOnly": true
+    },
+    "Scout_Footwear": {
+      "z_m": 0.25,
+      "sectionHalfHeight_m": 0.02,
+      "xMinMax_m": [
+        0.0478,
+        0.1741
+      ],
+      "yMinMax_m": [
+        -0.086,
+        0.068
+      ],
+      "positiveXOnly": true
+    }
+  }
+}
