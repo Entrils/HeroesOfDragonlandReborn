@@ -114,7 +114,8 @@ namespace HeroesOfDragonland.Skills
             else if (GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>() is { CastRemaining: > 0 }) reason = "Already casting.";
             else if (GetComponent<CombatDefense>()?.ActionsBlocked == true) reason = "Finish your current action first.";
             else if (cooldowns[index] > 0) reason = "Skill is on cooldown.";
-            else if (stats.CurrentMana < definition.ManaCost) reason = "Not enough Mana.";
+            else if (stats.CurrentMana < definition.ManaCost)
+                reason = HeroesOfDragonland.Abilities.AbilityCaster.ManaRequired(stats.CurrentMana, definition.ManaCost);
             else if (GetComponent<MeleeAttack>()?.IsBusy == true || GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerCombat>()?.AttackBusy == true
                 || GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerDodge>()?.Busy == true
                 || GetComponent<HeroesOfDragonland.Player.PlayerDodge>()?.IsBusy == true) reason = "Finish your current action first.";
@@ -152,7 +153,8 @@ namespace HeroesOfDragonland.Skills
                         : GetComponent<MeleeAttack>().TrySkillAttack(definition.Magnitude, definition.ManaCost);
                     if (!started) { reason = "Melee action is unavailable."; return false; }
                 }
-                else if (!stats.TrySpendMana(definition.ManaCost)) { reason = "Mana payment failed."; return false; }
+                else if (!stats.TrySpendMana(definition.ManaCost))
+                { reason = HeroesOfDragonland.Abilities.AbilityCaster.ManaRequired(stats.CurrentMana, definition.ManaCost); return false; }
                 cooldowns[index] = definition.Cooldown;
                 if (definition.Effect == SkillEffect.Guard) guardRemaining = definition.Magnitude;
                 Notify(); return true;

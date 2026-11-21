@@ -136,7 +136,10 @@ namespace HeroesOfDragonland.Multiplayer
                     member.OnDamage = (amount, source) => {
                         if (!CanMutateCamp || State != NetworkCampState.Active || source == null) return;
                         var actor = source.GetComponent<NetworkObject>();
-                        if (actor != null && actor.Runner == Runner) member.Contributions.Record(actor, amount, (float)Runner.SimulationTime);
+                        if (actor == null || actor.Runner != Runner) return;
+                        member.Contributions.Record(actor, amount, (float)Runner.SimulationTime);
+                        if (member.Stats.IsDead && member.Enemy.Definition.Boss != null)
+                            MatchSessionData.Credit(actor, MatchSessionData.Metric.Boss);
                     };
                     member.OnState = state => { if (state == EnemyState.Return) member.Contributions.Clear(); };
                     member.Enemy.GetComponent<DamageReceiver>().DamageTaken += member.OnDamage;
@@ -224,6 +227,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (actor.GetComponent<NetworkTestPlayer>().Team != winner || actor.GetComponent<CharacterStats>().IsDead) continue;
                 Vector3 offset = actor.transform.position - transform.position; offset.y = 0;
                 if (offset.sqrMagnitude > ConfiguredRadius * ConfiguredRadius) continue;
+                MatchSessionData.Credit(actor, MatchSessionData.Metric.Camp);
                 int reward = Mathf.RoundToInt(AwardedExperience * (pacing != null ? pacing.CampMultiplier(winner) : 1));
                 if (actor.GetComponent<NetworkSessionProgression>()?.TryGrantExperience(reward, rewardId) == true) RewardedPlayers++;
             }

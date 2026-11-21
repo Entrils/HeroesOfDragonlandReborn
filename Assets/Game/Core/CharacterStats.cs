@@ -138,6 +138,26 @@ namespace HeroesOfDragonland.Stats
             return success;
         }
 
+        public float RestoreStamina(float amount)
+        {
+            EnsureInitialized();
+            return RestoreResource(stamina, amount, StaminaChanged);
+        }
+
+        public float RestoreMana(float amount)
+        {
+            EnsureInitialized();
+            return RestoreResource(mana, amount, ManaChanged);
+        }
+
+        private float RestoreResource(ResourcePool pool, float amount, Action<float, float> changed)
+        {
+            if (!CanMutate || IsDead) return 0f;
+            float restored = pool.Restore(amount);
+            if (restored > 0f) changed?.Invoke(pool.Current, pool.Maximum);
+            return restored;
+        }
+
         private void Update() { if (!UsesNetworkClock) TickRegeneration(Time.deltaTime); }
 
         // Uses scaled game time. Do not call manually while automatic Update is running.

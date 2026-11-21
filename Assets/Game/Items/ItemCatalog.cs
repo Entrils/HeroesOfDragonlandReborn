@@ -8,6 +8,9 @@ namespace HeroesOfDragonland.Items
     public sealed class ItemCatalog : ScriptableObject
     {
         [SerializeField] private ItemDefinition[] items = Array.Empty<ItemDefinition>();
+        [Tooltip("Shared cooldown in seconds between different potion effects. Zero disables it.")]
+        [SerializeField, Range(0, 300)] private float globalPotionCooldown = 0.75f;
+        public float GlobalPotionCooldown => globalPotionCooldown;
         public IReadOnlyList<ItemDefinition> Items => Array.AsReadOnly(items ?? Array.Empty<ItemDefinition>());
 
         // Resolve an ID received from a save/network payload against local content.
@@ -27,6 +30,8 @@ namespace HeroesOfDragonland.Items
 
         public bool TryValidate(out string error)
         {
+            if (!(globalPotionCooldown >= 0 && globalPotionCooldown <= 300))
+            { error = "Global potion cooldown must be between 0 and 300 seconds."; return false; }
             var ids = new HashSet<string>(StringComparer.Ordinal);
             foreach (var item in Items)
             {

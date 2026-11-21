@@ -52,6 +52,8 @@ namespace HeroesOfDragonland.InventorySystem
         public bool TryRemove(string id, int amount = 1) => HasAuthority && State.TryRemove(id, amount);
         public bool TryRemove(ItemDefinition item, int amount = 1) => item != null && TryRemove(item.Id, amount);
         public bool TryRemoveAt(int index, int amount) => HasAuthority && State.TryRemoveAt(index, amount);
+        internal bool TryConsumeAt(int index, Action applyEffect)
+            => HasAuthority && State.TryRemoveAt(index, 1, applyEffect);
         public bool Clear() => HasAuthority && State.Clear();
         public InventorySnapshot CaptureSnapshot() => State.CaptureSnapshot();
         public bool TryApplySnapshot(InventorySnapshot snapshot)

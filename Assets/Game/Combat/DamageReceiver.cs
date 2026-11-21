@@ -1,5 +1,6 @@
 using System;
 using HeroesOfDragonland.Stats;
+using HeroesOfDragonland.Multiplayer;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Combat
@@ -42,6 +43,10 @@ namespace HeroesOfDragonland.Combat
             if (GetComponent<ParryDefense>() is { } parry && parry.TryResolve(impact))
             { PresentImpact(DamageImpactCue.Parried, source); return 0; }
             bool blocked = defense != null && defense.IsBlocking;
+            if (source != null && source.TryGetComponent<NetworkInventory>(out var attackerInventory))
+                amount *= attackerInventory.OutgoingPotionMultiplier;
+            if (TryGetComponent<NetworkInventory>(out var defenderInventory))
+                amount *= defenderInventory.IncomingPotionMultiplier;
             if (blocked) amount = defense.BlockDamage(amount);
             float applied = stats.ApplyDamage(amount);
             if (applied > 0 && !blocked && defense != null)

@@ -6,7 +6,7 @@ namespace HeroesOfDragonland.Multiplayer
 {
     // Planar server arena motor; action components own costs and action state.
     [RequireComponent(typeof(NetworkObject), typeof(NetworkTransform))]
-    public sealed class NetworkTestPlayer : NetworkBehaviour
+    public sealed partial class NetworkTestPlayer : NetworkBehaviour
     {
         [SerializeField, Min(0.1f)] private float movementSpeed = 5f;
         [SerializeField, Min(1f)] private float arenaHalfExtent = 18f;

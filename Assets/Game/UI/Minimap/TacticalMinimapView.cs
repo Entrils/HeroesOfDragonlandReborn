@@ -6,7 +6,7 @@ namespace HeroesOfDragonland.UI.Minimap
 {
     // Passive schematic UI. It never renders a camera view of hidden scene objects.
     [DefaultExecutionOrder(270), DisallowMultipleComponent, RequireComponent(typeof(UIDocument))]
-    public sealed class TacticalMinimapView : MonoBehaviour
+    public sealed partial class TacticalMinimapView : MonoBehaviour
     {
         [SerializeField] private TacticalMapSource source;
         [SerializeField, Min(0)] private float topOffset = 210;
@@ -32,7 +32,8 @@ namespace HeroesOfDragonland.UI.Minimap
             symbols = new VisualElement(); Fill(symbols); map.Add(symbols); panel.Add(map);
             compass = new Label(); compass.style.fontSize = 11; panel.Add(compass);
             var legend = new Label("@ You  o Ally  F Fort  K King\nC Camp  B Boss  G Objective\nx Cleared  ? Unknown  ! Reveal"); legend.style.fontSize = 10; panel.Add(legend);
-            root.Add(panel); revision = -1; drawnDefinition = null; icons.Clear(); worldIcons.Clear();
+            var pingKeys = new Label("T Ping  ·  Y Danger  ·  U Retreat"); pingKeys.style.fontSize = 10; panel.Add(pingKeys);
+            root.Add(panel); CreatePingPresentation(); revision = -1; drawnDefinition = null; icons.Clear(); worldIcons.Clear();
             root.RegisterCallback<GeometryChangedEvent>(GeometryChanged); Layout();
         }
         private void GeometryChanged(GeometryChangedEvent change) => Layout();
@@ -71,6 +72,7 @@ namespace HeroesOfDragonland.UI.Minimap
         {
             bool visible = source != null && source.isActiveAndEnabled && source.Visible;
             panel.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            DrawPings(visible);
             if (!visible) { VisibleMarkerCount = 0; foreach (var icon in worldIcons) icon.style.display = DisplayStyle.None; return; }
             if (revision != source.Revision)
             {
@@ -122,7 +124,7 @@ namespace HeroesOfDragonland.UI.Minimap
         private void OnDisable()
         {
             root?.UnregisterCallback<GeometryChangedEvent>(GeometryChanged);
-            root?.Clear(); icons.Clear(); worldIcons.Clear(); revision = -1; VisibleMarkerCount = 0;
+            root?.Clear(); icons.Clear(); worldIcons.Clear(); mapPings.Clear(); worldPings.Clear(); revision = -1; VisibleMarkerCount = 0;
         }
     }
 }

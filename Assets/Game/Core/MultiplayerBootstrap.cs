@@ -22,6 +22,7 @@ namespace HeroesOfDragonland.Multiplayer
         private readonly ReconnectReservations reconnects = new();
         private byte[] connectionToken;
         private bool clientSession, everConnected, intentionalDisconnect, cancelRequested, reconnectLoop;
+        private bool reconnectEligible = true, lobbyAdvertised;
         private int reconnectEpoch, observedServerTick;
         private float lastServerProgress;
         private TaskCompletionSource<bool> leaveAcknowledged;
@@ -33,7 +34,7 @@ namespace HeroesOfDragonland.Multiplayer
         public string RequestNotice { get; private set; }
         public event Action<NetworkConnectionState> ConnectionStateChanged;
         public int ReservedPlayerCount => reconnects.Count;
-        public bool CanReconnect => clientSession && connectionToken != null && everConnected && !Running && !busy && !reconnectLoop;
+        public bool CanReconnect => clientSession && reconnectEligible && connectionToken != null && everConnected && !Running && !busy && !reconnectLoop;
         private void SetConnectionState(NetworkConnectionState state, string message = null)
         {
             ConnectionState = state;
@@ -54,6 +55,10 @@ namespace HeroesOfDragonland.Multiplayer
         public NetworkRunner Runner => runner;
         public string SessionId { get; private set; }
         public string RoomName { get; private set; }
+        public OnlineSessionKind SessionKind { get; private set; }
+        public string DisplayRoom => OnlineMatchmaking.DisplayName(SessionKind, RoomName ?? "");
+        public string Region => Running && runner.SessionInfo.IsValid ? runner.SessionInfo.Region : "";
+        internal void SetLobbyVisibility(bool inLobby) => lobbyAdvertised = inLobby;
         internal NetworkObject PlayerPrefab => playerPrefab;
         internal int NextParticipantNumber() => ++nextParticipant;
         internal bool ReserveBot(int key, out HeroesOfDragonland.Teams.TeamId team) => roster.TryAssign(key, out team);
@@ -102,6 +107,13 @@ namespace HeroesOfDragonland.Multiplayer
             if (mode == "host") _ = StartSession(GameMode.Host, room);
             else if (mode == "server") _ = StartSession(GameMode.Server, room);
             else if (mode == "client") _ = StartSession(GameMode.Client, room);
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            else if (mode == "quick") _ = QuickPlay();
+            else if (mode == "private-host") _ = CreatePrivateMatch();
+            else if (mode == "private-join") _ = JoinPrivateMatch(room);
+            else if (mode == "custom-host") _ = CustomLobby(room, true);
+            else if (mode == "custom-join") _ = CustomLobby(room, false);
+#endif
         }
 
         private void CaptureAttackPresses()
@@ -141,58 +153,84 @@ namespace HeroesOfDragonland.Multiplayer
                 try { handler(value); } catch (Exception e) { Debug.LogException(e, this); }
         }
 
-        public Task StartSession(GameMode mode, string sessionName) => StartSessionCore(mode, sessionName, false);
-        private async Task StartSessionCore(GameMode mode, string sessionName, bool resuming)
+        public Task StartSession(GameMode mode, string sessionName) => StartSessionCore(mode, sessionName, OnlineSessionKind.CustomLobby, false);
+        public Task QuickPlay() => StartSessionCore(GameMode.AutoHostOrClient, null, OnlineSessionKind.QuickPlay, false, OnlineParty.Solo);
+        public Task CreatePrivateMatch() => JoinPrivateMatch(OnlineMatchmaking.NewRoomCode(), true);
+        public Task JoinPrivateMatch(string code) => JoinPrivateMatch(code, false);
+        private Task JoinPrivateMatch(string code, bool create)
+        {
+            if (!OnlineMatchmaking.TryPrivateRoom(code, out var room)) return RejectRequest("Enter the 10-character room code from the host.");
+            return StartSessionCore(create ? GameMode.Host : GameMode.Client, room, OnlineSessionKind.PrivateMatch, false);
+        }
+        public Task CustomLobby(string name, bool host)
+        {
+            string room = OnlineMatchmaking.CustomRoom(name);
+            if (room == null) return RejectRequest("Enter a custom lobby name of 1–48 characters.");
+            return StartSessionCore(host ? GameMode.Host : GameMode.Client, room, OnlineSessionKind.CustomLobby, false);
+        }
+        private Task RejectRequest(string message)
+        {
+            if (!Busy && !Running) SetConnectionState(NetworkConnectionState.FailedJoin, message);
+            return Task.CompletedTask;
+        }
+        private async Task StartSessionCore(GameMode mode, string sessionName, OnlineSessionKind kind, bool resuming, OnlineParty party = default)
         {
             if (busy || runner != null || (reconnectLoop && !resuming))
             { RequestNotice = "A connection request is already active. Leave or cancel before joining again."; return; }
             RequestNotice = null;
-            bool supported = mode == GameMode.Host || mode == GameMode.Server || mode == GameMode.Client;
+            bool searching = kind == OnlineSessionKind.QuickPlay && mode == GameMode.AutoHostOrClient && !resuming;
+            bool supported = mode == GameMode.Host || mode == GameMode.Server || mode == GameMode.Client || searching;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             supported |= mode == GameMode.Single;
 #endif
             if (!supported)
             { SetConnectionState(NetworkConnectionState.FailedJoin, "Unsupported session mode."); return; }
-            if (playerPrefab == null || string.IsNullOrWhiteSpace(sessionName) || sessionName.Length > 64)
+            if (playerPrefab == null || (searching ? party.Size != 1 : string.IsNullOrWhiteSpace(sessionName) || sessionName.Length > 64))
             { SetConnectionState(NetworkConnectionState.FailedJoin, "Enter a lobby name of 1-64 characters; a player prefab must be configured."); return; }
             busy = true;
             joinCancellation?.Dispose();
             joinCancellation = new System.Threading.CancellationTokenSource();
             cancelRequested = false;
             intentionalDisconnect = false;
-            clientSession = mode == GameMode.Client;
+            clientSession = mode == GameMode.Client || searching;
+            SessionKind = kind;
             if (!resuming)
             {
                 everConnected = false;
+                reconnectEligible = GetComponent<NetworkFortressSpawner>() == null;
+                lobbyAdvertised = searching;
                 connectionToken = clientSession ? new byte[32] : null;
                 if (connectionToken != null) using (var random = System.Security.Cryptography.RandomNumberGenerator.Create()) random.GetBytes(connectionToken);
             }
             SetConnectionState(resuming ? NetworkConnectionState.Reconnecting : NetworkConnectionState.Connecting,
-                resuming ? "Reconnecting to the same match..." : "Connecting to " + sessionName.Trim() + "...");
+                resuming ? "Reconnecting to the same match..." : searching ? "Searching for a compatible 3v3 lobby…"
+                    : "Connecting to " + OnlineMatchmaking.DisplayName(kind, sessionName.Trim()) + "...");
             connectionLost = false;
             try
             {
                 Application.runInBackground = true;
                 roster.Clear(); players.Clear(); pendingSpawns.Clear(); nextParticipant = 0;
                 lightAttackPress = heavyAttackPress = parryPress = 0; lastAttackCaptureFrame = -1;
-                RoomName = sessionName.Trim();
+                RoomName = sessionName?.Trim();
                 SessionId = mode == GameMode.Client ? null : Guid.NewGuid().ToString("N");
                 var runnerObject = new GameObject("Multiplayer Runner");
                 runnerObject.transform.SetParent(transform);
                 runner = runnerObject.AddComponent<NetworkRunner>();
                 runner.ProvideInput = mode != GameMode.Server;
                 runner.AddCallbacks(this);
-                SetStatus("Starting " + mode + " / " + sessionName.Trim());
+                SetStatus("Starting " + mode + " / " + (RoomName ?? "Quick Play"));
                 // Test scene has no scene NetworkObjects. Each process loads the same test arena.
                 var started = await runner.StartGame(new StartGameArgs
                 {
                     GameMode = mode,
-                    SessionName = sessionName.Trim(),
+                    SessionName = RoomName,
                     PlayerCount = NetworkTeamRoster.PlayerCapacity,
-                    EnableClientSessionCreation = false,
+                    EnableClientSessionCreation = searching,
+                    CustomLobbyName = kind == OnlineSessionKind.QuickPlay ? OnlineMatchmaking.QueueName : null,
+                    SessionProperties = searching ? OnlineMatchmaking.QuickProperties() : null,
                     ConnectionToken = connectionToken,
                     StartGameCancellationToken = joinCancellation.Token,
-                    IsVisible = false,
+                    IsVisible = searching,
                     SceneManager = runnerObject.AddComponent<NetworkSceneManagerDefault>()
                 });
                 if (!started.Ok)
@@ -204,13 +242,17 @@ namespace HeroesOfDragonland.Multiplayer
                 else
                 {
                     if (runner == null || !runner.IsRunning) throw new InvalidOperationException("Connection ended during startup.");
+                    RoomName = runner.SessionInfo.IsValid && !string.IsNullOrEmpty(runner.SessionInfo.Name) ? runner.SessionInfo.Name : RoomName;
+                    clientSession = !runner.IsServer && (mode == GameMode.Client || searching);
+                    if (clientSession) SessionId = null;
                     everConnected = true;
                     lastServerProgress = Time.realtimeSinceStartup;
                     observedServerTick = runner.LatestServerTick;
                     if (SessionStarted != null) foreach (Action<NetworkRunner> handler in SessionStarted.GetInvocationList())
                         try { handler(runner); } catch (Exception e) { Debug.LogException(e, this); throw; }
-                    SetConnectionState(NetworkConnectionState.Connected, resuming ? "Reconnected to the match." : "Connected.");
-                    SetStatus(mode + " connected / " + sessionName.Trim());
+                    SetConnectionState(NetworkConnectionState.Connected, resuming ? "Reconnected to the match."
+                        : searching ? (runner.IsServer ? "Quick Play lobby created." : "Quick Play lobby joined.") : "Connected.");
+                    SetStatus(mode + " connected / " + RoomName);
                 }
             }
             catch (Exception exception)
@@ -293,7 +335,7 @@ namespace HeroesOfDragonland.Multiplayer
                     SetConnectionState(NetworkConnectionState.Reconnecting, "Reconnecting (" + (attempt + 1) + "/3). Cancel to leave.");
                     await Task.Delay((1 << attempt) * 2000);
                     if (this == null || !Application.isPlaying || epoch != reconnectEpoch || intentionalDisconnect) return;
-                    await StartSessionCore(GameMode.Client, RoomName, true);
+                    await StartSessionCore(GameMode.Client, RoomName, SessionKind, true);
                     if (Running && ConnectionState == NetworkConnectionState.Connected) return;
                 }
                 if (epoch == reconnectEpoch && !intentionalDisconnect) SetConnectionState(NetworkConnectionState.ReconnectExpired);
@@ -313,10 +355,17 @@ namespace HeroesOfDragonland.Multiplayer
             if (connectionLost && !busy)
             {
                 connectionLost = false;
-                if (clientSession && everConnected && !intentionalDisconnect) _ = RecoverConnection();
+                if (clientSession && everConnected && !intentionalDisconnect)
+                {
+                    if (reconnectEligible) _ = RecoverConnection();
+                    else _ = ReleaseDisconnectedLobby();
+                }
             }
             if (Running && clientSession && !busy && !connectionLost && !reconnectLoop)
             {
+                var match = GetComponent<NetworkFortressSpawner>()?.Match;
+                if (match != null && match.Object != null && match.Object.IsValid)
+                    reconnectEligible = match.State == MatchPhase.Playing;
                 int tick = runner.LatestServerTick;
                 if (tick != observedServerTick)
                 {
@@ -326,6 +375,8 @@ namespace HeroesOfDragonland.Multiplayer
                 else if (Time.realtimeSinceStartup - lastServerProgress > 3 && ConnectionState == NetworkConnectionState.Connected)
                     SetConnectionState(NetworkConnectionState.Interrupted);
             }
+            if (Running && runner.IsServer && SessionKind == OnlineSessionKind.QuickPlay && runner.SessionInfo.IsValid
+                && runner.SessionInfo.IsVisible != lobbyAdvertised) runner.SessionInfo.IsVisible = lobbyAdvertised;
             GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>()?.SetBlocked(this,
                 ConnectionState == NetworkConnectionState.Interrupted || ConnectionState == NetworkConnectionState.Reconnecting);
             if (Running && runner.IsServer) reconnects.Expire(runner, roster);
@@ -333,6 +384,20 @@ namespace HeroesOfDragonland.Multiplayer
             if (runner == null || !runner.IsServer || pendingSpawns.Count == 0 || Time.unscaledTime < nextSpawnRetry) return;
             nextSpawnRetry = Time.unscaledTime + .25f;
             foreach (var player in new List<PlayerRef>(pendingSpawns)) OnPlayerJoined(runner, player);
+        }
+
+        private async Task ReleaseDisconnectedLobby()
+        {
+            busy = true;
+            everConnected = false;
+            connectionToken = null;
+            try { await ReleaseRunner(); }
+            catch (Exception exception) { Debug.LogException(exception, this); }
+            finally
+            {
+                busy = false;
+                SetConnectionState(NetworkConnectionState.LobbyDisconnected);
+            }
         }
 
         internal bool TryGetTeam(PlayerRef player, out HeroesOfDragonland.Teams.TeamId team)
@@ -541,7 +606,7 @@ namespace HeroesOfDragonland.Multiplayer
 #endif
             players.Clear(); roster.Clear(); pendingSpawns.Clear(); reconnects.Clear();
             if (!intentionalDisconnect && clientSession && everConnected)
-            { connectionLost = !reconnectLoop; SetConnectionState(NetworkConnectionState.ConnectionLost); }
+            { connectionLost = !reconnectLoop; SetConnectionState(reconnectEligible ? NetworkConnectionState.ConnectionLost : NetworkConnectionState.LobbyDisconnected); }
             else if (!busy) SetConnectionState(NetworkFailureMessages.Classify(reason));
             runner = null;
             source.RemoveCallbacks(this);
@@ -553,7 +618,8 @@ namespace HeroesOfDragonland.Multiplayer
         {
             if (source != runner) return;
             SetStatus("Connection lost: " + reason);
-            if (!intentionalDisconnect) { SetConnectionState(NetworkConnectionState.ConnectionLost); connectionLost = !reconnectLoop; }
+            if (!intentionalDisconnect && everConnected)
+            { SetConnectionState(reconnectEligible ? NetworkConnectionState.ConnectionLost : NetworkConnectionState.LobbyDisconnected); connectionLost = !reconnectLoop; }
         }
         public void OnConnectFailed(NetworkRunner source, NetAddress address, NetConnectFailedReason reason)
         {

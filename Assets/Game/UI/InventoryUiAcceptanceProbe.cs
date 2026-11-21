@@ -10,6 +10,7 @@ using HeroesOfDragonland.Items;
 using HeroesOfDragonland.Multiplayer;
 using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Progression;
+using HeroesOfDragonland.Stats;
 #endif
 
 namespace HeroesOfDragonland.UI
@@ -42,6 +43,8 @@ namespace HeroesOfDragonland.UI
                 {
                     Check(network.TryAddItem(sword.Id) && network.TryAddItem(potion.Id, 3)
                         && network.TryAddItem(Item(inventory, "Dragonblade").Id) && network.TryAddItem(Item(inventory, "ScoutArmor").Id), "server-fixture-only");
+                    var stats = actor.GetComponent<CharacterStats>();
+                    stats.TrySpendMana(stats.CurrentMana);
                     fixtures[actor] = 0; continue;
                 }
                 if (preview) continue;
@@ -72,6 +75,8 @@ namespace HeroesOfDragonland.UI
             if (runner.IsServer) Seed(runner);
             if (completed || presenter.LocalActor == null) return;
             var actor = presenter.LocalActor; var inventory = actor.GetComponent<Inventory>(); var equipment = actor.GetComponent<Equipment>();
+            var network = actor.GetComponent<NetworkInventory>();
+            var quickSlots = network.QuickSlots;
             var sword = Item(inventory, "IronSword"); var potion = Item(inventory, "ManaPotion"); var dragon = Item(inventory, "Dragonblade"); var armor = Item(inventory, "ScoutArmor");
             if (preview) { if (!presenter.View.IsOpen) { presenter.Open(); presenter.SelectInventory(Find(inventory, dragon)); } return; }
             if (Time.unscaledTime < nextAction || presenter.RequestPending || inventory.GetAmount(dragon.Id) == 0 && step < 7) return;
@@ -86,8 +91,29 @@ namespace HeroesOfDragonland.UI
                     Check(!presenter.View.EquipEnabled && presenter.View.DetailsText.Contains("MISSING  Strength") && presenter.View.DetailsText.Contains("need +10"), "requirement-reason-and-disabled-equip");
                     long before = inventory.Revision; presenter.RequestEquip(); Check(inventory.Revision == before && !presenter.RequestPending, "disabled-button-does-not-request");
                     presenter.SelectInventory(Find(inventory, potion));
-                    Check(!presenter.View.ConsumeEnabled && presenter.View.DetailsText.Contains("Quantity: 3") && inventory.GetAmount(potion.Id) == 3, "unsupported-consumption-keeps-quantity");
-                    presenter.SelectInventory(Find(inventory, sword)); Check(presenter.View.EquipEnabled, "valid-item-equip-enabled"); presenter.RequestEquip(); step++; break;
+                    Check(presenter.View.QuickAssignmentAvailable && presenter.View.DetailsText.Contains("Quantity: 3")
+                        && presenter.AssignSelectedToQuickSlot() && inventory.GetAmount(potion.Id) == 3,
+                        "quick-assignment-keeps-quantity");
+                    quickSlots.SelectPrevious();
+                    Check(quickSlots.Selected.Index == quickSlots.Count - 1 && quickSlots.Selected.Item == null
+                        && !network.RequestUseSelectedQuickItem(), "quick-wrap-and-empty-use");
+                    quickSlots.SelectNext();
+                    Check(quickSlots.Selected.Item == potion && quickSlots.Selected.Quantity == 3, "quick-selection-and-quantity");
+                    presenter.Close();
+                    Check(network.RequestUseSelectedQuickItem(), "quick-use-request-sent");
+                    step = 9; break;
+                case 9:
+                    if (inventory.GetAmount(potion.Id) != 2) return;
+                    Check(quickSlots.Selected.Quantity == 2 && quickSlots.Selected.Item == potion,
+                        "server-use-decrements-quick-quantity");
+                    Check(network.RequestRemove(Find(inventory, potion), 2), "remove-last-quick-stack-request");
+                    step = 10; break;
+                case 10:
+                    if (inventory.GetAmount(potion.Id) != 0) return;
+                    Check(quickSlots.Selected.Item == null && quickSlots.Selected.Quantity == 0
+                        && !network.RequestUseSelectedQuickItem(), "last-item-clears-quick-slot");
+                    presenter.Open();
+                    presenter.SelectInventory(Find(inventory, sword)); Check(presenter.View.EquipEnabled, "valid-item-equip-enabled"); presenter.RequestEquip(); step = 1; break;
                 case 1:
                     if (equipment.GetItemId(EquipmentSlot.MainHand) != sword.Id) return;
                     Check(inventory.GetAmount(sword.Id) == 0, "equip-replicated-conservation");
@@ -102,9 +128,14 @@ namespace HeroesOfDragonland.UI
                 case 4:
                     if (equipment.GetItemId(EquipmentSlot.MainHand) != sword.Id || inventory.HasEmptySlot) return;
                     presenter.SelectEquipment(EquipmentSlot.MainHand);
-                    Check(!presenter.View.UnequipEnabled && presenter.View.StatusText.Contains("no room"), "full-bag-disabled-unequip");
+                    Check(!presenter.View.UnequipEnabled && presenter.View.StatusText.Contains("Bag full"), "full-bag-disabled-unequip");
                     // Test fixture frees space through the pre-existing validated remove API, not a UI action.
-                    int index = Find(inventory, potion); actor.GetComponent<NetworkInventory>().RequestRemove(index, inventory.GetSlot(index).Amount); step++; break;
+                    int index = Find(inventory, potion);
+                    presenter.SelectInventory(index);
+                    presenter.RequestDiscard();
+                    Check(presenter.View.StatusText.Contains("Confirm discard") && inventory.GetAmount(potion.Id) > 0, "discard-requires-confirmation");
+                    presenter.RequestDiscard();
+                    step++; break;
                 case 5:
                     if (!inventory.HasEmptySlot) return;
                     presenter.SelectEquipment(EquipmentSlot.MainHand); Check(presenter.View.UnequipEnabled, "space-update-enables-unequip"); presenter.RequestUnequip(); step++; break;

@@ -1,6 +1,8 @@
 using Fusion;
 using HeroesOfDragonland.Player;
 using HeroesOfDragonland.UI;
+using HeroesOfDragonland.World;
+using HeroesOfDragonland.Profiles;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -10,12 +12,17 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class MultiplayerLobbyPanel : MonoBehaviour
     {
         [SerializeField] private string room = "dragonland";
+        private static readonly string[] OnlineTabs = { "Quick Play", "Private Match", "Custom Lobby" };
+        private int onlineTab;
+        private string roomCode = "";
         private MultiplayerBootstrap bootstrap;
         private Vector2 scroll;
         private GUIStyle messageStyle;
         private PlaytestSettings settings;
         private LocalGameplayInputGate inputGate;
         private bool settingsOpen, quitting;
+        private bool profileOpen;
+        private string profileName;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
         private PlaytestDiagnostics diagnostics;
 #endif
@@ -84,6 +91,13 @@ namespace HeroesOfDragonland.Multiplayer
             GUI.color = tint;
             GUILayout.BeginArea(bounds, GUI.skin.box);
             scroll = GUILayout.BeginScrollView(scroll);
+            if (profileOpen)
+            {
+                DrawProfile();
+                GUILayout.EndScrollView();
+                GUILayout.EndArea();
+                return;
+            }
             if (settingsOpen)
             {
                 GUILayout.Label("Settings");
@@ -110,15 +124,52 @@ namespace HeroesOfDragonland.Multiplayer
             GUI.enabled = !bootstrap.Busy;
             if (!bootstrap.Running)
             {
-                GUILayout.Label("Lobby name / share this name with your friends");
-                room = GUILayout.TextField(room, 64);
+                if (GUILayout.Button("Profile · " + LocalPlayerProfile.Current.Data.DisplayName))
+                {
+                    profileName = LocalPlayerProfile.Current.Data.DisplayName;
+                    profileOpen = true;
+                }
+                if (Application.CanStreamedLevelBeLoaded(TutorialProgress.ScenePath))
+                {
+                    if (TutorialProgress.RecommendTutorial) GUILayout.Label("New player? Try the offline training grounds.");
+                    if (GUILayout.Button(TutorialProgress.TutorialCompleted ? "Replay training" : "Training grounds · Offline"))
+                        TutorialProgress.Open();
+                    if (TutorialProgress.RecommendTutorial && GUILayout.Button("Skip training")) TutorialProgress.Skip();
+                    GUILayout.Space(8);
+                }
                 if (bootstrap.CanReconnect && GUILayout.Button("Reconnect to previous match")) _ = bootstrap.Reconnect();
-                if (GUILayout.Button("Create lobby")) _ = bootstrap.StartSession(GameMode.Host, room);
-                if (GUILayout.Button("Join lobby")) _ = bootstrap.StartSession(GameMode.Client, room);
+                onlineTab = GUILayout.Toolbar(onlineTab, OnlineTabs);
+                switch (onlineTab)
+                {
+                    case 0:
+                        GUILayout.Label("Find or start an open 3v3 lobby.");
+                        if (GUILayout.Button("Find match")) _ = bootstrap.QuickPlay();
+                        break;
+                    case 1:
+                        if (GUILayout.Button("Create private match")) _ = bootstrap.CreatePrivateMatch();
+                        GUILayout.Label("Room code from the host");
+                        roomCode = GUILayout.TextField(roomCode, 18);
+                        if (GUILayout.Button("Join with code")) _ = bootstrap.JoinPrivateMatch(roomCode);
+                        break;
+                    case 2:
+                        GUILayout.Label("Custom lobby name");
+                        room = GUILayout.TextField(room, 48);
+                        if (GUILayout.Button("Create custom lobby")) _ = bootstrap.CustomLobby(room, true);
+                        if (GUILayout.Button("Join custom lobby")) _ = bootstrap.CustomLobby(room, false);
+                        break;
+                }
             }
             else
             {
-                GUILayout.Label("Lobby: " + bootstrap.RoomName + " / maximum 6 players");
+                string region = string.IsNullOrEmpty(bootstrap.Region) ? "" : " · " + bootstrap.Region.ToUpperInvariant();
+                GUILayout.Label(bootstrap.SessionKind == OnlineSessionKind.QuickPlay ? "Quick Play · 3v3" + region
+                    : bootstrap.SessionKind == OnlineSessionKind.PrivateMatch ? "Private match" + region
+                    : "Custom lobby · " + bootstrap.DisplayRoom + region);
+                if (bootstrap.SessionKind == OnlineSessionKind.PrivateMatch)
+                {
+                    GUILayout.Label("Room code · " + bootstrap.DisplayRoom);
+                    if (GUILayout.Button("Copy room code")) GUIUtility.systemCopyBuffer = bootstrap.DisplayRoom;
+                }
                 if (valid)
                 {
                     foreach (var team in new[] { HeroesOfDragonland.Teams.TeamId.TeamA, HeroesOfDragonland.Teams.TeamId.TeamB })
@@ -168,6 +219,26 @@ namespace HeroesOfDragonland.Multiplayer
             if (GUILayout.Button("Quit game")) Quit();
             GUILayout.EndScrollView();
             GUILayout.EndArea();
+        }
+
+        private void DrawProfile()
+        {
+            var profile = LocalPlayerProfile.Current;
+            var totals = profile.Data.Totals;
+            GUILayout.Label("Player profile");
+            GUILayout.Label("Display name");
+            profileName = GUILayout.TextField(profileName, 28);
+            if (GUILayout.Button("Save name"))
+            {
+                profile.Rename(profileName);
+                profileName = profile.Data.DisplayName;
+            }
+            GUILayout.Label(profile.Data.TutorialCompleted ? "Training completed" : "Training available");
+            GUILayout.Label(totals.Matches + " matches · " + totals.Wins + " wins · " + totals.Losses + " losses");
+            GUILayout.Label(totals.Kills + " kills · " + totals.Deaths + " deaths");
+            GUILayout.Label(totals.CampsCleared + " camps cleared · " + totals.BossesKilled + " bosses killed");
+            GUILayout.Label(totals.KingsKilled + " Kings killed");
+            if (GUILayout.Button("Back")) profileOpen = false;
         }
     }
 }

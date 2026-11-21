@@ -55,14 +55,17 @@ namespace HeroesOfDragonland.Abilities
                 || GetComponent<NetworkPlayerDodge>()?.Busy == true || GetComponent<HeroesOfDragonland.Player.PlayerDodge>()?.IsBusy == true)
                 reason = "Finish your current action first.";
             else if (!ValidTarget(definition, target)) reason = "Requires a living ally or self within range and line of sight.";
+            else if (stats.CurrentMana < definition.ManaCost) reason = ManaRequired(stats.CurrentMana, definition.ManaCost);
             return reason.Length == 0;
         }
+        internal static string ManaRequired(float current, float required) =>
+            "Not enough mana · Need " + required.ToString("0.##") + ", have " + current.ToString("0.##") + ".";
         public bool TryStart(AbilityDefinition definition, CharacterStats target, out string reason)
         {
             reason = "Casting requires authority.";
             if (!HasAuthority || !CanStart(definition, target, out reason)) return false;
             if (session != skills.SessionId) { Clear(); session = skills.SessionId; }
-            if (!stats.TrySpendMana(definition.ManaCost)) { reason = "Not enough Mana."; return false; }
+            if (!stats.TrySpendMana(definition.ManaCost)) { reason = ManaRequired(stats.CurrentMana, definition.ManaCost); return false; }
             casting = definition; castTarget = target != null ? target : stats;
             castOrigin = transform.position; castDirection = transform.forward.normalized; CastRemaining = definition.CastTime;
             Cue(definition, AbilityCue.CastStarted, transform.position, castDirection);

@@ -36,7 +36,9 @@ namespace HeroesOfDragonland.World
                 var camps=FindObjectsByType<NetworkCamp>(FindObjectsInactive.Exclude).Where(camp=>camp.Runner==runner).ToArray();
                 Check(match.TeamACount==3 && match.TeamBCount==3 && match.RequiredPlayers==6,"actual-3v3-match-start");
                 Check(camps.Length==11 && camps.Count(camp=>camp.State==NetworkCampState.Active)==8
-                    && camps.Count(camp=>camp.State==NetworkCampState.Pending && camp.ConfiguredFirstSpawn==150)==3,"eight-active-and-three-delayed");
+                    && camps.Count(camp=>camp.State==NetworkCampState.Pending && camp.ConfiguredFirstSpawn==150)==2
+                    && camps.Count(camp=>camp.State==NetworkCampState.Pending && camp.Definition.Difficulty==CampDifficulty.Contested
+                        && camp.ConfiguredFirstSpawn==120)==1,"eight-active-two-delayed-and-boss-at-two-minutes");
                 Check(camps.Count(camp=>camp.Definition.Difficulty==CampDifficulty.Tier1)==4
                     && camps.Count(camp=>camp.Definition.Difficulty==CampDifficulty.Tier2)==4
                     && camps.Count(camp=>camp.Definition.Difficulty==CampDifficulty.Tier3)==2

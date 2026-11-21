@@ -1,4 +1,5 @@
 using HeroesOfDragonland.Audio;
+using HeroesOfDragonland.Profiles;
 using UnityEngine;
 using UnityEngine.Rendering;
 using UnityEngine.Rendering.Universal;
@@ -8,29 +9,20 @@ namespace HeroesOfDragonland.UI
     [DisallowMultipleComponent]
     public sealed class PlaytestSettings : MonoBehaviour
     {
-        private const string Prefix = "HOD.Playtest.";
         private static readonly string[] VolumeNames = { "Master volume", "Music volume", "Effects volume" };
         [SerializeField] private AudioPreferences audio;
         private UniversalRenderPipelineAsset graphics;
         private RenderPipelineAsset previousPipeline;
         private bool fullscreen, vsync, reducedResolution;
-        private const string MouseKey = Prefix + "MouseMultiplier";
-        private static float? savedMouse;
-        public static float MouseMultiplier => savedMouse ??= LoadMouse();
-
-        private static float LoadMouse()
-        {
-            float value = PlayerPrefs.GetFloat(MouseKey, 1);
-            return float.IsNaN(value) ? 1 : Mathf.Clamp(value, .25f, 3);
-        }
+        public static float MouseMultiplier => LocalPlayerProfile.Current.Data.Settings.MouseSensitivity;
 
         private void Start()
         {
             if (Application.isBatchMode) return;
-            savedMouse = LoadMouse();
-            fullscreen = PlayerPrefs.GetInt(Prefix + "Fullscreen", Screen.fullScreen ? 1 : 0) != 0;
-            vsync = PlayerPrefs.GetInt(Prefix + "VSync", QualitySettings.vSyncCount > 0 ? 1 : 0) != 0;
-            reducedResolution = PlayerPrefs.GetInt(Prefix + "ReducedResolution", 0) != 0;
+            var settings = LocalPlayerProfile.Current.Data.Settings;
+            fullscreen = settings.Fullscreen;
+            vsync = settings.VSync;
+            reducedResolution = settings.ReducedResolution;
             ApplyGraphics();
         }
 
@@ -49,8 +41,7 @@ namespace HeroesOfDragonland.UI
             float mouse = GUILayout.HorizontalSlider(MouseMultiplier, .25f, 3);
             if (!Mathf.Approximately(mouse, MouseMultiplier))
             {
-                savedMouse = mouse;
-                PlayerPrefs.SetFloat(MouseKey, mouse);
+                LocalPlayerProfile.Current.Data.Settings.MouseSensitivity = mouse;
             }
 
             bool nextFullscreen = GUILayout.Toggle(fullscreen, "Borderless fullscreen");
@@ -60,9 +51,10 @@ namespace HeroesOfDragonland.UI
             fullscreen = nextFullscreen;
             vsync = nextVSync;
             reducedResolution = nextReduced;
-            PlayerPrefs.SetInt(Prefix + "Fullscreen", fullscreen ? 1 : 0);
-            PlayerPrefs.SetInt(Prefix + "VSync", vsync ? 1 : 0);
-            PlayerPrefs.SetInt(Prefix + "ReducedResolution", reducedResolution ? 1 : 0);
+            var settings = LocalPlayerProfile.Current.Data.Settings;
+            settings.Fullscreen = fullscreen;
+            settings.VSync = vsync;
+            settings.ReducedResolution = reducedResolution;
             ApplyGraphics();
         }
 
@@ -91,8 +83,9 @@ namespace HeroesOfDragonland.UI
 
         public void Save()
         {
+            if (Application.isBatchMode && !LocalPlayerProfile.WriteMatchTotals) return;
             audio?.Save();
-            PlayerPrefs.Save();
+            LocalPlayerProfile.Current.Save();
         }
 
         private void OnDestroy() => RestorePipeline();

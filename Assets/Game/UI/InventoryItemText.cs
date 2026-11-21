@@ -48,7 +48,7 @@ namespace HeroesOfDragonland.UI
                         .AppendLine(modifier.Operation == StatModifierOperation.AdditivePercent ? "%" : "");
                 }
             }
-            if (item.Category == ItemCategory.Consumable) text.AppendLine().AppendLine("Use unavailable: consumable effects are not implemented yet.");
+            if (item.Category == ItemCategory.Consumable) text.AppendLine().AppendLine("Choose a quick slot with [ or ], then assign this item with F6.");
             return text.ToString();
         }
     }

@@ -1,5 +1,6 @@
 using System;
 using Fusion;
+using HeroesOfDragonland.Profiles;
 using HeroesOfDragonland.Teams;
 using UnityEngine;
 
@@ -43,9 +44,9 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public int FinishCount { get; private set; }
         [Networked] public NetworkId TeamAKingId { get; private set; }
         [Networked] public NetworkId TeamBKingId { get; private set; }
-        private readonly System.Collections.Generic.HashSet<PlayerRef> readyPlayers = new();
-        private readonly System.Collections.Generic.HashSet<PlayerRef> observedPlayers = new();
-        private int observedBotCount = -1;
+        private readonly OnlineLobbyState lobby = new();
+        private readonly MatchSessionData profileRound = new();
+        private bool pendingProfileResults;
         [Networked] public NetworkBool AllowShortMatch { get; private set; }
         public bool LocalReady
         {
@@ -78,7 +79,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (!IsServerOwner || State != MatchPhase.Lobby) return;
             foreach (var player in Runner.ActivePlayers)
                 if (player == info.Source)
-                { if (ready) readyPlayers.Add(player); else readyPlayers.Remove(player); break; }
+                { lobby.SetReady(player, ready); break; }
         }
         [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         public void RPC_LeaveSession(RpcInfo info = default)
@@ -94,7 +95,7 @@ namespace HeroesOfDragonland.Multiplayer
         {
             if (!IsServerOwner || State != MatchPhase.Lobby) return false;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (AllowShortMatch != allow) readyPlayers.Clear();
+            if (AllowShortMatch != allow) lobby.ClearReady();
             AllowShortMatch = allow;
             RequiredPlayers = allow ? 2 : 6;
             return true;
@@ -118,6 +119,7 @@ namespace HeroesOfDragonland.Multiplayer
         public float SecondsRemaining => Object != null && Object.IsValid ? PhaseTimer.RemainingTime(Runner) ?? 0 : 0;
         public event Action<MatchPhase> StateChanged;
         public event Action<TeamId> Ended;
+        public event Action<OnlineMatchResult> ResultPublished;
         public bool IsServerOwner => Object != null && Object.IsValid && Runner.IsServer
             && HasStateAuthority && Object.InputAuthority == PlayerRef.None;
         // Check deaths as well as the state: even an earlier death listener cannot
@@ -146,6 +148,7 @@ namespace HeroesOfDragonland.Multiplayer
         public override void FixedUpdateNetwork()
         {
             if (!IsServerOwner) return;
+            if (pendingProfileResults) PublishProfiles();
             RefreshLobby();
             switch (State)
             {
@@ -196,17 +199,11 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void RefreshLobby()
         {
-            var active = new System.Collections.Generic.HashSet<PlayerRef>(Runner.ActivePlayers);
             int botCount = 0;
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
             botCount = bootstrap.GetComponent<DeveloperBotService>()?.SpawnedCount ?? 0;
 #endif
-            if (!observedPlayers.SetEquals(active) || observedBotCount != botCount)
-            {
-                readyPlayers.Clear();
-                observedPlayers.Clear(); observedPlayers.UnionWith(active);
-                observedBotCount = botCount;
-            }
+            lobby.Observe(Runner.ActivePlayers, botCount);
             int index = 0, a = 0, b = 0;
             foreach (var player in Runner.ActivePlayers)
             {
@@ -217,7 +214,7 @@ namespace HeroesOfDragonland.Multiplayer
                 bootstrap.TryGetTeam(player, out var team);
                 bool ready = Runner.TryGetPlayerObject(player, out var obj) && obj != null && obj.IsValid
                     && obj.GetComponent<NetworkTestPlayer>() != null;
-                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = player, Team = team, HasAvatar = ready, Ready = readyPlayers.Contains(player) });
+                LobbyPlayers.Set(index++, new NetworkLobbySlot { Player = player, Team = team, HasAvatar = ready, Ready = lobby.IsReady(player) });
                 if (ready && team == TeamId.TeamA) a++;
                 if (ready && team == TeamId.TeamB) b++;
             }
@@ -241,8 +238,8 @@ namespace HeroesOfDragonland.Multiplayer
                 throw new InvalidOperationException("Invalid match transition: " + State + " -> " + next);
             State = next; StateSequence++;
             // Keep transport admission open for authenticated reconnects; bootstrap gates new players.
-            if (Runner.SessionInfo.IsValid) Runner.SessionInfo.IsOpen = true;
-            if (next == MatchPhase.ReturningToLobby) readyPlayers.Clear();
+            bootstrap.SetLobbyVisibility(next == MatchPhase.Lobby);
+            if (next == MatchPhase.ReturningToLobby) lobby.ClearReady();
             PhaseTimer = seconds < 0 ? TickTimer.None : TickTimer.CreateFromSeconds(Runner, seconds);
             Debug.Log("[MatchLifecycle] round=" + RoundNumber + " state=" + State, this);
         }
@@ -252,6 +249,8 @@ namespace HeroesOfDragonland.Multiplayer
             if (balance != null && !balance.TryValidate(out var balanceError))
             { PreparationError = balanceError; return; }
             PlayingSeconds = 0;
+            profileRound.Begin(Guid.NewGuid().ToString("N"));
+            pendingProfileResults = false;
             RoundNumber++; FinishCount = 0; MatchEnded = false; Winner = TeamId.Unassigned;
             SetPhase(MatchPhase.Starting, lifecycle.StartingDelay);
             try
@@ -322,9 +321,43 @@ namespace HeroesOfDragonland.Multiplayer
             Winner = defeated.Team == TeamId.TeamA ? TeamId.TeamB : TeamId.TeamA;
             FinishCount = 1;
             MatchEnded = true;
+            // DamageTaken follows the King's death callback. Publish on the next tick
+            // so the fatal hit can still credit its attacker.
+            pendingProfileResults = true;
             SetPhase(MatchPhase.Finished, lifecycle.FinishedDelay);
             NotifyObservers();
             return true;
+        }
+        internal void CreditProfile(NetworkObject avatar, MatchSessionData.Metric metric)
+        {
+            if (!IsServerOwner || profileRound.RoundId == null || avatar.Runner != Runner
+                || !NetworkParticipant.IsAdmitted(avatar) || avatar.InputAuthority == PlayerRef.None
+                || (State != MatchPhase.Playing && !(State == MatchPhase.Finished && pendingProfileResults && metric == MatchSessionData.Metric.King))) return;
+            profileRound.Add(avatar.Id, metric);
+        }
+        private void PublishProfiles()
+        {
+            pendingProfileResults = false;
+            foreach (var player in Runner.ActivePlayers)
+            {
+                if (!Runner.TryGetPlayerObject(player, out var avatar) || !NetworkParticipant.IsAdmitted(avatar)
+                    || !avatar.TryGetComponent<NetworkTestPlayer>(out var participant)
+                    || (participant.Team != TeamId.TeamA && participant.Team != TeamId.TeamB)) continue;
+                var counters = profileRound.For(avatar.Id);
+                RPC_ProfileResult(player, profileRound.RoundId, participant.Team == Winner,
+                    counters.Kills, counters.Deaths, counters.Camps, counters.Kings, counters.Bosses);
+            }
+        }
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_ProfileResult([RpcTarget] PlayerRef recipient, NetworkString<_32> id, bool won,
+            int kills, int deaths, int camps, int kings, int bosses)
+        {
+            if (recipient == PlayerRef.None || recipient != Runner.LocalPlayer || !LocalPlayerProfile.WriteMatchTotals) return;
+            var profile = LocalPlayerProfile.Current;
+            if (!profile.RecordRound(id.ToString(), won, kills, deaths, camps, kings, bosses)) return;
+#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (LocalPlayerProfile.IsTestProfile) Debug.Log("[ProfileCheck] Recorded matches=" + profile.Data.Totals.Matches);
+#endif
         }
         private void NotifyObservers()
         {
@@ -336,6 +369,9 @@ namespace HeroesOfDragonland.Multiplayer
             }
             if (!MatchEnded || observedFinishRound == RoundNumber) return;
             observedFinishRound = RoundNumber;
+            var result = new OnlineMatchResult(bootstrap != null ? bootstrap.RoomName : null, RoundNumber, Winner, PlayingSeconds);
+            if (ResultPublished != null) foreach (Action<OnlineMatchResult> handler in ResultPublished.GetInvocationList())
+                try { handler(result); } catch (Exception exception) { Debug.LogException(exception, this); }
             if (Ended != null) foreach (Action<TeamId> handler in Ended.GetInvocationList())
                 try { handler(Winner); } catch (Exception exception) { Debug.LogException(exception, this); }
         }

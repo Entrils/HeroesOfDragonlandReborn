@@ -21,3 +21,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 3f55d13796b8ca54383c000dfc375d0c, type: 2}
   - {fileID: 11400000, guid: 6a3406cced299744fae01ff07205855c, type: 2}
   - {fileID: 11400000, guid: 3ca0581552b29bb4eab88b2e00ea2c07, type: 2}
+  - {fileID: 11400000, guid: bd81e94fb9e5ce7409c8afa31cd0a477, type: 2}
+  - {fileID: 11400000, guid: a0983de03d6e8b848a34cd7cb0c40593, type: 2}
+  - {fileID: 11400000, guid: adce9fc35c6c0b74fa7e23e1ceeccb81, type: 2}
+  - {fileID: 11400000, guid: e75f3689aff060842b4f7867ef25abe6, type: 2}
+  globalPotionCooldown: 0.75

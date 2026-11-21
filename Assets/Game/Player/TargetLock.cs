@@ -18,6 +18,7 @@ namespace HeroesOfDragonland.Player
 
         public Targetable CurrentTarget { get; private set; }
         public event Action<Targetable> TargetChanged;
+        public event Action AcquisitionFailed;
         public Vector3? FacingDirection => CurrentTarget != null
             ? CurrentTarget.AimPosition - transform.position : (Vector3?)null;
         public void SetViewCamera(Camera value) => viewCamera = value;
@@ -49,7 +50,8 @@ namespace HeroesOfDragonland.Player
                 float score = angle / acquisitionAngle + Vector3.Distance(transform.position, candidate.AimPosition) / maximumDistance * 0.3f;
                 if (score < bestScore) { best = candidate; bestScore = score; }
             }
-            SetTarget(best);
+            if (best == null) AcquisitionFailed?.Invoke();
+            else SetTarget(best);
         }
 
         public void Switch(int direction)

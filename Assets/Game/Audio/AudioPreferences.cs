@@ -1,4 +1,5 @@
 using System;
+using HeroesOfDragonland.Profiles;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Audio
@@ -15,14 +16,15 @@ namespace HeroesOfDragonland.Audio
         private void Awake()
         {
             service = GetComponent<GameAudioService>();
-            for (int i = 0; i < levels.Length; i++) levels[i] = AudioMath.Sanitize(PlayerPrefs.GetFloat("HOD.Audio." + Parameters[i], levels[i]));
+            for (int i = 0; i < levels.Length; i++) levels[i] = LocalPlayerProfile.Current.Data.Settings.Volume(i);
         }
         // SetFloat must run after mixer initialization, not in Awake/OnEnable.
         private void Start() { started = true; Apply(); }
         public void Set(int index, float value)
         {
             if (index < 0 || index >= levels.Length) return;
-            levels[index] = AudioMath.Sanitize(value); PlayerPrefs.SetFloat("HOD.Audio." + Parameters[index], levels[index]);
+            levels[index] = AudioMath.Sanitize(value);
+            LocalPlayerProfile.Current.Data.Settings.SetVolume(index, levels[index]);
             dirty = true; if (started) Apply(); Changed?.Invoke();
         }
         private void Apply()
@@ -32,7 +34,7 @@ namespace HeroesOfDragonland.Audio
             for (int i = 0; i < levels.Length; i++)
                 if (!mixer.SetFloat(Parameters[i], AudioMath.Decibels(levels[i]))) Debug.LogError("[M60] Mixer parameter missing: " + Parameters[i], this);
         }
-        public void Save() { if (dirty) { PlayerPrefs.Save(); dirty = false; } }
+        public void Save() { if (dirty) { LocalPlayerProfile.Current.Save(); dirty = false; } }
         private void OnApplicationFocus(bool focus) { if (!focus) Save(); }
         private void OnApplicationQuit() => Save();
         private void OnDisable() => Save();

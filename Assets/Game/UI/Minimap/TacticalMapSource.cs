@@ -19,6 +19,8 @@ namespace HeroesOfDragonland.UI.Minimap
         public bool Visible { get; private set; }
         public float Heading { get; private set; }
         public int Revision { get; private set; }
+        internal NetworkTestPlayer PingViewer { get; private set; }
+        internal int PingRound { get; private set; }
         public static MapTeam Team(TeamId team) => team == TeamId.TeamA ? MapTeam.A : team == TeamId.TeamB ? MapTeam.B : MapTeam.None;
         private static MapPoint Point(Vector3 point) => new MapPoint(point.x, point.y, point.z);
         private void Awake()
@@ -28,7 +30,7 @@ namespace HeroesOfDragonland.UI.Minimap
             { Debug.LogError("[M62] Complete and validate the public tactical map definition before enabling the source.", this); enabled = false; }
         }
         private void OnEnable() => nextRefresh = 0;
-        private void OnDisable() { markers.Clear(); Visible = false; Revision++; if (reveals != null) reveals.Bind(null, MapTeam.None); }
+        private void OnDisable() { markers.Clear(); Visible = false; PingViewer = null; Revision++; if (reveals != null) reveals.Bind(null, MapTeam.None); }
         private void LateUpdate()
         {
             if (Time.unscaledTime < nextRefresh) return;
@@ -36,7 +38,7 @@ namespace HeroesOfDragonland.UI.Minimap
         }
         public void Refresh()
         {
-            markers.Clear(); Visible = false; Revision++;
+            markers.Clear(); Visible = false; PingViewer = null; Revision++;
             var runner = bootstrap.Runner;
             var match = runner != null && runner.IsRunning ? NetworkMatchPacing.MatchFor(runner) : null;
             NetworkObject local = null;
@@ -49,6 +51,11 @@ namespace HeroesOfDragonland.UI.Minimap
             { reveals.Bind(null, MapTeam.None); return; }
             reveals.Bind(runner.GetEntityId() + ":" + match.Object.Id + ":" + match.RoundNumber + ":" + local.Id, viewer);
             Visible = true; Heading = local.transform.eulerAngles.y;
+            if (match.State == MatchPhase.Playing)
+            {
+                PingViewer = player;
+                PingRound = match.RoundNumber;
+            }
             foreach (var landmark in definition.Landmarks)
                 markers.Add(new MapMarker { Id = "landmark:" + landmark.id, Label = landmark.label, Kind = landmark.kind,
                     Team = landmark.team, Position = Point(landmark.position), State = PublicState(landmark, runner, match) });

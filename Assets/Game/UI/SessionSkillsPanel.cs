@@ -15,7 +15,7 @@ namespace HeroesOfDragonland.UI
         private VisualElement window;
         private Button toggle;
         private Label points, status;
-        private readonly Label[] descriptions = new Label[SessionSkills.SkillCount];
+        private readonly Label[] descriptions = new Label[SessionSkills.SkillCount], blockers = new Label[SessionSkills.SkillCount];
         private readonly Button[] learn = new Button[SessionSkills.SkillCount], use = new Button[SessionSkills.SkillCount];
         private NetworkSessionSkills network;
         private SessionSkills skills;
@@ -49,6 +49,8 @@ namespace HeroesOfDragonland.UI
                 int index = i;
                 var card = new VisualElement(); card.style.marginTop = 12; card.style.paddingBottom = 8;
                 descriptions[i] = new Label(); descriptions[i].style.whiteSpace = WhiteSpace.Normal; card.Add(descriptions[i]);
+                blockers[i] = new Label(); blockers[i].style.whiteSpace = WhiteSpace.Normal;
+                blockers[i].style.color = new Color(1, .77f, .34f); card.Add(blockers[i]);
                 var buttons = new VisualElement(); buttons.style.flexDirection = FlexDirection.Row;
                 learn[i] = new Button(() => Request(index, true)) { text = "Learn" };
                 use[i] = new Button(() => Request(index, false)) { text = "Use" };
@@ -99,16 +101,18 @@ namespace HeroesOfDragonland.UI
             for (int i = 0; i < SessionSkills.SkillCount; i++)
             {
                 var definition = skills.GetDefinition(i);
-                if (definition == null) { descriptions[i].text = "Unconfigured skill"; learn[i].SetEnabled(false); use[i].SetEnabled(false); continue; }
+                if (definition == null) { descriptions[i].text = "Unconfigured skill"; blockers[i].text = ""; learn[i].SetEnabled(false); use[i].SetEnabled(false); continue; }
                 bool canLearn = skills.CanLearn(i, out string learnReason), canUse = skills.CanActivate(i, out string useReason);
+                string blocker = skills.IsLearned(i) ? useReason : learnReason;
+                blockers[i].text = blocker;
+                blockers[i].style.display = string.IsNullOrEmpty(blocker) ? DisplayStyle.None : DisplayStyle.Flex;
                 string requirements = "Level " + definition.RequiredLevel;
                 foreach (var requirement in definition.Requirements) requirements += ", " + requirement.Stat + " " + requirement.MinimumValue;
                 descriptions[i].text = definition.DisplayName + " | " + definition.Kind + (skills.IsLearned(i) ? " | Learned" : "")
                     + "\n" + definition.Description + "\nRequires: " + requirements + " | Points: " + definition.PointCost
                     + (definition.Kind == SkillKind.Active ? " | Mana: " + definition.ManaCost + " | Cooldown: " + definition.Cooldown + "s" : "")
                     + (definition.Ability != null ? " | Cast: " + definition.Ability.CastTime + "s | Range: " + definition.Ability.Range + "m" : "")
-                    + (skills.CooldownRemaining(i) > 0 ? "\nReady in " + skills.CooldownRemaining(i).ToString("0.0") + "s" : "")
-                    + "\n" + (skills.IsLearned(i) ? useReason : learnReason);
+                    + (skills.CooldownRemaining(i) > 0 ? "\nReady in " + skills.CooldownRemaining(i).ToString("0.0") + "s" : "");
                 learn[i].SetEnabled(available && canLearn); use[i].SetEnabled(available && canUse);
                 use[i].style.display = definition.Kind == SkillKind.Active ? DisplayStyle.Flex : DisplayStyle.None;
             }

@@ -99,12 +99,15 @@ namespace HeroesOfDragonland.InventorySystem
             return true;
         }
 
-        public bool TryRemoveAt(int index, int amount)
+        public bool TryRemoveAt(int index, int amount) => TryRemoveAt(index, amount, null);
+
+        internal bool TryRemoveAt(int index, int amount, Action afterRemoval)
         {
             if (index < 0 || index >= slots.Length || amount <= 0 || slots[index].Amount < amount) return false;
             var old = slots[index];
             slots[index] = old.Amount == amount ? default : new InventorySlot(old.ItemId, old.Amount - amount);
-            Publish(Revision + 1);
+            try { afterRemoval?.Invoke(); }
+            finally { Publish(Revision + 1); }
             return true;
         }
 

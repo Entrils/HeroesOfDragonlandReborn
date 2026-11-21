@@ -10,6 +10,10 @@ This is a playtest baseline for a 20–30 minute match, not a validated match-du
 | Flank / medium | 4 | Match start | 105 seconds | 50 | 1–2 |
 | Center / high | 1 | 150 seconds after Playing starts | 165 seconds | 90 | 2–3 |
 
+The contested neutral Boss Knight first appears at 2:00 of active play. In the developer simulation, two lanes per side can contest it until 5:00 while the remaining lane prioritizes siege after the opening. Bots use the boss's attack telegraphs to time a dodge or block through the same combat input used by players.
+
+The Alpha soak baseline recorded 97 Team B wins and three timeouts in 100 matches. On ten matched seeds (5300–5309), Team B previously won all ten and bots logged 71 stalls with a valid path. The final build produced four Team A wins, five Team B wins, one timeout and one stall with a valid path. Both gates fell in every match, with Team B breaching first seven times. The nine King victories were followed by nine successful resets. No natural boss clear occurred, and the boss was credited with 169 bot deaths. Win rates, first-breach parity and the boss clear rate for human teams remain playtest checks.
+
 XP requires presence within nine metres and still includes opponents. It is not divided between recipients. Center rarity weighting is reduced to 0.3 / 1 / 1.5 / 0.5 / 0.05 for common through legendary. Repeat rewards use distinct server-owned cycle IDs, while duplicate completion of a cycle remains rejected.
 
 Camp locations are (±33, ±18) for low camps and (±10, ±34) for medium camps. Center remains (0, 0). Home camps have access toward fortress flank exits; the ridge between home and medium camps makes invasion a travel commitment. Medium income from a pair of flank camps exceeds one center clear, and returns sooner, giving teams a reason to concede center temporarily.

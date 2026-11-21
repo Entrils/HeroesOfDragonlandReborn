@@ -14,11 +14,15 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.ItemDefinition
   id: bb91086ec56a7424d92d32beaf281860
   displayName: Mana Potion
-  description: A bottled mana restorative. Consumable behavior will be added later.
+  description: Restores a portion of the named resource.
   icon: {fileID: 0}
   category: 2
   rarity: 2
+  equipmentSlot: 0
   maximumStackSize: 10
   value: 20
   equipmentRequirements: []
   statModifiers: []
+  weight: 0
+  weapon: {fileID: 0}
+  consumable: {fileID: 11400000, guid: d30eaa31dbaaa9d4ebaadbe1dce4279e, type: 2}

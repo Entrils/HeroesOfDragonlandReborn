@@ -10,8 +10,8 @@ namespace HeroesOfDragonland.UI
     public sealed class InventoryEquipmentView : MonoBehaviour
     {
         private VisualElement root, window, grid;
-        private Button toggle, equip, unequip, consume;
-        private Label details, status, tooltip;
+        private Button toggle, equip, unequip, consume, discard;
+        private Label details, status, tooltip, capacity;
         private readonly List<ItemButton> inventorySlots = new();
         private readonly List<ItemButton> equipmentSlots = new();
         public event Action ToggleRequested;
@@ -20,10 +20,12 @@ namespace HeroesOfDragonland.UI
         public event Action<EquipmentSlot> EquipmentSelected;
         public event Action EquipRequested;
         public event Action UnequipRequested;
+        public event Action DiscardRequested;
+        public event Action AssignQuickItemRequested;
         public bool IsOpen => window != null && window.style.display.value != DisplayStyle.None;
         public bool EquipEnabled => equip != null && equip.enabledSelf;
         public bool UnequipEnabled => unequip != null && unequip.enabledSelf;
-        public bool ConsumeEnabled => consume != null && consume.enabledSelf;
+        public bool QuickAssignmentAvailable => consume != null && consume.style.display.value != DisplayStyle.None;
         public string DetailsText => details?.text;
         public string StatusText => status?.text;
         public int DisplayedSlotCount => inventorySlots.Count;
@@ -55,6 +57,7 @@ namespace HeroesOfDragonland.UI
             var columns = new VisualElement(); columns.style.flexDirection = FlexDirection.Row; columns.style.flexGrow = 1; columns.style.minHeight = 0;
             window.Add(columns);
             var bag = Column(columns, "BAG", 38);
+            capacity = new Label(); bag.Add(capacity);
             var scroll = new ScrollView(ScrollViewMode.Vertical); scroll.style.flexGrow = 1; bag.Add(scroll);
             grid = new VisualElement(); grid.style.flexDirection = FlexDirection.Row; grid.style.flexWrap = Wrap.Wrap; scroll.Add(grid);
             var gear = Column(columns, "EQUIPMENT", 24);
@@ -72,7 +75,12 @@ namespace HeroesOfDragonland.UI
             details = new Label("Select an item."); details.style.whiteSpace = WhiteSpace.Normal; detailScroll.Add(details);
             equip = new Button(() => EquipRequested?.Invoke()) { text = "Equip" }; equip.style.height = 32; info.Add(equip);
             unequip = new Button(() => UnequipRequested?.Invoke()) { text = "Unequip" }; unequip.style.height = 32; info.Add(unequip);
-            consume = new Button { text = "Use unavailable" }; consume.SetEnabled(false); info.Add(consume);
+            consume = new Button { text = "Assign to quick slot [F6]" };
+            consume.clicked += () => AssignQuickItemRequested?.Invoke();
+            info.Add(consume);
+            discard = new Button(() => DiscardRequested?.Invoke()) { text = "Discard stack" };
+            discard.style.display = DisplayStyle.None;
+            info.Add(discard);
             status = new Label(""); status.style.whiteSpace = WhiteSpace.Normal; status.style.minHeight = 40; status.style.marginTop = 10; window.Add(status);
             tooltip = new Label(); tooltip.pickingMode = PickingMode.Ignore;
             tooltip.style.position = Position.Absolute; tooltip.style.width = 300; tooltip.style.maxHeight = Length.Percent(85);
@@ -115,6 +123,17 @@ namespace HeroesOfDragonland.UI
                 button.style.width = Length.Percent(23); button.style.marginRight = Length.Percent(1); button.style.marginBottom = 5;
                 button.style.height = 80; AttachTooltip(button); grid.Add(button); inventorySlots.Add(button);
             }
+        }
+        internal void SetCapacity(int used, int total)
+        {
+            capacity.text = total == 0 ? "" : used == total ? "Bag full · " + used + " / " + total : used + " / " + total + " slots used";
+            capacity.style.color = total > 0 && used == total ? new Color(1, .77f, .34f) : Color.white;
+        }
+        internal void SetDiscard(bool visible, bool enabled, bool confirming)
+        {
+            discard.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            discard.SetEnabled(enabled);
+            discard.text = confirming ? "Confirm discard" : "Discard stack";
         }
         public void SetInventorySlot(int index, ItemDefinition item, int amount, bool selected, string text)
             => inventorySlots[index].Set(item, amount, "Slot " + (index + 1), selected, text);

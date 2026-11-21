@@ -55,7 +55,7 @@ MonoBehaviour:
     lateExperienceMultiplier: 1.5
   - difficulty: 3
     experience: 360
-    firstSpawnSeconds: 150
+    firstSpawnSeconds: 120
     respawnSeconds: 210
     lateRespawnSeconds: 150
     rewardRadius: 20

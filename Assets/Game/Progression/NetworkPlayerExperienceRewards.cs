@@ -33,7 +33,12 @@ namespace HeroesOfDragonland.Multiplayer
             var attacker = source != null ? source.GetComponent<NetworkObject>() : null;
             if (!DamageContributionLedger.IsEnemyPlayer(attacker, Object)) return;
             ledger.Record(attacker, amount, (float)Runner.SimulationTime);
-            if (stats.IsDead) lethalAttacker = attacker;
+            if (stats.IsDead)
+            {
+                lethalAttacker = attacker;
+                // Profile kills count accepted lethal hits, independently of the XP repeat-victim cooldown.
+                MatchSessionData.Credit(attacker, MatchSessionData.Metric.Kill);
+            }
         }
         public override void FixedUpdateNetwork()
         {

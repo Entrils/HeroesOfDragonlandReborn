@@ -18,7 +18,11 @@ namespace HeroesOfDragonland.Multiplayer
         public override void Spawned()
         {
             GetComponent<TeamIdentity>().TryConfigure(team, CombatantKind.NPC, false);
-            if (Runner.IsServer && HasStateAuthority) Stats.Died += OnDeath;
+            if (Runner.IsServer && HasStateAuthority)
+            {
+                Stats.Died += OnDeath;
+                GetComponent<DamageReceiver>().DamageTaken += OnDamage;
+            }
         }
         private NetworkMatch Match => Runner != null && Runner.TryFindObject(MatchId, out var obj) ? obj.GetComponent<NetworkMatch>() : null;
         public bool AllowsDamage(GameObject source)
@@ -35,6 +39,14 @@ namespace HeroesOfDragonland.Multiplayer
                 && (player.Team == TeamId.TeamA || player.Team == TeamId.TeamB) && player.Team != team;
         }
         private void OnDeath() => Match?.TryFinish(this);
-        public override void Despawned(NetworkRunner runner, bool hasState) => Stats.Died -= OnDeath;
+        private void OnDamage(float _, GameObject source)
+        {
+            if (Stats.IsDead && source != null) MatchSessionData.Credit(source.GetComponent<NetworkObject>(), MatchSessionData.Metric.King);
+        }
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            Stats.Died -= OnDeath;
+            GetComponent<DamageReceiver>().DamageTaken -= OnDamage;
+        }
     }
 }

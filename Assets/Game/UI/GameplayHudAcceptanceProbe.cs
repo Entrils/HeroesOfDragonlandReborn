@@ -8,6 +8,7 @@ using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Progression;
 using HeroesOfDragonland.Stats;
 using HeroesOfDragonland.Targeting;
+using HeroesOfDragonland.Teams;
 #endif
 
 namespace HeroesOfDragonland.UI
@@ -17,14 +18,19 @@ namespace HeroesOfDragonland.UI
     public sealed class GameplayHudAcceptanceProbe : MonoBehaviour
     {
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
-        private bool active, targetChecked, sawProgress, sawResources, sawRespawn, sawResult, resourcesSeeded;
+        private bool active, targetChecked, sawProgress, sawResources, sawRespawn, sawResult, resourcesSeeded, sawLowStamina, sawKingWarning;
         private int boundAvatars;
         private Fusion.NetworkObject previous;
         private float readyAt;
+        private float playingAt = -1;
+        private string screenshotPath;
         private GameplayHudPresenter presenter;
         private void Awake()
         {
-            active = Environment.GetCommandLineArgs().Contains("-hodrHud");
+            var args = Environment.GetCommandLineArgs();
+            active = args.Contains("-hodrHud");
+            int capture = Array.IndexOf(args, "-hodrHudScreenshot");
+            if (capture >= 0 && capture + 1 < args.Length && !Application.isBatchMode) screenshotPath = args[capture + 1];
             presenter = GetComponent<GameplayHudPresenter>();
         }
         private void Check(bool ok, string label)
@@ -34,6 +40,12 @@ namespace HeroesOfDragonland.UI
         private static float Ratio(float current, float max) => max > 0 ? Mathf.Clamp01(current / max) : 0;
         private void LateUpdate()
         {
+            if (screenshotPath != null && presenter.LocalActor is { IsValid: true } viewer
+                && NetworkMatchPacing.MatchFor(viewer.Runner) is { State: MatchPhase.Playing })
+            {
+                ScreenCapture.CaptureScreenshot(screenshotPath);
+                screenshotPath = null;
+            }
             if (!active) return;
             var view = presenter.View;
             var bootstrap = GetComponentInParent<MultiplayerBootstrap>();
@@ -56,6 +68,17 @@ namespace HeroesOfDragonland.UI
             if (stats.CurrentMana < stats.MaxMana && stats.CurrentStamina < stats.MaxStamina) sawResources = true;
             var match = bootstrap.GetComponent<NetworkFortressSpawner>().Match;
             if (match == null || !match.Object.IsValid) return;
+            if (match.State == MatchPhase.Playing)
+            {
+                if (playingAt < 0) playingAt = Time.realtimeSinceStartup;
+                Check(view.HasObjectiveSummary && view.ObjectiveText == "Kill the enemy King.", "active-objective-summary");
+                sawLowStamina |= !string.IsNullOrEmpty(view.StaminaWarningText);
+                if (!string.IsNullOrEmpty(view.KingWarningText))
+                {
+                    Check(actor.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamA, "enemy-king-warning-hidden");
+                    sawKingWarning = true;
+                }
+            }
             if (match.State == MatchPhase.Playing && !targetChecked)
             {
                 var target = FindObjectsByType<Targetable>().FirstOrDefault(t => t.IsValid && t.GetComponentInParent<NetworkCharacterStats>() != null);
@@ -67,7 +90,8 @@ namespace HeroesOfDragonland.UI
                 Check(!view.HasTarget, "unlock-clears-target");
                 targetChecked = true;
             }
-            if (runner.IsServer && match.State == MatchPhase.Playing && !resourcesSeeded)
+            if (runner.IsServer && match.State == MatchPhase.Playing && !resourcesSeeded
+                && playingAt >= 0 && Time.realtimeSinceStartup - playingAt >= 1.75f)
             {
                 resourcesSeeded = true;
                 // Exercise owner-only resource replication for both host and client.
@@ -75,8 +99,10 @@ namespace HeroesOfDragonland.UI
                     if (runner.TryGetPlayerObject(player, out var obj) && obj != null)
                     {
                         var resource = obj.GetComponent<CharacterStats>();
-                        if (!resource.IsDead) { resource.TrySpendMana(25); resource.TrySpendStamina(25); }
+                        if (!resource.IsDead) { resource.TrySpendMana(25); resource.TrySpendStamina(resource.CurrentStamina); }
                     }
+                Check(runner.TryFindObject(match.TeamAKingId, out var king)
+                    && king.GetComponent<CharacterStats>().ApplyDamage(3) > 0, "seed-defending-king-warning");
             }
             var respawn = actor.GetComponent<NetworkPlayerRespawn>();
             if (respawn.WaitingForRespawn && respawn.SecondsUntilRespawn > 1)
@@ -84,12 +110,14 @@ namespace HeroesOfDragonland.UI
             if (match.State == MatchPhase.Finished)
             {
                 Check(!string.IsNullOrEmpty(view.ResultText), "replicated-match-result");
+                Check(!view.HasObjectiveSummary && string.IsNullOrEmpty(view.KingWarningText), "finished-notices-clear");
                 Check(match.Winner == HeroesOfDragonland.Teams.TeamId.TeamA ? view.KingBValue == 0 : view.KingAValue == 0, "defeated-king-health");
                 sawResult = true;
                 bool respawnRun = Environment.GetCommandLineArgs().Contains("-hodrRespawn");
                 if ((respawnRun && sawRespawn) || (!respawnRun && match.RoundNumber == 2))
                 {
-                    Check(sawProgress && sawResources && sawResult, "live-level-resource-result-updates");
+                    Check(sawProgress && sawResources && sawResult && sawLowStamina, "live-level-resource-result-updates");
+                    Check(actor.GetComponent<NetworkTestPlayer>().Team != TeamId.TeamA || sawKingWarning, "own-king-warning-observed");
                     Check(respawnRun || boundAvatars >= 2, "round-reset-rebind");
                     Debug.Log("[HudComplete] server=" + runner.IsServer + " respawn=" + respawnRun);
                     active = false;

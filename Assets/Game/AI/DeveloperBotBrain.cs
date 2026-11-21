@@ -9,7 +9,7 @@ using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
 {
-    public enum DeveloperBotGoal { Roam, EnemyPlayer, NeutralCamp, Chest, FortressGuard, King, FortressGate }
+    public enum DeveloperBotGoal { Roam, EnemyPlayer, NeutralCamp, Chest, FortressGuard, King, FortressGate, NeutralBoss }
 
     // Simple server decision loop. No transforms, health or inventory bypasses.
     public sealed class DeveloperBotBrain
@@ -19,6 +19,8 @@ namespace HeroesOfDragonland.Multiplayer
         private readonly DeveloperBotNavigation navigation = new DeveloperBotNavigation();
         private readonly CharacterStats stats;
         private readonly NetworkPlayerCombat combat;
+        private readonly NetworkPlayerDodge roll;
+        private readonly EnemyThreatTarget threatTarget;
         private float age, think, dodgeAt, chestAt;
         private NetworkObject target;
         private Vector3 destination;
@@ -35,8 +37,10 @@ namespace HeroesOfDragonland.Multiplayer
         public DeveloperBotBrain(NetworkTestPlayer owner)
         {
             player = owner; stats = owner.GetComponent<CharacterStats>(); combat = owner.GetComponent<NetworkPlayerCombat>();
+            roll = owner.GetComponent<NetworkPlayerDodge>();
+            threatTarget = owner.GetComponent<EnemyThreatTarget>();
             previousPosition = owner.transform.position;
-            dodgeAt = 3 + owner.ParticipantNumber % 5;
+            dodgeAt = 3 + owner.SpawnLane;
         }
         public NetworkPlayerInput Tick(float deltaTime)
         {
@@ -47,17 +51,31 @@ namespace HeroesOfDragonland.Multiplayer
             age += deltaTime; think -= deltaTime;
             if (think <= 0 || !ValidTarget()) { SelectGoal(); think = .5f; }
             if (target != null && target.IsValid) destination = target.transform.position;
-            Vector3 facing = destination - player.transform.position; facing.y = 0;
+            var gateCollider = Goal == DeveloperBotGoal.FortressGate && target != null ? target.GetComponent<Collider>() : null;
+            bool gate = gateCollider != null;
+            var approach = gate ? gateCollider.ClosestPoint(player.transform.position) : destination;
+            Vector3 facing = approach - player.transform.position; facing.y = 0;
             float distance = facing.magnitude;
-            float stop = Goal == DeveloperBotGoal.Chest ? 1.3f : AttackDistance();
+            float stop = gate ? .9f : Goal == DeveloperBotGoal.Chest ? 1.3f : AttackDistance();
             WantsTravel = distance > stop + .5f;
             bool canAttack = Goal == DeveloperBotGoal.EnemyPlayer || Goal == DeveloperBotGoal.NeutralCamp
-                || Goal == DeveloperBotGoal.FortressGuard || Goal == DeveloperBotGoal.King || Goal == DeveloperBotGoal.FortressGate;
-            if (canAttack && distance <= stop + .25f && age >= nextAttackPress)
+                || Goal == DeveloperBotGoal.FortressGuard || Goal == DeveloperBotGoal.King || Goal == DeveloperBotGoal.FortressGate
+                || Goal == DeveloperBotGoal.NeutralBoss;
+            bool bossThreat = BossWindupThreat(out var timeToImpact);
+            bool preparingDefense = bossThreat && timeToImpact < .75f;
+            bool readyToRoll = preparingDefense && roll != null && roll.Definition != null && !roll.Busy
+                && !combat.IsBusy && !combat.ActionsBlocked
+                && stats.CurrentStamina >= roll.Definition.StaminaCost;
+            bool bossDodge = preparingDefense && readyToRoll
+                && timeToImpact <= roll.Definition.InvulnerabilityStartTime + .08f;
+            bool block = preparingDefense && !readyToRoll && timeToImpact < .45f;
+            if (canAttack && !preparingDefense && distance <= stop + .25f && age >= nextAttackPress)
             { attackPress = unchecked(attackPress + 1); nextAttackPress = age + .22f; }
-            Vector3 move = distance > stop ? navigation.Steer(player, destination, deltaTime) : Vector3.zero;
-            bool dodge = canAttack && distance < 6 && age >= dodgeAt;
-            if (dodge) { dodgeAt = age + 5 + player.ParticipantNumber % 4; move = Vector3.Cross(Vector3.up, facing.normalized); }
+            Vector3 move = distance > stop && !preparingDefense ? navigation.Steer(player, approach, deltaTime) : Vector3.zero;
+            bool dodge = canAttack && !gate && Goal != DeveloperBotGoal.NeutralBoss && distance < 6 && age >= dodgeAt;
+            if (dodge) { dodgeAt = age + 5 + player.SpawnLane; move = Vector3.Cross(Vector3.up, facing.normalized); }
+            if (bossDodge) move = -facing.normalized;
+            if (preparingDefense) WantsTravel = false;
             if (Goal == DeveloperBotGoal.Chest && distance < 2.5f && age >= chestAt)
             {
                 chestAt = age + 3;
@@ -71,10 +89,23 @@ namespace HeroesOfDragonland.Multiplayer
             }
             return new NetworkPlayerInput {
                 Move = new Vector2(move.x, move.z), Facing = new Vector2(facing.x, facing.z).normalized,
-                Attack = canAttack && distance <= stop + .25f && !dodge,
+                Attack = canAttack && !preparingDefense && distance <= stop + .25f && !dodge,
                 LightAttackPress = attackPress,
-                Dodge = dodge
+                Dodge = dodge || bossDodge,
+                Block = block
             };
+        }
+
+        private bool BossWindupThreat(out float timeToImpact)
+        {
+            timeToImpact = 0;
+            if (Goal != DeveloperBotGoal.NeutralBoss || target == null || threatTarget == null
+                || !target.TryGetComponent<NetworkEnemy>(out var boss) || !boss.AttackBusy) return false;
+            var attackSet = boss.PresentedAttackSet;
+            if (attackSet == null || attackSet.Count == 0) return false;
+            var move = attackSet.Get(boss.AttackIndex);
+            timeToImpact = move.Windup - (player.Runner.Tick.Raw - boss.AttackStartTick) * player.Runner.DeltaTime;
+            return timeToImpact >= 0 && move.Contains(boss.AttackOrigin, boss.AttackForward, threatTarget.NavigationPosition);
         }
         private float AttackDistance()
         {
@@ -106,9 +137,11 @@ namespace HeroesOfDragonland.Multiplayer
         private void SelectGoal()
         {
             target = null;
+            float playing = NetworkMatchPacing.MatchFor(player.Runner)?.PlayingSeconds ?? 0;
+            if (playing < 300 && player.SpawnLane != 0 && TrySelectBoss()) return;
             // One bot per side keeps pressure on the objective once the opening farm is over.
             // Its teammates still clear guards and engage the enemy ahead of it.
-            bool siegeLead = AutomatedMatchSimulation.Active != null && player.SpawnLane == 0 && age > 90;
+            bool siegeLead = AutomatedMatchSimulation.Active != null && player.SpawnLane == 0 && playing > 120;
             float nearest = siegeLead ? 4 : 9;
             foreach (var enemy in Object.FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None))
                 if (Eligible(enemy.Object) && enemy.Team != player.Team && Distance(enemy.transform.position) < nearest)
@@ -143,7 +176,20 @@ namespace HeroesOfDragonland.Multiplayer
             if (target != null) { Goal = DeveloperBotGoal.FortressGuard; return; }
             if (TrySelectKing()) return;
             Goal = DeveloperBotGoal.Roam;
-            destination = new Vector3(Mathf.Sin(age * .05f + player.ParticipantNumber) * 25, 1, Mathf.Cos(age * .05f + player.ParticipantNumber) * 25);
+            float angle = age * .05f + player.SpawnLane + (player.Team == TeamId.TeamB ? Mathf.PI : 0);
+            destination = new Vector3(Mathf.Sin(angle) * 25, 1, Mathf.Cos(angle) * 25);
+        }
+
+        private bool TrySelectBoss()
+        {
+            foreach (var enemy in Object.FindObjectsByType<NetworkEnemy>())
+            {
+                if (enemy.Definition.Boss == null || !Eligible(enemy.Object)) continue;
+                target = enemy.Object;
+                Goal = DeveloperBotGoal.NeutralBoss;
+                return true;
+            }
+            return false;
         }
 
         private bool TrySelectKing()

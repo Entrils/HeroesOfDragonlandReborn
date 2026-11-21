@@ -27,6 +27,7 @@ namespace HeroesOfDragonland.UI
         private EquipmentSlot selectedEquipment;
         private string selectedId, feedback = "", lastBlock;
         private bool dirty, pending;
+        private float confirmDiscardUntil;
         private float requestAt, nextRequestAt;
         public InventoryEquipmentView View => view;
         public NetworkObject LocalActor => actor;
@@ -41,12 +42,16 @@ namespace HeroesOfDragonland.UI
             view.EquipmentSelected += SelectEquipment;
             view.EquipRequested += RequestEquip;
             view.UnequipRequested += RequestUnequip;
+            view.DiscardRequested += RequestDiscard;
+            view.AssignQuickItemRequested += OnAssignQuickItem;
         }
         private void OnDisable()
         {
             view.ToggleRequested -= Toggle; view.CloseRequested -= Close;
             view.InventorySelected -= SelectInventory; view.EquipmentSelected -= SelectEquipment;
             view.EquipRequested -= RequestEquip; view.UnequipRequested -= RequestUnequip;
+            view.DiscardRequested -= RequestDiscard;
+            view.AssignQuickItemRequested -= OnAssignQuickItem;
             Bind(null);
         }
         private void Update()
@@ -54,6 +59,12 @@ namespace HeroesOfDragonland.UI
             if (!Application.isFocused || Keyboard.current == null) return;
             if (Keyboard.current.iKey.wasPressedThisFrame) Toggle();
             else if (view.IsOpen && Keyboard.current.escapeKey.wasPressedThisFrame) Close();
+            else if (view.IsOpen && networkInventory != null && networkInventory.QuickSlots is { } slots)
+            {
+                if (Keyboard.current.leftBracketKey.wasPressedThisFrame) slots.SelectPrevious();
+                else if (Keyboard.current.rightBracketKey.wasPressedThisFrame) slots.SelectNext();
+                else if (Keyboard.current.f6Key.wasPressedThisFrame) AssignSelectedToQuickSlot();
+            }
         }
         private void LateUpdate()
         {
@@ -67,6 +78,7 @@ namespace HeroesOfDragonland.UI
             { pending = false; feedback = "No response yet. Check the current slots before retrying."; dirty = true; }
             string block = BlockReason();
             if (lastBlock != block) { lastBlock = block; dirty = true; }
+            if (confirmDiscardUntil > 0 && Time.unscaledTime >= confirmDiscardUntil) { confirmDiscardUntil = 0; dirty = true; }
             if (dirty) Refresh();
         }
         private void Bind(NetworkObject value)
@@ -76,6 +88,7 @@ namespace HeroesOfDragonland.UI
             if (equipment != null) equipment.Changed -= OnEquipment;
             if (attributes != null) attributes.Changed -= Invalidate;
             if (networkEquipment != null) networkEquipment.RequestResolved -= OnResolved;
+            if (networkInventory != null) networkInventory.RemoveResolved -= OnDiscardResolved;
             actor = value; inventory = null; equipment = null; attributes = null; networkInventory = null; networkEquipment = null; stats = null;
             ClearSelection(); pending = false; feedback = ""; nextRequestAt = 0;
             if (actor != null)
@@ -87,6 +100,7 @@ namespace HeroesOfDragonland.UI
                 if (equipment != null) equipment.Changed += OnEquipment;
                 if (attributes != null) attributes.Changed += Invalidate;
                 if (networkEquipment != null) networkEquipment.RequestResolved += OnResolved;
+                if (networkInventory != null) networkInventory.RemoveResolved += OnDiscardResolved;
             }
             view.SetAvailable(inventory != null && equipment != null && networkEquipment != null);
             dirty = true;
@@ -98,22 +112,34 @@ namespace HeroesOfDragonland.UI
             view.SetOpen(true); inputGate.SetBlocked(this, true); dirty = true;
             Refresh();
         }
-        public void Close() { view.SetOpen(false); if (inputGate != null) inputGate.SetBlocked(this, false); }
-        private void ClearSelection() { selectedIndex = -1; selectedEquipment = EquipmentSlot.None; selectedId = null; }
+        public void Close() { confirmDiscardUntil = 0; view.SetOpen(false); if (inputGate != null) inputGate.SetBlocked(this, false); }
+        private void ClearSelection() { confirmDiscardUntil = 0; selectedIndex = -1; selectedEquipment = EquipmentSlot.None; selectedId = null; }
         public void SelectInventory(int index)
         {
             if (!view.IsOpen || inventory == null || index < 0 || index >= inventory.SlotCount) return;
             selectedIndex = index; selectedEquipment = EquipmentSlot.None; selectedId = inventory.GetSlot(index).ItemId;
-            feedback = ""; Refresh();
+            confirmDiscardUntil = 0; feedback = ""; Refresh();
         }
         public void SelectEquipment(EquipmentSlot slot)
         {
             if (!view.IsOpen || equipment == null || slot < EquipmentSlot.MainHand || slot > EquipmentSlot.Legs) return;
             selectedEquipment = slot; selectedIndex = -1; selectedId = equipment.GetItemId(slot);
-            feedback = ""; Refresh();
+            confirmDiscardUntil = 0; feedback = ""; Refresh();
+        }
+
+        private void OnAssignQuickItem() => AssignSelectedToQuickSlot();
+
+        public bool AssignSelectedToQuickSlot()
+        {
+            if (!view.IsOpen || selectedIndex < 0 || SelectedItem(out _) == null
+                || networkInventory == null || networkInventory.QuickSlots is not { } slots
+                || !slots.Assign(slots.Selected.Index, selectedIndex)) return false;
+            feedback = "Assigned to quick slot " + (slots.Selected.Index + 1) + ".";
+            dirty = true;
+            return true;
         }
         private void Invalidate() { dirty = true; view.HideTooltip(); }
-        private void OnInventory(InventorySnapshot _) => Invalidate();
+        private void OnInventory(InventorySnapshot _) { confirmDiscardUntil = 0; Invalidate(); }
         private void OnEquipment(EquipmentSlot slot, string before, string after) => Invalidate();
         private ItemDefinition SelectedItem(out int amount)
         {
@@ -145,13 +171,16 @@ namespace HeroesOfDragonland.UI
             dirty = false;
             var selected = SelectedItem(out int quantity);
             if (inventory == null)
-            { view.SetSlotCount(0); view.SetDetails("Select an item.", false, false, false); view.SetStatus(""); return; }
+            { view.SetSlotCount(0); view.SetCapacity(0, 0); view.SetDiscard(false, false, false); view.SetDetails("Select an item.", false, false, false); view.SetStatus(""); return; }
             view.SetSlotCount(inventory.SlotCount);
+            int used = 0;
             for (int i = 0; i < inventory.SlotCount; i++)
             {
                 var slot = inventory.GetSlot(i); inventory.TryResolveItem(slot.ItemId, out var item);
+                if (slot.Amount > 0) used++;
                 view.SetInventorySlot(i, item, slot.Amount, selectedIndex == i, InventoryItemText.Describe(item, slot.Amount, equipment, out _));
             }
+            view.SetCapacity(used, inventory.SlotCount);
             for (int i = 1; i <= 6; i++)
             {
                 var slot = (EquipmentSlot)i; var item = equipment.GetItem(slot);
@@ -165,9 +194,12 @@ namespace HeroesOfDragonland.UI
             bool canEquip = selectedIndex >= 0 && valid && selected.EquipmentSlot != EquipmentSlot.None && met && block.Length == 0;
             bool canUnequip = selectedEquipment != EquipmentSlot.None && valid && room && block.Length == 0;
             view.SetDetails(description, canEquip, canUnequip, selected != null && selected.Category == ItemCategory.Consumable);
+            bool confirming = selected != null && block.Length == 0 && confirmDiscardUntil > Time.unscaledTime;
+            view.SetDiscard(selectedIndex >= 0 && selected != null, block.Length == 0 && quantity > 0, confirming);
             string message = block.Length > 0 ? block : feedback;
-            if (message.Length == 0 && selected != null && !met) message = "Requirements not met. See all MISSING attributes above.";
-            if (message.Length == 0 && selectedEquipment != EquipmentSlot.None && selected != null && !room) message = "Inventory has no room for this item.";
+            if (confirming) message = "Discard " + quantity + " × " + selected.DisplayName + "? Click Confirm discard to remove the stack.";
+            else if (message.Length == 0 && selected != null && !met) message = "Cannot equip · Increase the attributes marked MISSING.";
+            else if (message.Length == 0 && selectedEquipment != EquipmentSlot.None && selected != null && !room) message = "Bag full · Free a slot before unequipping.";
             view.SetStatus(message);
         }
         public void RequestEquip()
@@ -187,7 +219,22 @@ namespace HeroesOfDragonland.UI
             if (!networkEquipment.RequestUnequip(selectedEquipment)) OnResolved(false, "Unequip request could not be sent.");
             dirty = true;
         }
-        private void BeginRequest() { pending = true; requestAt = Time.unscaledTime; nextRequestAt = requestAt + .2f; feedback = ""; }
+        internal void RequestDiscard()
+        {
+            var item = SelectedItem(out int quantity);
+            if (!view.IsOpen || selectedIndex < 0 || item == null || quantity <= 0 || BlockReason().Length > 0) return;
+            if (confirmDiscardUntil <= Time.unscaledTime) { confirmDiscardUntil = Time.unscaledTime + 5f; Refresh(); return; }
+            BeginRequest();
+            if (!networkInventory.RequestRemove(selectedIndex, quantity)) OnDiscardResolved(false, "Discard request could not be sent.");
+            dirty = true;
+        }
+        private void BeginRequest() { confirmDiscardUntil = 0; pending = true; requestAt = Time.unscaledTime; nextRequestAt = requestAt + .2f; feedback = ""; }
+        private void OnDiscardResolved(bool accepted, string reason)
+        {
+            pending = false;
+            feedback = accepted ? "Stack discarded." : reason;
+            dirty = true;
+        }
         private void OnResolved(bool accepted, string reason)
         {
             pending = false; feedback = accepted ? "Equipment updated." : "Not changed: " + reason;

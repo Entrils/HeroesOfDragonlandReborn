@@ -103,7 +103,7 @@ namespace HeroesOfDragonland.World
 #endif
                         Changed?.Invoke();
                     }, requireAll: true);
-                    message = granted ? "Chest looted." : "Make room for all chest rewards and try again.";
+                    message = granted ? "Loot added to inventory." : "Inventory full. Free space [I], then open the chest again.";
                     return granted;
                 }
                 bool openedNow = false;

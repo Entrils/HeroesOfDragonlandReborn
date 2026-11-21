@@ -14,6 +14,12 @@ namespace HeroesOfDragonland.UI
         public float BossHealthValue => bossHealth?.value ?? 0;
         private VisualElement root, personal, targetPanel, marker;
         private Label identity, phase, objective, respawn, result, targetName, pacing;
+        private Label quickItem;
+        private Label secondaryObjectives, staminaWarning, kingWarning, prompt, feedback, respawnDetails;
+        public bool HasObjectiveSummary => secondaryObjectives != null && secondaryObjectives.style.display.value != DisplayStyle.None;
+        public string FeedbackText => feedback?.text;
+        public string KingWarningText => kingWarning?.text;
+        public string StaminaWarningText => staminaWarning?.text;
         private ProgressBar health, stamina, mana, xp, targetHealth, kingA, kingB;
         public bool HasLocalPlayer => personal != null && personal.style.display.value != DisplayStyle.None;
         public string ResultText => result?.text;
@@ -41,13 +47,22 @@ namespace HeroesOfDragonland.UI
             identity = Label(personal, "");
             health = Bar(personal, "Health", new Color(.75f, .18f, .22f));
             stamina = Bar(personal, "Stamina", new Color(.2f, .65f, .35f));
+            staminaWarning = Label(personal, "");
             mana = Bar(personal, "Mana", new Color(.18f, .42f, .85f));
             xp = Bar(personal, "XP", new Color(.65f, .45f, .85f));
+            quickItem = Label(personal, "");
+            quickItem.name = "QuickItem";
+            SetQuickItem(0, 0, null, 0);
             var match = Panel("Match", null, 18, 18, null, 300);
             phase = Label(match, "Not connected");
             objective = Label(match, "Protect your King. Defeat the enemy King.");
+            objective.style.unityFontStyleAndWeight = FontStyle.Bold;
+            secondaryObjectives = Label(match, "Clear camps for XP and equipment.\nDefeat the contested boss.\nWeaken the enemy fortress.");
+            secondaryObjectives.style.fontSize = 13;
+            secondaryObjectives.style.display = DisplayStyle.None;
             kingA = Bar(match, "Team A King", new Color(.2f, .5f, .9f));
             kingB = Bar(match, "Team B King", new Color(.85f, .28f, .25f));
+            kingWarning = Label(match, "");
             pacing = Label(match, "");
             pacing.name = "MatchPacing";
             bossPanel = Panel("Boss", null, 18, null, null, 520);
@@ -68,6 +83,7 @@ namespace HeroesOfDragonland.UI
             targetPanel.style.left = Length.Percent(50); targetPanel.style.marginLeft = -180;
             targetName = Label(targetPanel, "TARGET LOCKED");
             targetHealth = Bar(targetPanel, "Target", new Color(.85f, .35f, .2f));
+            Label(targetPanel, "Q / E Switch  ·  MMB Unlock").style.fontSize = 13;
             var notice = Panel("Notice", null, null, null, 28, 460);
             notice.style.left = Length.Percent(50);
             notice.style.marginLeft = -230;
@@ -76,9 +92,20 @@ namespace HeroesOfDragonland.UI
             notice.style.top = Length.Percent(40);
             notice.style.unityTextAlign = TextAnchor.MiddleCenter;
             respawn = Label(notice, "");
+            respawn.style.fontSize = 21;
+            respawn.style.unityFontStyleAndWeight = FontStyle.Bold;
+            respawnDetails = Label(notice, "");
             result = Label(notice, "");
             result.style.fontSize = 26;
             result.style.unityFontStyleAndWeight = FontStyle.Bold;
+            var context = Panel("Context", null, null, null, 175, 460);
+            context.style.left = Length.Percent(50);
+            context.style.translate = new Translate(Length.Percent(-50), 0);
+            context.style.unityTextAlign = TextAnchor.MiddleCenter;
+            context.style.backgroundColor = Color.clear;
+            feedback = Label(context, "");
+            prompt = Label(context, "");
+            prompt.style.unityFontStyleAndWeight = FontStyle.Bold;
             var controls = Label(root, "WASD move  /  Mouse look  /  MMB lock  /  Shift dodge  /  Esc menu");
             controls.name = "Controls";
             controls.style.position = Position.Absolute; controls.style.left = 18; controls.style.bottom = 18;
@@ -91,6 +118,7 @@ namespace HeroesOfDragonland.UI
             root.Add(marker);
             IgnorePicking(root);
             SetLocal(false); SetTarget(false); SetKing(true, 0, 0); SetKing(false, 0, 0);
+            SetContext("", "", false); SetKingWarning(false); SetStaminaWarning(false);
         }
         private VisualElement Panel(string name, float? left, float? top, float? right, float? bottom, float width)
         {
@@ -143,6 +171,13 @@ namespace HeroesOfDragonland.UI
         }
         public void SetLocal(bool visible) { personal.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None; if (!visible) SetRespawn(""); }
         public void SetIdentity(string text) => identity.text = text;
+        public void SetQuickItem(int slotCount, int index, string itemName, long quantity)
+        {
+            if (quickItem == null) return;
+            quickItem.style.display = slotCount > 0 ? DisplayStyle.Flex : DisplayStyle.None;
+            quickItem.text = slotCount == 0 ? "" : $"Quick slot {index + 1}/{slotCount}  "
+                + (quantity > 0 ? $"{itemName} x{quantity} [G]" : "Empty") + "  [ / ]";
+        }
         public void SetHealth(float value, float maximum) => Value(health, "Health", value, maximum);
         public void SetStamina(float value, float maximum) => Value(stamina, "Stamina", value, maximum);
         public void SetMana(float value, float maximum) => Value(mana, "Mana", value, maximum);
@@ -156,7 +191,22 @@ namespace HeroesOfDragonland.UI
         public void SetTargetHealth(float value, float maximum) => Value(targetHealth, "Health", value, maximum);
         public void SetKing(bool teamA, float value, float maximum) => Value(teamA ? kingA : kingB, "Team " + (teamA ? "A" : "B") + " King" + (maximum > 0 && value <= 0 ? " · DEFEATED" : ""), value, maximum);
         public void SetMatch(string state, string goal, string outcome) { phase.text = state; objective.text = goal; result.text = outcome; }
-        public void SetRespawn(string value) => respawn.text = value;
+        public void SetRespawn(string value, string details = "") { SetHint(respawn, value, Color.white); SetHint(respawnDetails, details, Color.white); }
+        internal void SetObjectives(bool visible) => secondaryObjectives.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+        internal void SetStaminaWarning(bool active) => SetHint(staminaWarning, active ? "Low stamina · Ease off attacks and dodges" : "", new Color(1, .77f, .34f));
+        internal void SetKingWarning(bool active) => SetHint(kingWarning, active ? "Your King is under attack" : "", new Color(1, .42f, .32f));
+        internal void SetContext(string message, string interaction, bool warning)
+        {
+            SetHint(feedback, message, warning ? new Color(1, .77f, .34f) : new Color(.91f, 1, .93f));
+            SetHint(prompt, interaction, Color.white);
+        }
+        private static void SetHint(Label label, string text, Color color)
+        {
+            if (label.text == text && label.style.color.value == color && label.style.display.value == (text.Length == 0 ? DisplayStyle.None : DisplayStyle.Flex)) return;
+            label.text = text;
+            label.style.color = color;
+            label.style.display = text.Length == 0 ? DisplayStyle.None : DisplayStyle.Flex;
+        }
         public string PacingText => pacing?.text;
         public void SetPacing(string value) { if (pacing != null) pacing.text = value; }
         public void PlaceTarget(Camera camera, Vector3 position)

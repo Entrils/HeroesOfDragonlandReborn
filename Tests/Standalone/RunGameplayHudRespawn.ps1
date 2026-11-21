@@ -9,7 +9,7 @@ function StartPeer([string]$mode) {
     $log = Join-Path $respawnRoot ($mode + '.log')
     $peer = Start-Process -FilePath $respawnExe -WindowStyle Hidden -PassThru -ArgumentList @(
         '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$respawnRoom,
-        '-hodrRespawn','-hodrHud','-hodrQuit','150','-logFile',('"' + $log + '"'))
+        '-hodrPlaytestReady','2','-hodrRespawn','-hodrHud','-hodrQuit','150','-logFile',('"' + $log + '"'))
     $respawnPeers.Add($peer)
 }
 function WaitLog([string]$mode, [string]$pattern) {

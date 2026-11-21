@@ -1,4 +1,5 @@
 using Fusion;
+using HeroesOfDragonland.InventorySystem;
 using HeroesOfDragonland.Multiplayer;
 using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Progression;
@@ -10,7 +11,7 @@ using UnityEngine;
 namespace HeroesOfDragonland.UI
 {
     [DefaultExecutionOrder(100), DisallowMultipleComponent, RequireComponent(typeof(GameplayHudView))]
-    public sealed class GameplayHudPresenter : MonoBehaviour
+    public sealed partial class GameplayHudPresenter : MonoBehaviour
     {
         [SerializeField] private MultiplayerBootstrap bootstrap;
         private GameplayHudView view;
@@ -24,6 +25,24 @@ namespace HeroesOfDragonland.UI
         private TeamId localTeam;
         public NetworkObject LocalActor => actor;
         public GameplayHudView View => view;
+        private QuickItemSlots quickItems;
+        public QuickItemSelection SelectedQuickItem => quickItems?.Selected ?? default;
+        public event System.Action<QuickItemSelection> QuickItemChanged;
+
+        private void BindQuickItems(QuickItemSlots slots)
+        {
+            if (ReferenceEquals(quickItems, slots)) return;
+            if (quickItems != null) quickItems.SelectionChanged -= ShowQuickItem;
+            quickItems = slots;
+            if (quickItems != null) quickItems.SelectionChanged += ShowQuickItem;
+            ShowQuickItem(SelectedQuickItem);
+        }
+
+        private void ShowQuickItem(QuickItemSelection selection)
+        {
+            view.SetQuickItem(selection.SlotCount, selection.Index, selection.Item?.DisplayName, selection.Quantity);
+            QuickItemChanged?.Invoke(selection);
+        }
         private void Awake() => view = GetComponent<GameplayHudView>();
         private void OnEnable()
         {
@@ -55,6 +74,7 @@ namespace HeroesOfDragonland.UI
             }
             RefreshMatch(); // Replicated timers/roster have no change events; read their current snapshot.
             RefreshRespawn();
+            RefreshContext();
             if (!ReferenceEquals(target, null) && (target == null || !target.IsValid)) OnTargetChanged(null);
             if (target != null) view.PlaceTarget(Camera.main, target.AimPosition);
         }
@@ -62,12 +82,14 @@ namespace HeroesOfDragonland.UI
             => match.Runner.TryFindObject(id, out var obj) && obj != null ? obj.GetComponent<CharacterStats>() : null;
         private void BindPlayer(NetworkObject value)
         {
+            BindContext(value);
             if (stats != null) { stats.HealthChanged -= view.SetHealth; stats.StaminaChanged -= view.SetStamina; stats.ManaChanged -= view.SetMana; }
             if (progression != null) progression.Changed -= RefreshProgression;
-            if (targeting != null) targeting.TargetChanged -= OnTargetChanged;
+            if (targeting != null) { targeting.TargetChanged -= OnTargetChanged; targeting.AcquisitionFailed -= OnLockFailed; }
             if (respawn != null) { respawn.Died -= RefreshRespawn; respawn.Respawned -= RefreshRespawn; respawn.RespawnCountdownChanged -= OnCountdown; }
             OnTargetChanged(null);
             actor = value; stats = null; progression = null; targeting = null; respawn = null;
+            BindQuickItems(actor != null ? actor.GetComponent<NetworkInventory>()?.QuickSlots : null);
             localTeam = actor != null ? actor.GetComponent<NetworkTestPlayer>().Team : TeamId.Unassigned;
             view.SetLocal(actor != null);
             if (actor == null) return;
@@ -84,13 +106,14 @@ namespace HeroesOfDragonland.UI
             }
             if (progression != null) progression.Changed += RefreshProgression;
             RefreshProgression();
-            if (targeting != null) { targeting.TargetChanged += OnTargetChanged; OnTargetChanged(targeting.CurrentTarget); }
+            if (targeting != null) { targeting.TargetChanged += OnTargetChanged; targeting.AcquisitionFailed += OnLockFailed; OnTargetChanged(targeting.CurrentTarget); }
             if (respawn != null) { respawn.Died += RefreshRespawn; respawn.Respawned += RefreshRespawn; respawn.RespawnCountdownChanged += OnCountdown; }
             RefreshRespawn();
         }
         private void RefreshProgression()
         {
             if (actor == null || !actor.IsValid) return;
+            ObserveLevel(progression != null ? progression.Level : 1);
             view.SetIdentity(TeamName(localTeam) + "  ·  Level " + (progression != null ? progression.Level : 1));
             view.SetExperience(progression != null ? progression.CurrentXP : 0, progression != null ? progression.XPRequiredForNextLevel : 0, progression != null && progression.IsMaximumLevel);
         }
@@ -101,7 +124,12 @@ namespace HeroesOfDragonland.UI
             if (respawn != null && respawn.Object != null && respawn.Object.IsValid && stats != null && stats.IsDead)
                 text = respawn.WaitingForRespawn ? respawn.SecondsUntilRespawn > 0 ? "Respawning in " + Mathf.CeilToInt(respawn.SecondsUntilRespawn) + "s" : "Waiting for a free team spawn point…"
                     : match != null && match.MatchEnded ? "Round over" : "You are down";
-            view.SetRespawn(text);
+            string details = "";
+            if (text.Length > 0 && match != null && match.CanPlay)
+                details = match.Balance != null && match.Balance.DeathProgressLossPercent > 0 && match.Balance.MaximumDeathExperienceLoss > 0
+                    ? "You return at your fortress with your gear and level. Death can cost XP."
+                    : "You return at your fortress with your gear and progress.";
+            view.SetRespawn(text, details);
         }
         private void OnTargetChanged(Targetable value)
         {
@@ -112,7 +140,7 @@ namespace HeroesOfDragonland.UI
             if (actor == null || networkTarget == null || !networkTarget.IsValid || networkTarget.Runner != actor.Runner) target = null;
             view.SetTarget(target != null);
             if (target == null) return;
-            view.SetTargetName(networkTarget.name.Replace("(Clone)", ""));
+            view.SetTargetName(networkTarget.name.Replace("(Clone)", "").Trim());
             targetStats = target.GetComponentInParent<CharacterStats>();
             if (targetStats != null) { targetStats.HealthChanged += view.SetTargetHealth; view.SetTargetHealth(targetStats.CurrentHealth, targetStats.MaxHealth); }
             else view.SetTargetHealth(0, 0);
@@ -122,6 +150,7 @@ namespace HeroesOfDragonland.UI
             if (match != null) { match.StateChanged -= OnPhase; match.Ended -= OnEnded; }
             BindKing(true, null); BindKing(false, null);
             match = value;
+            ResetContext();
             if (match != null) { match.StateChanged += OnPhase; match.Ended += OnEnded; }
             RefreshMatch();
         }
@@ -133,20 +162,24 @@ namespace HeroesOfDragonland.UI
             if (ReferenceEquals(previous, value)) return;
             if (previous != null) { if (isA) previous.HealthChanged -= OnKingA; else previous.HealthChanged -= OnKingB; }
             if (isA) kingA = value; else kingB = value;
+            SetKingBaseline(isA, value != null && value.MaxHealth > 0 ? value.CurrentHealth : -1);
             if (value != null) { if (isA) value.HealthChanged += OnKingA; else value.HealthChanged += OnKingB; }
             view.SetKing(isA, value != null ? value.CurrentHealth : 0, value != null ? value.MaxHealth : 0);
         }
-        private void OnKingA(float hp, float max) => view.SetKing(true, hp, max);
-        private void OnKingB(float hp, float max) => view.SetKing(false, hp, max);
+        private void OnKingA(float hp, float max) { view.SetKing(true, hp, max); ObserveKing(true, hp, max); }
+        private void OnKingB(float hp, float max) { view.SetKing(false, hp, max); ObserveKing(false, hp, max); }
         private static string TeamName(TeamId team) => team == TeamId.TeamA ? "Team A" : team == TeamId.TeamB ? "Team B" : "Unassigned";
         private void RefreshMatch()
         {
+            view.SetObjectives(match != null && match.Object != null && match.Object.IsValid
+                && (match.State == MatchPhase.Playing || match.State == MatchPhase.Starting));
             if (match == null || match.Object == null || !match.Object.IsValid)
             { view.SetMatch("Not connected", "Join a match to see objectives.", ""); return; }
             string state = "Round " + match.RoundNumber + " · " + match.State;
-            string goal = "Protect your King. Defeat the enemy King.";
-            if (match.State == MatchPhase.Lobby) goal = "Lobby: ready up, then host starts / " + (match.TeamACount + match.TeamBCount) + " / " + match.RequiredPlayers + " · Both teams required";
-            if (match.State == MatchPhase.Starting) goal = match.SecondsRemaining > 0 ? "Starting in " + Mathf.CeilToInt(match.SecondsRemaining) + "s" : "Waiting for team spawn points…";
+            string goal = "Kill the enemy King.";
+            if (match.State == MatchPhase.Playing) state = "Round " + match.RoundNumber;
+            if (match.State == MatchPhase.Lobby) { state = "Lobby · " + (match.TeamACount + match.TeamBCount) + " / " + match.RequiredPlayers; goal = "Ready up. The host starts when both teams are ready."; }
+            if (match.State == MatchPhase.Starting) state = match.SecondsRemaining > 0 ? "Starting in " + Mathf.CeilToInt(match.SecondsRemaining) + "s" : "Waiting for team spawn points…";
             if (match.State == MatchPhase.Finished) goal = "Returning to lobby in " + Mathf.CeilToInt(match.SecondsRemaining) + "s";
             if (match.State == MatchPhase.ReturningToLobby) goal = "Resetting round…";
             if (match.PreparationError.ToString().Length > 0) goal = match.PreparationError.ToString();

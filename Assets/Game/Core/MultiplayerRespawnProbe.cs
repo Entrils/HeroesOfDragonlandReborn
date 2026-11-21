@@ -21,7 +21,7 @@ namespace HeroesOfDragonland.Multiplayer
         private float readyAt, finishedAt;
         private readonly Dictionary<NetworkPlayerRespawn, int> deaths = new();
         private readonly Dictionary<NetworkPlayerRespawn, int> revivals = new();
-        private readonly Dictionary<NetworkPlayerRespawn, long[]> revisions = new();
+        private readonly Dictionary<NetworkPlayerRespawn, (long Inventory, long Equipment, int Level, long XP, int Vitality)> retained = new();
         private void Awake() => active = Environment.GetCommandLineArgs().Contains("-hodrRespawn");
         private void Check(bool ok, string label)
         {
@@ -56,10 +56,12 @@ namespace HeroesOfDragonland.Multiplayer
                     var player = actor.GetComponent<NetworkTestPlayer>();
                     Check(GetComponent<TeamSpawnService>().GetArea(player.Team).IsSpawnPoint(actor.transform.position), "own-fortress-position");
                     Check(runner.TryGetPlayerObject(actor.Object.InputAuthority, out var same) && same == actor.Object, "same-avatar-and-owner");
-                    var old = revisions[actor];
-                    Check(old[0] == actor.GetComponent<Inventory>().Revision
-                        && old[1] == actor.GetComponent<Equipment>().Revision
-                        && old[2] == actor.GetComponent<SessionProgression>().Revision, "session-state-preserved");
+                    var old = retained[actor];
+                    var progression = actor.GetComponent<SessionProgression>();
+                    Check(old.Inventory == actor.GetComponent<Inventory>().Revision
+                        && old.Equipment == actor.GetComponent<Equipment>().Revision
+                        && old.Level == progression.Level && old.XP == progression.CurrentXP
+                        && old.Vitality == progression.GetAllocatedPoints(ItemStat.Vitality), "session-state-preserved");
                 };
             }
             if (readyAt == 0) readyAt = Time.realtimeSinceStartup;
@@ -95,7 +97,8 @@ namespace HeroesOfDragonland.Multiplayer
                     var progression = actor.GetComponent<SessionProgression>();
                     Check(actor.GetComponent<NetworkSessionProgression>().TryGrantExperience(1000, "respawn-test"), "seed-level");
                     Check(progression.TryIncreaseAttribute(ItemStat.Vitality, progression.SessionId, out _), "seed-attribute");
-                    revisions[actor] = new[] { inv.Revision, actor.GetComponent<Equipment>().Revision, progression.Revision };
+                    retained[actor] = (inv.Revision, actor.GetComponent<Equipment>().Revision, progression.Level,
+                        progression.CurrentXP, progression.GetAllocatedPoints(ItemStat.Vitality));
                 }
             }
             if (!prepared) return;
@@ -106,6 +109,9 @@ namespace HeroesOfDragonland.Multiplayer
                 {
                     var stats = actor.GetComponent<CharacterStats>();
                     stats.TrySpendMana(25); stats.TrySpendStamina(25);
+                    var expected = retained[actor];
+                    expected.XP -= match.Balance?.DeathExperienceLoss(expected.XP) ?? 0;
+                    retained[actor] = expected;
                     Check(stats.ApplyDamage(99999) > 0 && actor.WaitingForRespawn && stats.IsDead, "server-death-scheduled");
                 }
             }

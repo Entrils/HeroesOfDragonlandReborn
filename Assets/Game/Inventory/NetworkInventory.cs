@@ -13,7 +13,7 @@ namespace HeroesOfDragonland.Multiplayer
     }
 
     [DisallowMultipleComponent, RequireComponent(typeof(Inventory), typeof(NetworkCharacterStats))]
-    public sealed class NetworkInventory : NetworkBehaviour, IInventoryAuthority
+    public sealed partial class NetworkInventory : NetworkBehaviour, IInventoryAuthority
     {
         public const int Capacity = 32;
         [Networked, Capacity(Capacity)] public NetworkArray<NetworkInventorySlot> Slots => default;
@@ -35,9 +35,14 @@ namespace HeroesOfDragonland.Multiplayer
         }
         public override void Spawned()
         {
+            potionInputGate = Runner.GetComponentInParent<HeroesOfDragonland.Player.LocalGameplayInputGate>();
             if (inventory.SlotCount > Capacity) throw new InvalidOperationException("Network inventory exceeds 32 slots.");
             if (HasStateAuthority)
             {
+                Array.Clear(potionCooldowns, 0, potionCooldowns.Length);
+                globalPotionCooldown = TickTimer.None;
+                ClearPotionBuffs();
+                stats.Died += ClearPotionBuffs;
                 // Filter this entire behaviour, including quantities and revision, before publishing.
                 ReplicateToAll(false);
                 if (Object.InputAuthority != PlayerRef.None) ReplicateTo(Object.InputAuthority, true);
@@ -87,6 +92,12 @@ namespace HeroesOfDragonland.Multiplayer
         }
         [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
         private void RPC_RemoveResult(bool accepted, string reason) => RemoveResolved?.Invoke(accepted, reason);
-        public override void Despawned(NetworkRunner runner, bool hasState) => inventory.Changed -= Publish;
+        public override void Despawned(NetworkRunner runner, bool hasState)
+        {
+            quickSlots?.Dispose();
+            quickSlots = null;
+            inventory.Changed -= Publish;
+            stats.Died -= ClearPotionBuffs;
+        }
     }
 }

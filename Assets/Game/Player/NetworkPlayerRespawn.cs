@@ -45,6 +45,7 @@ namespace HeroesOfDragonland.Multiplayer
             ProtectionTimer = TickTimer.None;
             WaitingForRespawn = true;
             DeathSequence++;
+            MatchSessionData.Credit(Object, MatchSessionData.Metric.Death);
             var balance = fortress.Match != null ? fortress.Match.Balance : null;
             float elapsed = fortress.Match != null ? fortress.Match.PlayingSeconds : 0;
             float delay = balance != null ? balance.RespawnDelay(elapsed, GetComponent<HeroesOfDragonland.Progression.SessionProgression>()?.Level ?? 1)

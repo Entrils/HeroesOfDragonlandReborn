@@ -58,9 +58,9 @@ internal class CommandScript : IRunCommand
             if (!equipment.TryGetRequirementValue(ItemStat.Strength, out float strength) || strength != 10)
                 throw new Exception("Preview must use canonical requirement source");
             var potion = AssetDatabase.LoadAssetAtPath<ItemDefinition>("Assets/Game/Data/Items/ManaPotion.asset");
-            if (!InventoryItemText.Describe(potion, 3, equipment, out _).Contains("Use unavailable"))
-                throw new Exception("Unsupported consumables must be explained");
-            result.Log("PASS: saved inventory UI composition, input gate, overlay, all missing requirements and unsupported consumable details");
+            if (!InventoryItemText.Describe(potion, 3, equipment, out _).Contains("assign this item with F6"))
+                throw new Exception("Consumable details must explain quick assignment");
+            result.Log("PASS: saved inventory UI composition, input gate, overlay, missing requirements and quick assignment details");
         }
         finally { result.DestroyObject(item); result.DestroyObject(actor); }
     }
