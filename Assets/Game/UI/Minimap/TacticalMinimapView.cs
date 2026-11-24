@@ -9,7 +9,6 @@ namespace HeroesOfDragonland.UI.Minimap
     public sealed partial class TacticalMinimapView : MonoBehaviour
     {
         [SerializeField] private TacticalMapSource source;
-        [SerializeField, Min(0)] private float topOffset = 210;
         [SerializeField] private bool showWorldObjectiveIcons;
         private VisualElement root, panel, map, background, symbols, worldLayer;
         private Label compass;
@@ -22,17 +21,16 @@ namespace HeroesOfDragonland.UI.Minimap
             root = GetComponent<UIDocument>().rootVisualElement; root.Clear(); root.pickingMode = PickingMode.Ignore;
             worldLayer = new VisualElement(); Fill(worldLayer); root.Add(worldLayer);
             panel = new VisualElement { name = "TacticalMinimap" }; panel.pickingMode = PickingMode.Ignore;
-            panel.style.position = Position.Absolute; panel.style.left = 18; panel.style.top = topOffset;
-            panel.style.width = 226; panel.style.backgroundColor = new Color(.045f, .055f, .065f, .96f); panel.style.color = Color.white;
+            panel.style.position = Position.Absolute; panel.style.left = 22; panel.style.top = 22;
+            panel.style.color = HudMetalwork.Brass;
+            GameplayHudView.StyleSurface(panel);
             panel.style.paddingLeft = panel.style.paddingRight = 8; panel.style.paddingTop = panel.style.paddingBottom = 6;
-            panel.Add(new Label("TACTICAL MAP  |  N ^"));
-            map = new VisualElement(); map.pickingMode = PickingMode.Ignore; map.style.height = 210; map.style.width = 210;
+            compass = new Label("N ↑"); compass.style.fontSize = 11;
+            compass.style.unityTextAlign = TextAnchor.MiddleCenter; panel.Add(compass);
+            map = new VisualElement(); map.pickingMode = PickingMode.Ignore;
             map.style.position = Position.Relative; map.style.overflow = Overflow.Hidden; map.style.backgroundColor = new Color(.11f, .13f, .14f);
             background = new VisualElement(); Fill(background); map.Add(background);
             symbols = new VisualElement(); Fill(symbols); map.Add(symbols); panel.Add(map);
-            compass = new Label(); compass.style.fontSize = 11; panel.Add(compass);
-            var legend = new Label("@ You  o Ally  F Fort  K King\nC Camp  B Boss  G Objective\nx Cleared  ? Unknown  ! Reveal"); legend.style.fontSize = 10; panel.Add(legend);
-            var pingKeys = new Label("T Ping  ·  Y Danger  ·  U Retreat"); pingKeys.style.fontSize = 10; panel.Add(pingKeys);
             root.Add(panel); CreatePingPresentation(); revision = -1; drawnDefinition = null; icons.Clear(); worldIcons.Clear();
             root.RegisterCallback<GeometryChangedEvent>(GeometryChanged); Layout();
         }
@@ -41,20 +39,18 @@ namespace HeroesOfDragonland.UI.Minimap
         { element.pickingMode = PickingMode.Ignore; element.style.position = Position.Absolute; element.style.left = element.style.top = element.style.right = element.style.bottom = 0; }
         private void Layout()
         {
-            if (!TacticalMapRules.Finite(root.resolvedStyle.height) || root.resolvedStyle.height <= 0) return;
-            float side = root.resolvedStyle.width < 1000 ? 160 : 210;
+            if (!TacticalMapRules.Finite(root.resolvedStyle.width) || root.resolvedStyle.width <= 0) return;
+            float side = root.resolvedStyle.width < 1000 ? 126 : 148;
             map.style.width = map.style.height = side; panel.style.width = side + 16;
-            panel.style.top = Mathf.Max(18, Mathf.Min(topOffset, root.resolvedStyle.height - side - 108));
         }
         private static Color TeamColor(MapTeam team) => team == MapTeam.A ? new Color(.4f, .75f, 1) : team == MapTeam.B ? new Color(1, .48f, .35f) : new Color(.9f, .8f, .56f);
         private static string Glyph(MapMarker marker)
         {
-            string glyph = marker.Kind switch { MapMarkerKind.LocalPlayer => "@", MapMarkerKind.Ally => "o", MapMarkerKind.Fortress => "F",
-                MapMarkerKind.King => "K", MapMarkerKind.Camp => "C", MapMarkerKind.BossCamp => "B", MapMarkerKind.Objective => "G", _ => "!" };
+            string glyph = marker.Kind switch { MapMarkerKind.LocalPlayer => "▲", MapMarkerKind.Ally => "●", MapMarkerKind.Fortress => "□",
+                MapMarkerKind.King => "K", MapMarkerKind.Camp => "◇", MapMarkerKind.BossCamp => "◆", MapMarkerKind.Objective => "+", _ => "!" };
             if (marker.State == MapMarkerState.Cleared) glyph += "x";
             else if (marker.State == MapMarkerState.Unknown) glyph += "?";
             else if (marker.State == MapMarkerState.Unavailable) glyph += "-";
-            if (marker.Team != MapTeam.None) glyph += marker.Team.ToString();
             return glyph;
         }
         private static Label Icon(List<Label> pool, VisualElement parent, int index)
@@ -91,7 +87,7 @@ namespace HeroesOfDragonland.UI.Minimap
                 }
                 localIcon?.BringToFront();
                 for (int i = count; i < icons.Count; i++) icons[i].style.display = DisplayStyle.None;
-                VisibleMarkerCount = count; compass.text = "N = +Z  |  Facing " + TacticalMapRules.Compass(source.Heading) + " " + Mathf.RoundToInt(source.Heading) + " deg";
+                VisibleMarkerCount = count; compass.text = "N ↑    ·    " + TacticalMapRules.Compass(source.Heading) + " " + Mathf.RoundToInt(source.Heading) + "°";
             }
             DrawWorldIcons();
         }

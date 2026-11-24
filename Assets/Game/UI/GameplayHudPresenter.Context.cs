@@ -50,11 +50,11 @@ namespace HeroesOfDragonland.UI
         private void ObserveLevel(int level)
         {
             if (lastLevel > 0 && level > lastLevel)
-                ShowNotice("Level " + level + " reached · Check skills [K]", Notice.Progress, 4);
+                ShowNotice("Level " + level + " · Skills [K]", Notice.Progress, 4);
             lastLevel = level;
         }
 
-        private void OnLockFailed() => ShowNotice("No target in view · Aim at a nearby enemy", Notice.Hint, 2.5f);
+        private void OnLockFailed() => ShowNotice("No target in view", Notice.Hint, 2.5f);
         private void OnInteraction(bool accepted, string message) => ShowNotice(message, accepted ? Notice.Progress : Notice.Warning, 4);
 
         private void ShowNotice(string message, Notice importance, float duration)
@@ -135,8 +135,8 @@ namespace HeroesOfDragonland.UI
                 campCompletions[subject.Actor.Id] = count;
                 if (!newlyCleared || !alive || (actor.transform.position - camp.transform.position).sqrMagnitude > 18 * 18) continue;
                 ShowNotice(camp.Definition?.Difficulty == CampDifficulty.Contested
-                    ? "Contested boss defeated · Look for the loot chest"
-                    : "Camp cleared · Look for the loot chest", Notice.Progress, 4);
+                    ? "Boss defeated · Chest ready"
+                    : "Camp cleared · Chest ready", Notice.Progress, 4);
             }
         }
     }

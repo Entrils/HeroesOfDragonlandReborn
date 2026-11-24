@@ -24,6 +24,7 @@ namespace HeroesOfDragonland.UI
         private NetworkMatch match;
         private TeamId localTeam;
         public NetworkObject LocalActor => actor;
+        internal bool IsLockedTarget(CharacterStats candidate) => target != null && targetStats == candidate;
         public GameplayHudView View => view;
         private QuickItemSlots quickItems;
         public QuickItemSelection SelectedQuickItem => quickItems?.Selected ?? default;
@@ -174,9 +175,10 @@ namespace HeroesOfDragonland.UI
         private static string TeamName(TeamId team) => team == TeamId.TeamA ? "Team A" : team == TeamId.TeamB ? "Team B" : "Unassigned";
         private void RefreshMatch()
         {
-            view.SetObjectives(match != null && match.Object != null && match.Object.IsValid
-                && (match.State == MatchPhase.Playing || match.State == MatchPhase.Starting));
-            if (match == null || match.Object == null || !match.Object.IsValid)
+            bool valid = match != null && match.Object != null && match.Object.IsValid;
+            view.SetMatchPanelVisible(valid && match.State != MatchPhase.Lobby);
+            view.SetObjectives(valid && (match.State == MatchPhase.Playing || match.State == MatchPhase.Starting));
+            if (!valid)
             { view.SetMatch("Not connected", "Join a match to see objectives.", ""); return; }
             string state = "Round " + match.RoundNumber + " · " + match.State;
             string goal = "Kill the enemy King.";
@@ -192,7 +194,8 @@ namespace HeroesOfDragonland.UI
                 // Phase callbacks can run after despawn, before LateUpdate rebinds the avatar.
                 outcome = localTeam != TeamId.Unassigned ? (localTeam == match.Winner ? "VICTORY" : "DEFEAT") + " · " + TeamName(match.Winner) : TeamName(match.Winner) + " wins";
             }
-            view.SetMatch(state, goal, outcome);
+            view.SetMatch(state, goal, outcome, match.State == MatchPhase.Finished
+                || match.State == MatchPhase.ReturningToLobby || match.PreparationError.ToString().Length > 0);
         }
     }
 }

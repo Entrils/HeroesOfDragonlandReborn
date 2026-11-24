@@ -161,6 +161,68 @@ def bake_atlas(mesh, size, texture_dir, stem, uv_layer=""):
         mat.node_tree.nodes.remove(target)
 
 
+def guard_hair_tile(name,seed):
+    """Paint overlapping, tapered guard hairs; wrap the brush across all four tile edges."""
+    import math
+    import numpy as np
+
+    size=384
+    rng=np.random.default_rng(seed)
+    canvas=np.full((size,size),.49,dtype=np.float32)
+    for _ in range(4300):
+        x,y=rng.uniform(0,size,2)
+        length=rng.uniform(10,39)
+        width=rng.uniform(.55,1.75)
+        sweep=rng.uniform(-3.7,3.7)
+        curl=rng.uniform(-1.8,1.8)
+        tone=rng.choice((.15,.26,.70,.93))
+        xs=np.arange(math.floor(x-9),math.ceil(x+9))
+        ys=np.arange(math.floor(y),math.ceil(y+length)+1)
+        t=np.clip((ys[:,None]-y)/length,0,1)
+        bend=x+sweep*t+curl*np.sin(math.pi*t)
+        breadth=width*(.08+.92*np.sin(math.pi*t)**.68)
+        coverage=np.clip(breadth+.48-np.abs(xs[None,:]-bend),0,1)
+        alpha=coverage*np.sin(math.pi*t)**.35*.83
+        index=np.ix_(ys%size,xs%size)
+        # Agouti banding leaves a paler shaft and a narrow dark tip.
+        shaft=tone-.19*np.clip((t-.74)/.26,0,1)
+        canvas[index]+=alpha*(shaft-canvas[index])
+    rgba=np.ones((size,size,4),dtype=np.float32)
+    rgba[:,:,:3]=canvas[:,:,None]
+    image=bpy.data.images.new(name,width=size,height=size,alpha=False)
+    image.colorspace_settings.name="Non-Color"
+    image.pixels.foreach_set(rgba.ravel())
+    image.pack()
+    return image
+
+
+def preview_baked_coat(mesh,texture_dir,stem):
+    # Preview the same UVs, tangent normals and packed smoothness as the Unity material.
+    atlas=material(stem+" baked atlas",(.1,.1,.1),0,.7,0,0,"")
+    nodes,links=atlas.node_tree.nodes,atlas.node_tree.links
+    shader=nodes.get("Principled BSDF")
+    for suffix in ("BaseColor","Normal","Mask"):
+        tex=nodes.new("ShaderNodeTexImage")
+        tex.image=bpy.data.images.load(str(texture_dir/f"{stem}_{suffix}.png"))
+        if suffix=="BaseColor":
+            links.new(tex.outputs["Color"],shader.inputs["Base Color"])
+        elif suffix=="Normal":
+            tex.image.colorspace_settings.name="Non-Color"
+            normal=nodes.new("ShaderNodeNormalMap")
+            links.new(tex.outputs["Color"],normal.inputs["Color"])
+            links.new(normal.outputs["Normal"],shader.inputs["Normal"])
+        else:
+            tex.image.colorspace_settings.name="Non-Color"
+            tex.image.alpha_mode="CHANNEL_PACKED"
+            roughness=nodes.new("ShaderNodeMath")
+            roughness.operation="SUBTRACT"
+            roughness.inputs[0].default_value=1
+            links.new(tex.outputs["Alpha"],roughness.inputs[1])
+            links.new(roughness.outputs[0],shader.inputs["Roughness"])
+    for slot in mesh.material_slots:
+        slot.material=atlas
+
+
 def studio_camera(scene):
     bpy.ops.object.camera_add(location=(2.33,5.7,1.67))
     camera = bpy.context.object

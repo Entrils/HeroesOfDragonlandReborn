@@ -7,6 +7,7 @@ using HeroesOfDragonland.Platform;
 using HeroesOfDragonland.Presentation;
 using HeroesOfDragonland.Cosmetics;
 using UnityEngine;
+using UnityEngine.UIElements;
 
 namespace HeroesOfDragonland.Multiplayer
 {
@@ -29,6 +30,9 @@ namespace HeroesOfDragonland.Multiplayer
         private CharacterCustomizationMenu customization;
         private CosmeticCollectionMenu collection;
         private readonly MatchResultsScreen results = new();
+        private UIDocument menuDocument;
+        private DragonlandMenuView mainMenu;
+        private bool mainMenuVisible;
 #if UNITY_EDITOR || DEBUG
         private PlaytestDiagnostics diagnostics;
 #endif
@@ -70,9 +74,81 @@ namespace HeroesOfDragonland.Multiplayer
 
         private void OnDisable()
         {
+            mainMenuVisible = false;
+            if (menuDocument != null)
+            {
+                menuDocument.rootVisualElement?.Clear();
+                Destroy(menuDocument.gameObject);
+                menuDocument = null;
+                mainMenu = null;
+            }
             SetSettingsOpen(false);
             CloseCustomization();
             results.Close();
+        }
+
+        private void LateUpdate()
+        {
+            if (Application.isBatchMode) return;
+            bool show = !bootstrap.Running && !settingsOpen && !profileOpen && !results.IsOpen;
+            if (show && mainMenu == null) CreateMainMenu();
+            mainMenuVisible = show && mainMenu != null;
+            if (!mainMenuVisible)
+            {
+                mainMenu?.Hide();
+                return;
+            }
+
+            string status = bootstrap.ConnectionState == NetworkConnectionState.Offline && !bootstrap.Busy
+                ? "" : bootstrap.NetworkMessage;
+            if (!string.IsNullOrEmpty(bootstrap.RequestNotice))
+                status = string.IsNullOrEmpty(status) ? bootstrap.RequestNotice : status + "\n" + bootstrap.RequestNotice;
+            bool canCancel = bootstrap.Busy || bootstrap.ConnectionState is NetworkConnectionState.Reconnecting or NetworkConnectionState.Interrupted;
+            mainMenu.Refresh(bootstrap.Busy, canCancel, bootstrap.CanReconnect,
+                Application.CanStreamedLevelBeLoaded(TutorialProgress.ScenePath), TutorialProgress.TutorialCompleted,
+                TutorialProgress.RecommendTutorial, settings != null, results.HasResult, GamePlatform.DisplayName, status,
+                LocalPlayerProfile.Current.Data.Ranked);
+        }
+
+        private void CreateMainMenu()
+        {
+            var hud = GetComponentInChildren<GameplayHudView>(true);
+            var panel = hud != null ? hud.GetComponent<UIDocument>().panelSettings : null;
+            if (panel == null) return;
+
+            var host = new GameObject("Dragonland Main Menu");
+            host.SetActive(false);
+            host.transform.SetParent(transform, false);
+            menuDocument = host.AddComponent<UIDocument>();
+            menuDocument.panelSettings = panel;
+            menuDocument.sortingOrder = 100;
+            host.SetActive(true);
+            var root = menuDocument.rootVisualElement;
+            root.pickingMode = PickingMode.Ignore;
+            mainMenu = new DragonlandMenuView(root, new DragonlandMenuView.Actions
+            {
+                PlayUnranked = () => _ = bootstrap.QuickPlay(),
+                PlayRanked = () => _ = bootstrap.RankedPlay(),
+                CreatePrivate = () => _ = bootstrap.CreatePrivateMatch(),
+                JoinPrivate = code => _ = bootstrap.JoinPrivateMatch(code),
+                CreateCustom = name => _ = bootstrap.CustomLobby(name, true),
+                JoinCustom = name => _ = bootstrap.CustomLobby(name, false),
+                Reconnect = () => _ = bootstrap.Reconnect(),
+                Cancel = () => _ = bootstrap.Disconnect(),
+                Training = TutorialProgress.Open,
+                SkipTraining = TutorialProgress.Skip,
+                Profile = OpenProfile,
+                Settings = () => SetSettingsOpen(true),
+                Results = results.Open,
+                Quit = Quit
+            }, room);
+        }
+
+        private void OpenProfile()
+        {
+            profileName = LocalPlayerProfile.Current.Data.DisplayName;
+            scroll = Vector2.zero;
+            profileOpen = true;
         }
 
         private void CloseCustomization()
@@ -84,7 +160,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void OnGUI()
         {
-            if (Application.isBatchMode) return;
+            if (Application.isBatchMode || mainMenuVisible) return;
             var match = GetComponent<NetworkFortressSpawner>()?.Match;
             bool valid = match != null && match.Object != null && match.Object.IsValid;
             bool inMatch = bootstrap.Running && valid && match.State != MatchPhase.Lobby
@@ -162,11 +238,7 @@ namespace HeroesOfDragonland.Multiplayer
             GUI.enabled = !bootstrap.Busy;
             if (!bootstrap.Running)
             {
-                if (GUILayout.Button("Profile · " + GamePlatform.DisplayName))
-                {
-                    profileName = LocalPlayerProfile.Current.Data.DisplayName;
-                    profileOpen = true;
-                }
+                if (GUILayout.Button("Profile · " + GamePlatform.DisplayName)) OpenProfile();
                 if (Application.CanStreamedLevelBeLoaded(TutorialProgress.ScenePath))
                 {
                     if (TutorialProgress.RecommendTutorial) GUILayout.Label("New player? Try the offline training grounds.");

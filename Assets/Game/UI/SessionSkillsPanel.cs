@@ -35,9 +35,9 @@ namespace HeroesOfDragonland.UI
             root.Clear(); root.pickingMode = PickingMode.Ignore;
             root.style.flexGrow = 1; root.style.alignItems = Align.Center; root.style.justifyContent = Justify.Center;
             root.style.color = Color.white; root.style.fontSize = 15;
-            toggle = new Button(() => SetOpen(!open)) { text = "Skills [K]" };
-            toggle.style.position = Position.Absolute; toggle.style.right = 190; toggle.style.bottom = 22;
-            toggle.style.width = 130; toggle.style.height = 34; root.Add(toggle);
+            toggle = new Button(() => SetOpen(!open)) { text = "K", tooltip = "Skills [K]" };
+            HudMetalwork.StyleShortcut(toggle, false);
+            root.Add(toggle);
             window = new VisualElement { name = "SessionSkillsWindow" };
             window.style.width = Length.Percent(88); window.style.maxWidth = 820;
             window.style.maxHeight = Length.Percent(84);

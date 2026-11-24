@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Dragonland M83 interface preview</title>
+<style>
+  :root { color-scheme: dark; --ink:#f5ecdb; --gold:#e4be80; --edge:#bf9b60; --surface:rgb(14 22 24 / 94%); font: 15px system-ui,sans-serif; }
+  * { box-sizing:border-box }
+  [hidden] { display:none !important }
+  body { margin:0; background:#10191b; color:var(--ink) }
+  button,input { font:inherit }
+  button { min-height:38px; padding:6px 14px; color:var(--ink); background:#202e30; border:1px solid #53605a; border-radius:2px; cursor:pointer; text-align:left }
+  button:hover,button:focus-visible { background:#344747; border-color:#f1ca8d; outline:1px solid #f1ca8d; outline-offset:2px }
+  button.active { color:#ffe0a7; border-color:var(--gold) }
+  button[aria-disabled="true"] { cursor:default }
+  .primary { min-height:46px; background:#d8b375; border-color:#eac68a; color:#121a1b; font-weight:700 }
+  .primary:hover,.primary:focus-visible { background:#f0cf97 }
+  .scene { position:relative; height:100dvh; overflow:hidden; background-position:center; background-size:cover }
+  .menu { background-image:url('../Assets/Art/UI/Resources/Dragonland/TitleValley.png') }
+  .sheet { position:absolute; top:min(16vh,116px); left:7%; width:min(430px,88%); max-height:80%; overflow:auto }
+  .wordmark { margin:0 0 25px; line-height:1.12; font-size:clamp(30px,4.5vw,56px); letter-spacing:.02em; text-shadow:0 2px 6px #101316 }
+  .wordmark span { display:flex;align-items:center;gap:7px;color:var(--gold);font-size:13px;letter-spacing:5px;line-height:1.8 }
+  .wordmark span:last-child { letter-spacing:9px }
+  .actions,#play { display:grid;gap:6px;width:min(384px,100%);padding:14px;border:1px solid #69583f;background:#11141aef;clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px) }
+  .training,.tools { display:flex;gap:4px }
+  .training button:first-child { flex:1 }
+  .tools { border-top:1px solid #554b3c;padding-top:6px }
+  .tools button { flex:1;min-width:0;display:flex;align-items:center;justify-content:center;gap:6px;padding:3px;min-height:35px;color:var(--ink);background:transparent;border:1px solid transparent;font-size:13px }
+  .tools button:focus-visible,.tools button:hover { border-color:#d9b479;background:#32302b }
+  .tools canvas { width:18px;height:18px }
+  .quiet { background:#0d16184d; color:#c7c9bb }
+  .modes { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:12px }
+  #choices { display:grid; gap:6px; margin-bottom:10px }
+  #choices p { margin:0 0 6px; color:#e2d4bc }
+  #choices label { display:grid; gap:5px; margin-top:6px }
+  input { width:100%; min-height:34px; background:#182426; color:var(--ink); border:1px solid #85928a }
+  .battle { background:linear-gradient(#0b101615,#14131d30),url('AncientForest/PathView.png') center / cover }
+  .plate { color:#f5ead5; background:#11141aef; border:1px solid #76664c; padding:6px 12px; position:absolute; clip-path:polygon(7px 0,calc(100% - 7px) 0,100% 7px,100% calc(100% - 7px),calc(100% - 7px) 100%,7px 100%,0 calc(100% - 7px),0 7px) }
+  .plate::after { content:""; position:absolute; pointer-events:none; top:1px; left:5px; width:22px; height:1px; background:#c9a66d }
+  .map { top:22px;left:22px;width:164px;padding:4px 7px 7px;text-align:center }
+  .compass,.key { font: 11px system-ui,sans-serif;color:#d1b98c;letter-spacing:.06em }
+  .map-grid { position:relative;aspect-ratio:1;background:linear-gradient(35deg,transparent 44%,#6e6c5e 45%,#6e6c5e 48%,transparent 49%),repeating-linear-gradient(0deg,#263531,#263531 24%,#37443b 25%);border:1px solid #534f40 }
+  .map-grid i { position:absolute;left:var(--x);top:var(--y);color:var(--tone,#e6c27e);font: bold 13px system-ui;text-shadow:0 1px 3px black }
+  .stack { position:absolute;top:14px;left:50%;transform:translateX(-50%);display:grid;justify-items:center;gap:10px;width:min(282px,39%) }
+  .stack .plate { position:relative;text-align:center;width:100% }
+  .stack .match { width:min(234px,100%) }
+  .heading { color:#ebcca0;font-weight:650;font-size:14px }
+  .meter { height:var(--h,8px);margin-top:3px;background:#23232a;box-shadow:inset 0 0 0 1px #70604d;clip-path:polygon(3px 0,calc(100% - 3px) 0,100% 50%,calc(100% - 3px) 100%,3px 100%,0 50%);padding:1.5px }
+  .meter::before { content:""; display:block;height:100%;width:var(--fill,100%);background:linear-gradient(#ffffff52 0 1px,transparent 1px),var(--color);clip-path:inherit }
+  .kings { display:grid;grid-template-columns:1fr 18px 1fr;gap:4px;align-items:center }
+  .crown { width:18px;height:12px;background:#b9985f;clip-path:polygon(0 17%,29% 52%,50% 0,71% 52%,100% 17%,86% 92%,14% 92%) }
+  .player { left:22px;bottom:22px;width:min(228px,38%) }
+  .identity { display:flex;align-items:center;justify-content:space-between;font-size:13px }
+  .quick { color:#dec398;font-size:12px;margin-top:6px }
+  .world-lock { position:absolute;left:50%;top:48%;transform:translateX(-50%);color:#f2d78c;font-size:30px;text-shadow:0 1px 3px black }
+  .utility { position:absolute;bottom:22px;right:22px;display:flex;gap:6px }
+  .utility button { display:flex;align-items:center;justify-content:space-around;min-height:34px;width:54px;padding:0;color:#c6ab7c;background:#11141aef;border-color:#76664c }
+  .rune { width:12px;height:18px;border:1px solid currentColor;transform:scaleX(.8) rotate(45deg) }
+  .bag { width:13px;height:13px;border:1.5px solid currentColor;border-radius:3px 3px 7px 7px;position:relative }
+  .bag::before { content:"";position:absolute;top:-4px;left:2px;width:6px;height:3px;border:1px solid currentColor }
+  .help-key { position:absolute;right:22px;bottom:63px;font-size:11px;color:#dec398;background:#11141aef;padding:2px 6px }
+  .details { right:22px;top:22px;width:min(308px,36%);font-size:13px }
+  .details p { margin:6px 0 }
+  @media (max-width:720px) {
+    .sheet { top:6% }
+    .map { width:min(23%,132px);left:10px;top:12px }
+    .details { top:130px;right:10px;width:min(78%,308px) }
+  }
+</style>
+</head>
+<body>
+<main>
+  <section id="menu" class="scene menu" aria-label="Main menu preview">
+    <div class="sheet">
+      <h1 class="wordmark"><span><i class="crown" aria-hidden="true"></i>HEROES OF</span>DRAGONLAND<span>REBORN</span></h1>
+      <div id="home" class="actions">
+        <button id="open-play" class="primary" type="button">Play</button>
+        <div class="training"><button aria-disabled="true" type="button">Training grounds</button><button title="Skip training" class="quiet" aria-disabled="true" type="button">Skip</button></div>
+        <div class="tools">
+          <button aria-disabled="true" type="button"><canvas aria-hidden="true" data-icon="profile"></canvas>Profile</button>
+          <button aria-disabled="true" type="button"><canvas aria-hidden="true" data-icon="settings"></canvas>Settings</button>
+          <button aria-disabled="true" type="button"><canvas aria-hidden="true" data-icon="quit"></canvas>Quit</button>
+        </div>
+      </div>
+      <div id="play" hidden>
+        <div class="modes" aria-label="Match types">
+          <button type="button">Unranked</button><button type="button">Ranked</button>
+          <button type="button">Private</button><button type="button">Custom</button>
+        </div>
+        <div id="choices"></div>
+        <button id="back" class="quiet" type="button">Back</button>
+      </div>
+    </div>
+  </section>
+  <section id="hud" class="scene battle" aria-label="HUD preview" hidden>
+    <div class="plate map"><div class="compass">N ↑　·　NE 42°</div>
+      <div class="map-grid" aria-label="Sample schematic minimap">
+        <i style="--x:12%;--y:70%;--tone:#81bde5">□</i><i style="--x:75%;--y:16%;--tone:#e78077">K</i>
+        <i style="--x:54%;--y:44%">◆</i><i style="--x:28%;--y:31%">◇</i>
+        <i style="--x:63%;--y:73%">◇</i><i style="--x:31%;--y:63%;--tone:white">▲</i>
+      </div>
+    </div>
+    <div class="stack">
+      <div class="plate match"><div class="heading">Round 1</div>
+        <div class="kings" aria-label="Team A and Team B King health">
+          <div class="meter" style="--color:#578eb4"></div><i class="crown"></i>
+          <div class="meter" style="--color:#ae4347;--fill:76%"></div>
+        </div>
+      </div>
+      <div class="plate boss"><div class="heading">Stone Warden</div>
+        <div class="meter" style="--color:#9a4160;--fill:69%;--h:9px"></div>
+      </div>
+    </div>
+    <div class="world-lock" aria-hidden="true">◇</div>
+    <div class="plate player">
+      <div class="identity"><span class="heading">Team A · Level 4</span><span>112 / 150</span></div>
+      <div class="meter" style="--h:12px;--color:#ab3542;--fill:75%" aria-label="Health"></div>
+      <div class="meter" style="--color:#6a9b6d;--fill:61%" aria-label="Stamina"></div>
+      <div class="meter" style="--h:7px;--color:#518bb1;--fill:54%" aria-label="Mana"></div>
+      <div class="meter" style="--h:4px;--color:#b9985f;--fill:65%" aria-label="Experience"></div>
+      <div class="quick">[G]　Health Potion　×2</div>
+    </div>
+    <div class="help-key">H · HUD</div>
+    <aside id="hud-details" class="plate details" hidden><strong>Kill the enemy King.</strong>
+      <p>Health 112/150<br>Stamina 61/100<br>Mana 54/100<br>XP 65/100</p>
+      <p>Clear camps for equipment. Contest the boss and breach the fortress.</p>
+      <p>T / Y / U Ping · [ / ] Slot · G Use<br>I Inventory · K Skills · Esc Menu</p>
+    </aside>
+    <div class="utility"><button aria-label="Skills" aria-disabled="true"><i class="rune"></i>K</button><button aria-label="Inventory" aria-disabled="true"><i class="bag"></i>I</button></div>
+  </section>
+</main>
+<script>
+  const get = id => document.getElementById(id);
+  const paths = {
+    profile: 'M9 2 L13 6 L9 11 L5 6 Z M2 16 L6 13 L12 13 L16 16',
+    settings: 'M2 5 H16 M6 2 V8 M2 13 H16 M12 10 V16',
+    quit: 'M8 2 H3 V16 H8 M7 9 H16 M12 5 L16 9 L12 13'
+  };
+  document.querySelectorAll('canvas[data-icon]').forEach(canvas => {
+    canvas.width = canvas.height = 54;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(3, 3);
+    ctx.strokeStyle = '#b9985f';
+    ctx.lineWidth = 1.5;
+    ctx.stroke(new Path2D(paths[canvas.dataset.icon]));
+  });
+  const modes = [...document.querySelectorAll('.modes button')];
+  const demo = [
+    '<button class="primary" aria-disabled="true" type="button">Find match · 3v3</button>',
+    '<p>Rating 1000 · Provisional</p><button class="primary" title="Requires six human players" aria-disabled="true" type="button">Find ranked match · 3v3</button>',
+    '<button class="primary" aria-disabled="true" type="button">Create private match</button><label>Room code<input maxlength="18"></label><button aria-disabled="true" type="button">Join with code</button>',
+    '<label>Lobby name<input maxlength="48" value="dragonland"></label><button class="primary" aria-disabled="true" type="button">Create custom lobby</button><button aria-disabled="true" type="button">Join custom lobby</button>'
+  ];
+  function showScreen() {
+    const hud = location.hash === '#hud';
+    get('hud-details').hidden = true;
+    get('menu').hidden = hud;
+    get('hud').hidden = !hud;
+  }
+  function select(button, value) {
+    button.classList.toggle('active', value);
+    button.setAttribute('aria-pressed', String(value));
+  }
+  function showPlay(value) {
+    get('home').hidden = value;
+    get('play').hidden = !value;
+    if (value) document.querySelector('.modes .active').focus();
+    else get('open-play').focus();
+  }
+  function showMode(index) {
+    get('choices').innerHTML = demo[index];
+    modes.forEach((mode, i) => select(mode, index === i));
+  }
+  modes.forEach((mode, index) => mode.addEventListener('click', () => showMode(index)));
+  get('open-play').addEventListener('click', () => showPlay(true));
+  get('back').addEventListener('click', () => showPlay(false));
+  document.addEventListener('keydown', event => {
+    if (event.key === 'Escape' && !get('menu').hidden && !get('play').hidden) showPlay(false);
+  });
+  showScreen();
+  window.addEventListener('hashchange', showScreen);
+  document.addEventListener('keydown', event => {
+    if (event.code === 'KeyH' && !get('hud').hidden) get('hud-details').hidden = false;
+  });
+  document.addEventListener('keyup', event => {
+    if (event.code === 'KeyH') get('hud-details').hidden = true;
+  });
+  window.addEventListener('blur', () => { get('hud-details').hidden = true; });
+  showMode(0);
+</script>
+</body>
+</html>

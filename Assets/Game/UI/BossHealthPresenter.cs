@@ -29,11 +29,12 @@ namespace HeroesOfDragonland.UI
                 }
             if (selected == null) { view.SetBoss(false); return; }
             var stats = selected.GetComponent<NetworkCharacterStats>();
-            string status = selected.BossPhase == BossPhase.Transition ? "ENRAGING - prepare for shockwaves"
-                : selected.BossPhase == BossPhase.PhaseTwo ? "PHASE 2 - ENRAGED" : "PHASE 1";
+            string status = selected.BossPhase == BossPhase.Transition ? "Shockwave incoming"
+                : selected.BossPhase == BossPhase.PhaseTwo ? "Enraged" : "";
             if (selected.State == EnemyState.Return) status = "RESETTING";
             string move = selected.AttackBusy && selected.PresentedAttackSet != null ? selected.PresentedAttackSet.Get(selected.AttackIndex).DisplayName : "";
-            view.SetBoss(true, selected.Definition.Boss.DisplayName, status, stats.Health, stats.MaxHealth, move);
+            view.SetBoss(true, selected.Definition.Boss.DisplayName, status, stats.Health, stats.MaxHealth, move,
+                hud.IsLockedTarget(selected.GetComponent<HeroesOfDragonland.Stats.CharacterStats>()));
         }
         private void OnDisable() { if (view != null) view.SetBoss(false); }
     }

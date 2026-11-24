@@ -1,0 +1,192 @@
+.dl-menu {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    background-color: #10191b;
+    color: #f5ecdb;
+}
+
+.dl-menu-art {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    -unity-background-scale-mode: scale-and-crop;
+}
+
+.dl-menu-scroll {
+    flex-grow: 1;
+}
+
+.dl-menu-frame {
+    width: 430px;
+    max-width: 88%;
+    margin-left: 7%;
+    margin-top: 116px;
+    margin-bottom: 42px;
+}
+
+.dl-menu-crest {
+    flex-direction: row;
+    align-items: center;
+}
+
+.dl-menu-overline {
+    margin-left: 7px;
+}
+
+.dl-menu-overline, .dl-menu-subtitle {
+    color: #e4be80;
+    -unity-font-style: bold;
+    font-size: 13px;
+    letter-spacing: 5px;
+}
+
+.dl-menu-title {
+    font-size: 56px;
+    -unity-font-style: bold;
+    letter-spacing: 1px;
+}
+
+.dl-menu-subtitle {
+    margin-bottom: 25px;
+    letter-spacing: 9px;
+}
+
+.dl-menu-home, .dl-menu-play {
+    width: 384px;
+    max-width: 100%;
+    padding: 14px;
+}
+
+.dl-menu-training, .dl-menu-tools {
+    flex-direction: row;
+}
+
+.dl-menu-tools {
+    margin-top: 4px;
+    border-top-width: 1px;
+    border-top-color: #554b3c;
+    padding-top: 6px;
+}
+
+.dl-menu-grow, .dl-menu-tool {
+    flex-grow: 1;
+}
+
+.dl-menu-training .dl-menu-quiet {
+    margin-left: 4px;
+}
+
+.dl-menu-tools .dl-menu-tool {
+    flex-basis: 0;
+    min-height: 35px;
+    margin: 0;
+    padding-left: 32px;
+    padding-right: 4px;
+    font-size: 13px;
+    background-color: rgba(17, 20, 26, 0);
+    border-color: rgba(17, 20, 26, 0);
+}
+
+.dl-menu-tools .dl-menu-tool:hover, .dl-menu-tools .dl-menu-tool:focus {
+    background-color: #32302b;
+    border-color: #d9b479;
+}
+
+.dl-menu-icon {
+    position: absolute;
+    left: 8px;
+    top: 8px;
+    width: 18px;
+    height: 18px;
+}
+
+.dl-menu-button {
+    min-height: 38px;
+    margin: 0 0 6px 0;
+    padding: 5px 14px;
+    background-color: #232529;
+    border-width: 1px;
+    border-color: #655c4e;
+    border-radius: 2px;
+    color: #f5ecdb;
+    font-size: 15px;
+    -unity-text-align: middle-left;
+}
+
+.dl-menu-button:hover, .dl-menu-button:focus {
+    background-color: #35342e;
+    border-color: #f1ca8d;
+}
+
+.dl-menu-button:active {
+    background-color: #4e5d57;
+}
+
+.dl-menu-primary {
+    background-color: #d8b375;
+    color: #121a1b;
+    -unity-font-style: bold;
+    border-color: #eac68a;
+    min-height: 46px;
+}
+
+.dl-menu-primary:hover, .dl-menu-primary:focus {
+    background-color: #f0cf97;
+    border-color: #fff0d3;
+}
+
+.dl-menu-quiet {
+    background-color: rgba(13, 22, 24, 0.3);
+    color: #c7c9bb;
+}
+
+.dl-menu-tabs {
+    flex-direction: row;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+}
+
+.dl-menu-tab {
+    margin-right: 4px;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+
+.dl-menu-selected {
+    border-color: #eac68a;
+    color: #ffe0a7;
+}
+
+.dl-menu-choices {
+    margin-bottom: 10px;
+}
+
+.dl-menu-note, .dl-menu-status {
+    color: #e2d4bc;
+    white-space: normal;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.dl-menu-status {
+    margin-top: 12px;
+}
+
+.dl-menu-field {
+    flex-direction: column;
+    margin: 6px 0 10px 0;
+    color: #f5ecdb;
+    font-size: 15px;
+}
+
+.dl-menu-field .unity-base-text-field__input {
+    min-height: 34px;
+    color: #f5ecdb;
+    background-color: #182426;
+    border-color: #85928a;
+}

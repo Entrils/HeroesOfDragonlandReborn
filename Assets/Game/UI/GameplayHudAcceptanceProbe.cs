@@ -71,7 +71,8 @@ namespace HeroesOfDragonland.UI
             if (match.State == MatchPhase.Playing)
             {
                 if (playingAt < 0) playingAt = Time.realtimeSinceStartup;
-                Check(view.HasObjectiveSummary && view.ObjectiveText == "Kill the enemy King.", "active-objective-summary");
+                Check(view.ObjectiveText == "Kill the enemy King.", "active-objective-summary");
+                if (Application.isBatchMode) Check(!view.HasObjectiveSummary, "objective-details-collapsed");
                 sawLowStamina |= !string.IsNullOrEmpty(view.StaminaWarningText);
                 if (!string.IsNullOrEmpty(view.KingWarningText))
                 {

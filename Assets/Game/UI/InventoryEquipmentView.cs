@@ -38,9 +38,8 @@ namespace HeroesOfDragonland.UI
             root.style.flexGrow = 1;
             root.style.alignItems = Align.Center; root.style.justifyContent = Justify.Center;
             root.style.fontSize = 16; root.style.color = Color.white;
-            toggle = new Button(() => ToggleRequested?.Invoke()) { text = "Inventory [I]" };
-            toggle.style.position = Position.Absolute; toggle.style.right = 22; toggle.style.bottom = 22;
-            toggle.style.width = 160; toggle.style.height = 34;
+            toggle = new Button(() => ToggleRequested?.Invoke()) { text = "I", tooltip = "Inventory [I]" };
+            HudMetalwork.StyleShortcut(toggle, true);
             root.Add(toggle);
             window = new VisualElement { name = "InventoryEquipmentWindow" };
             window.style.width = Length.Percent(94); window.style.maxWidth = 1000;
@@ -111,7 +110,7 @@ namespace HeroesOfDragonland.UI
         }
         public void HideTooltip() { if (tooltip != null) tooltip.style.display = DisplayStyle.None; }
         public void SetAvailable(bool value) { toggle.style.display = value ? DisplayStyle.Flex : DisplayStyle.None; if (!value) SetOpen(false); }
-        public void SetOpen(bool value) { window.style.display = value ? DisplayStyle.Flex : DisplayStyle.None; toggle.text = value ? "Close inventory [I]" : "Inventory [I]"; HideTooltip(); }
+        public void SetOpen(bool value) { window.style.display = value ? DisplayStyle.Flex : DisplayStyle.None; toggle.tooltip = value ? "Close inventory [I]" : "Inventory [I]"; HideTooltip(); }
         public void SetSlotCount(int count)
         {
             if (inventorySlots.Count == count) return;

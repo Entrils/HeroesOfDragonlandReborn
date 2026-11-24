@@ -63,23 +63,40 @@ namespace HeroesOfDragonland.World.Editor
             var originals = settings.Select(s => s.targetTexture).ToArray();
             RenderTexture texture = null;
             var view = UnityEngine.Object.FindAnyObjectByType<GameplayHudView>();
+            var root = view.GetComponent<UIDocument>().rootVisualElement;
+            var match = root.Q("Match");
+            var matchDisplay = match.style.display;
+            var menu = documents.FirstOrDefault(doc => doc.name == "Dragonland Main Menu")?.rootVisualElement;
+            var menuDisplay = menu != null ? menu.style.display : default;
             try
             {
+                // The title overlay and its buttons have a separate layout from the Battlefield HUD.
+                if (menu != null) menu.style.display = DisplayStyle.None;
+                match.style.display = DisplayStyle.Flex;
                 view.SetTarget(true); view.SetTargetName("Neutral Stone Warden - contested boss"); view.SetTargetHealth(1500, 1800);
                 foreach (var size in new[] { new Vector2Int(960,540), new Vector2Int(1280,720), new Vector2Int(1920,1080), new Vector2Int(1024,768), new Vector2Int(2560,1080) })
                 {
                     texture = new RenderTexture(size.x, size.y, 24); texture.Create();
                     foreach (var panel in settings) panel.targetTexture = texture;
                     yield return null; yield return null; yield return null;
-                    var root = view.GetComponent<UIDocument>().rootVisualElement;
                     Rect viewport = root.worldBound;
                     Check(viewport.width >= 1279 && viewport.height >= 719, "Fit scaling keeps reference layout visible " + size + " actual=" + viewport);
                     foreach (string name in new[] { "Player", "Match", "Target", "Notice", "Controls" }) Bounds(root.Q(name), viewport);
                     Check(!root.Q("Player").worldBound.Overlaps(root.Q("Match").worldBound), "Player and match overlap");
                     Check(!root.Q("Target").worldBound.Overlaps(root.Q("Controls").worldBound), "Target and controls overlap");
                     foreach (var doc in documents)
+                    {
+                        if (doc.rootVisualElement == menu) continue;
+                        var minimap = doc.rootVisualElement.Q("TacticalMinimap");
+                        if (minimap != null && minimap.resolvedStyle.display != DisplayStyle.None)
+                        {
+                            Bounds(minimap, doc.rootVisualElement.worldBound);
+                            if (root.Q("Player").resolvedStyle.display != DisplayStyle.None)
+                                Check(!minimap.worldBound.Overlaps(root.Q("Player").worldBound), "Minimap and player panel overlap");
+                        }
                         foreach (var button in doc.rootVisualElement.Query<Button>().ToList())
                             if (button.resolvedStyle.display != DisplayStyle.None && button.worldBound.width > 0) Bounds(button, doc.rootVisualElement.worldBound);
+                    }
                     var active = RenderTexture.active; var pixels = new Texture2D(size.x, size.y, TextureFormat.RGB24, false);
                     try
                     {
@@ -97,6 +114,8 @@ namespace HeroesOfDragonland.World.Editor
             {
                 for (int i = 0; i < settings.Length; i++) settings[i].targetTexture = originals[i];
                 if (texture != null) { texture.Release(); UnityEngine.Object.DestroyImmediate(texture); }
+                if (menu != null) menu.style.display = menuDisplay;
+                match.style.display = matchDisplay;
                 view.SetTarget(false);
                 if (Status == "RUNNING") Status = "FAILED; see Console";
             }
