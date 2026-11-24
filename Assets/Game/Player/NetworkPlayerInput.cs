@@ -17,5 +17,7 @@ namespace HeroesOfDragonland.Multiplayer
         public NetworkBool LockedOn; // Cosmetic locomotion mode, not target identity or combat permission.
         // Local lock-on supplies facing intent only, never a trusted hit target.
         public Vector2 Facing;
+        public Vector3 BowAim;
+        public NetworkId BowTarget;
     }
 }

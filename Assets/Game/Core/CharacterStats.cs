@@ -2,6 +2,8 @@ using System;
 using UnityEngine;
 using HeroesOfDragonland.EquipmentSystem;
 using HeroesOfDragonland.Items;
+using HeroesOfDragonland.Multiplayer;
+using HeroesOfDragonland.Skills;
 
 namespace HeroesOfDragonland.Stats
 {
@@ -13,6 +15,7 @@ namespace HeroesOfDragonland.Stats
         private ResourcePool stamina;
         private ResourcePool mana;
         private CharacterAttributes attributes;
+        private SessionSkills skills;
         public bool CanMutate => GetComponent<ICharacterStatsAuthority>()?.CanMutateStats ?? true;
         public bool UsesNetworkClock => GetComponent<ICharacterStatsAuthority>() != null;
 
@@ -29,7 +32,7 @@ namespace HeroesOfDragonland.Stats
         public float CurrentMana { get { EnsureInitialized(); return mana.Current; } }
         public float MaxMana { get { EnsureInitialized(); return mana.Maximum; } }
         public float StaggerResistance => configuration != null ? configuration.StaggerResistance : 50f;
-        public float MaxPoise => configuration != null ? configuration.Poise : 50f;
+        public float MaxPoise => (configuration != null ? configuration.Poise : 50f) + SkillBonus(SkillEffect.Poise);
         public float PoiseRegenDelay => configuration != null ? configuration.PoiseRegenDelay : 2f;
         public float PoiseRegenPerSecond => configuration != null ? configuration.PoiseRegenPerSecond : 20f;
         public bool IsDead => CurrentHealth <= 0f;
@@ -39,18 +42,31 @@ namespace HeroesOfDragonland.Stats
         private void OnEnable()
         {
             attributes = GetComponent<CharacterAttributes>();
+            skills = GetComponent<SessionSkills>();
+            if (skills != null) skills.RanksChanged += RefreshMaximums;
             if (attributes != null) attributes.Changed += RefreshMaximums;
             RefreshMaximums();
         }
         private void OnDisable()
         {
             if (attributes != null) attributes.Changed -= RefreshMaximums;
+            if (skills != null) skills.RanksChanged -= RefreshMaximums;
         }
         private float CalculateMaximum(ItemStat stat, float baseline)
         {
             var source = GetComponent<CharacterAttributes>();
-            return source != null ? source.CalculateResourceMaximum(stat, baseline) : baseline;
+            float maximum = source != null ? source.CalculateResourceMaximum(stat, baseline) : baseline;
+            return maximum + (stat switch
+            {
+                ItemStat.MaxHealth => SkillBonus(SkillEffect.Health),
+                ItemStat.MaxStamina => SkillBonus(SkillEffect.Stamina),
+                ItemStat.MaxMana => SkillBonus(SkillEffect.Mana),
+                _ => 0f
+            });
         }
+        internal float SkillBonus(SkillEffect effect) => skills != null ? skills.GetBonus(effect) : 0f;
+        internal float SkillCostMultiplier(SkillEffect effect) => skills != null ? skills.CostMultiplier(effect) : 1f;
+
         private void RefreshMaximums()
         {
             if (!CanMutate) return;
@@ -90,7 +106,9 @@ namespace HeroesOfDragonland.Stats
                 configuration != null ? configuration.ManaRegenDelay : 2f);
         }
 
-        public float ApplyDamage(float amount)
+        public float ApplyDamage(float amount) => ApplyDamage(amount, null, null);
+
+        internal float ApplyDamage(float amount, GameObject source, string action)
         {
             if (!CanMutate || IsDead) return 0f;
             foreach (var provider in GetComponents<HeroesOfDragonland.Combat.IInvulnerabilityProvider>())
@@ -98,10 +116,15 @@ namespace HeroesOfDragonland.Stats
             if (amount <= 0 || float.IsNaN(amount) || float.IsInfinity(amount)) return 0f;
             var gear = GetComponent<Equipment>();
             if (gear != null) amount = gear.ReducePhysicalDamage(amount);
+            amount *= SkillCostMultiplier(SkillEffect.Defense);
             amount = GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Absorb(amount) ?? amount;
             float removed = health.Remove(amount);
             if (removed <= 0f) return 0f;
+            if (TryGetComponent<NetworkTestPlayer>(out var participant))
+                MatchSessionData.Credit(participant.Object, new MatchStatistics { DamageTaken = removed });
             bool died = health.Current == 0f;
+            if (TryGetComponent<Fusion.NetworkObject>(out var victim) && victim.IsValid && victim.HasStateAuthority)
+                NetworkMatchPacing.MatchFor(victim.Runner)?.RecordCombatDamage(victim, source, action, removed, died);
             // Commit death before health/UI observers can issue another combat action.
             // One failing listener must not prevent objective/death listeners running.
             if (died && Died != null)

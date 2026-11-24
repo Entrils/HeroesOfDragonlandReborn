@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using Fusion;
@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Combat
     [DefaultExecutionOrder(210)]
     public sealed class AdvancedDefenseNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {

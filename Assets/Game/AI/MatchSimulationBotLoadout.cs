@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using HeroesOfDragonland.EquipmentSystem;
 using HeroesOfDragonland.InventorySystem;
 using HeroesOfDragonland.Items;

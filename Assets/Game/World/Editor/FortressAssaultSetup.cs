@@ -79,7 +79,7 @@ namespace HeroesOfDragonland.World.Editor
                 });
                 PrefabUtility.SaveAsPrefabAsset(matchRoot, matchPath);
             } finally { PrefabUtility.UnloadPrefabContents(matchRoot); }
-            var bootstrap = Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var spawner = bootstrap.GetComponent<FortressAssaultSpawner>() ?? Undo.AddComponent<FortressAssaultSpawner>(bootstrap.gameObject);
             Edit(spawner, s => s.FindProperty("definition").objectReferenceValue = config);
             Physics.SyncTransforms();

@@ -33,7 +33,7 @@
     /// <inheritdoc />
     public override void Init() {
       var behaviourList = new List<Type>();
-      Assembly[] allLoadedAssemblies = AppDomain.CurrentDomain.GetAssemblies();
+      var allLoadedAssemblies = UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies();
       TypeInfo baseTypeInfo = typeof(SimulationBehaviour).GetTypeInfo();
       foreach (var assembly in allLoadedAssemblies) {
         foreach (var type in assembly.DefinedTypes) {

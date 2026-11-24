@@ -85,7 +85,7 @@ namespace HeroesOfDragonland.World
             match.MatchEnded += MatchEnded;
             camp.ExperienceAwarded += CampExperience;
             if (!Progression.TryBeginSession("offline-training", out var reason)) Debug.LogError(reason, this);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (System.Array.IndexOf(System.Environment.GetCommandLineArgs(), "-hodrTutorialCheck") >= 0)
             {
                 canSave = false;
@@ -147,7 +147,7 @@ namespace HeroesOfDragonland.World
                     if (sawStaminaSpend && Stats.CurrentStamina >= Stats.MaxStamina * .9f) Advance();
                     break;
                 case Lesson.Interact:
-                    if (lever.Used) Advance();
+                    if (lever.PullComplete) Advance();
                     break;
                 case Lesson.Chest:
                     if (chest.IsOpen && Bag.GetAmount(trainingWeapon.Id) > 0) Advance();

@@ -1,4 +1,5 @@
 using HeroesOfDragonland.Teams;
+using HeroesOfDragonland.Cosmetics;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -42,6 +43,13 @@ namespace HeroesOfDragonland.Multiplayer
                 label.text = (player.IsBot ? "BOT " : "P") + player.ParticipantNumber + " / " + shownTeam
                     + (player.HasInputAuthority ? " (you)" : "")
                     + (state.Dead ? " / DEAD" : " / HP " + Mathf.CeilToInt(state.Health));
+            if (label != null)
+            {
+                var emblem = player.Cosmetics.Get(CosmeticCategory.Emblem);
+                if (emblem != null) label.text += " / " + emblem.Name;
+                else if (player.Appearance.Get(HeroesOfDragonland.Presentation.AppearanceSlot.Emblem) != 0)
+                    label.text += " / " + player.Appearance.Label(HeroesOfDragonland.Presentation.AppearanceSlot.Emblem);
+            }
             var combat = GetComponent<NetworkPlayerCombat>();
             if (label != null && combat != null) label.text += combat.Staggered ? " / STAGGERED" : combat.Blocking ? " / BLOCK" : "";
         }

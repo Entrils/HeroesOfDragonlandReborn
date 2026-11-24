@@ -15,6 +15,10 @@ MonoBehaviour:
   displayName: Short-range Healing Spell
   description: Heal the nearest injured ally in front within 5m, or yourself. Requires line of sight; never revives.
   effect: 3
+  branch: 2
+  maxRank: 1
+  prerequisites: []
+  exclusiveGroup: 
   ability: {fileID: 11400000, guid: d0c2ef26559ced247a0c346d5d128899, type: 2}
   requiredLevel: 1
   requirements: []

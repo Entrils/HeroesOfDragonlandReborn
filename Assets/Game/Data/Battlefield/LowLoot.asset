@@ -57,3 +57,19 @@ MonoBehaviour:
     weight: 1
     minimumQuantity: 1
     maximumQuantity: 2
+  - item: {fileID: 11400000, guid: 6a94e77a2a431754c8a84e7e9bce2d86, type: 2}
+    weight: 10
+    minimumQuantity: 1
+    maximumQuantity: 1
+  - item: {fileID: 11400000, guid: 0d3b273b82b057e4c809c1848c7986e7, type: 2}
+    weight: 5
+    minimumQuantity: 1
+    maximumQuantity: 1
+  - item: {fileID: 11400000, guid: 1e398758acd3987419f5fba804929dcf, type: 2}
+    weight: 5
+    minimumQuantity: 1
+    maximumQuantity: 1
+  - item: {fileID: 11400000, guid: 9b4e0b24a5537434fa2262379a0f8c5b, type: 2}
+    weight: 5
+    minimumQuantity: 1
+    maximumQuantity: 1

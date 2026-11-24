@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dfa7c2c30ba8704498d7dd6e310bc682, type: 3}
+  m_Name: HuntingBow
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.WeaponDefinition
+  archetype: 4
+  baseDamage: 26
+  staminaCost: 16
+  attackSpeed: 1
+  range: 24
+  statRequirements:
+  - stat: 4
+    minimumValue: 11
+  scalingPlaceholders: []
+  attackAnimationSet: {fileID: 0}
+  moveset: {fileID: 0}
+  weaponPrefab: {fileID: 390376793937292927, guid: 9859e6594bacfa041a0a58ef78c858f7, type: 3}
+  bow: {fileID: 11400000, guid: 5b5a7f1589fb86f409d61147cb4eeffb, type: 2}

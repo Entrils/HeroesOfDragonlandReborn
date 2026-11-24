@@ -20,7 +20,7 @@ namespace HeroesOfDragonland.Multiplayer
         private Renderer[] suspendedRenderers;
         private bool[] colliderStates, rendererStates;
         [Networked] public NetworkBool IsBot { get; private set; }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private DeveloperBotBrain botBrain;
         public DeveloperBotBrain BotBrain => botBrain;
 #endif
@@ -45,9 +45,10 @@ namespace HeroesOfDragonland.Multiplayer
 
         public override void Spawned()
         {
+            sentAppearance = false;
             Object.ForceRemoteRenderTimeframe = !HasStateAuthority;
             name = (IsBot ? "Bot " : "Player ") + ParticipantNumber + " (" + Team + ")";
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (Runner.IsServer && IsBot) botBrain = new DeveloperBotBrain(this);
 #endif
             Debug.Log("[Multiplayer] spawned participant=" + ParticipantNumber
@@ -61,7 +62,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (!Runner.IsServer || !HasStateAuthority || combat == null || !combat.IsAdmitted()) return;
             // Missing input stops locomotion/new requests, but existing actions keep ticking.
             GetInput(out NetworkPlayerInput input);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (IsBot) input = botBrain != null ? botBrain.Tick(Runner.DeltaTime) : default;
 #endif
             Vector2 move = Sanitize(input.Move);
@@ -78,13 +79,13 @@ namespace HeroesOfDragonland.Multiplayer
             if (networkStats != null && networkStats.Dead) return;
             Vector3 offset = dodge != null && dodge.Busy ? dodge.StepDisplacement()
                 : direction * (movementSpeed * combat.MovementMultiplier * Runner.DeltaTime);
-            Vector3 position = transform.position + Sweep(offset);
+            Vector3 position = transform.position + Sweep(offset * combat.DeployableMovementMultiplier);
             position.x = Mathf.Clamp(position.x, -arenaHalfExtent, arenaHalfExtent);
             position.z = Mathf.Clamp(position.z, -arenaHalfExtent, arenaHalfExtent);
             var spawnService = Runner.GetComponentInParent<TeamSpawnService>();
             if (spawnService != null) position = spawnService.ConstrainPlayerMovement(Team, transform.position, position);
             transform.position = position;
-            facing = dodge != null && dodge.Busy ? dodge.Facing : combat.IsBusy ? combat.AttackFacing : facing;
+            facing = dodge != null && dodge.Busy ? dodge.Facing : combat.IsBusy ? combat.ActionFacing : facing;
             if (GetComponent<HeroesOfDragonland.Combat.ParryDefense>() is { IsBusy: true } parry) facing = parry.Facing;
             transform.rotation = Quaternion.LookRotation(facing);
         }
@@ -113,7 +114,11 @@ namespace HeroesOfDragonland.Multiplayer
                 if (suspendedRenderers != null) for (int i = 0; i < suspendedRenderers.Length; i++) if (suspendedRenderers[i] != null) suspendedRenderers[i].enabled = rendererStates[i];
             }
         }
-        public override void Render() => ApplySuspension();
+        public override void Render()
+        {
+            ApplySuspension();
+            SubmitLocalAppearance();
+        }
 
         private static Vector2 Sanitize(Vector2 value)
         {

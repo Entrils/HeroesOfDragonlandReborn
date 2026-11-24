@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using Fusion;
@@ -14,7 +14,7 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class MultiplayerLootProbe : MonoBehaviour
     {
         [SerializeField] private NetworkLootChest chestPrefab;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private MultiplayerBootstrap bootstrap;
         private bool active, prepared, requested, complete;
         private NetworkLootChest race;

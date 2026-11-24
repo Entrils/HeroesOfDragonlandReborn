@@ -140,7 +140,9 @@ namespace HeroesOfDragonland.Art.Editor
                     Check(local.Equipment.TryEquip(Find(local.Inventory, item.Id), EquipmentSlot.MainHand, out _), "Equip " + item.Weapon.Archetype);
                     CheckParts(local, EquipmentSlot.MainHand, 1);
                     var instance = local.View.GetVisual(EquipmentSlot.MainHand);
-                    Check(instance.name.StartsWith(item.Weapon.WeaponPrefab.name, StringComparison.Ordinal), "Use actual equipped weapon prefab");
+                    var visualDefinition = local.View.Catalog.Resolve(item);
+                    var expectedPrefab = visualDefinition?.Parts[0].Prefab ?? item.Weapon.WeaponPrefab;
+                    Check(instance.name.StartsWith(expectedPrefab.name, StringComparison.Ordinal), "Use the resolved equipment visual");
                     local.View.SetWeaponStowed(true);
                     Check(local.View.GetVisual(EquipmentSlot.MainHand) == instance && instance.transform.parent == local.Visual.GetSocket(CharacterSocket.Back), "Move same weapon to back");
                     local.View.SetWeaponStowed(false);

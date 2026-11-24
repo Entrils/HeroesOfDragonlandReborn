@@ -53,7 +53,7 @@ namespace HeroesOfDragonland.World.Editor
                 }
                 if (!definition.TryValidate(out var reason)) throw new InvalidOperationException(reason);
             }
-            var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var spawner = bootstrap.GetComponent<NetworkCampSpawner>();
             var campData = new SerializedObject(spawner);
             Undo.RecordObject(spawner, "Move camp anchors");
@@ -101,7 +101,7 @@ namespace HeroesOfDragonland.World.Editor
 
         public static void RebuildNavigation()
         {
-            var surface=UnityEngine.Object.FindFirstObjectByType<NavMeshSurface>();
+            var surface=UnityEngine.Object.FindAnyObjectByType<NavMeshSurface>();
             var asset=surface.navMeshData;
             surface.BuildNavMesh();
             var baked=surface.navMeshData;
@@ -163,7 +163,7 @@ namespace HeroesOfDragonland.World.Editor
                 if ((a==1 && b==5 && distance<35) || (a==2 && b==3 && distance<25))
                     throw new InvalidOperationException("Rotation barrier did not lengthen route.");
             }
-            var spawner=UnityEngine.Object.FindFirstObjectByType<NetworkCampSpawner>();
+            var spawner=UnityEngine.Object.FindAnyObjectByType<NetworkCampSpawner>();
             var entries=new SerializedObject(spawner).FindProperty("entries");
             for(int i=0;i<entries.arraySize;i++)
             {

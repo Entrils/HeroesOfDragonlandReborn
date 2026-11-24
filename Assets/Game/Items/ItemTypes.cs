@@ -4,7 +4,7 @@ using UnityEngine;
 namespace HeroesOfDragonland.Items
 {
     // Explicit values are part of the save/network contract. Never renumber entries.
-    public enum ItemCategory { Weapon = 0, Armor = 1, Consumable = 2, Misc = 3 }
+    public enum ItemCategory { Weapon = 0, Armor = 1, Consumable = 2, Misc = 3, Deployable = 4 }
     public enum ItemRarity { Common = 0, Uncommon = 1, Rare = 2, Epic = 3, Legendary = 4 }
     public enum ItemStat
     {

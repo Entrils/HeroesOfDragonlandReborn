@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.IO;
 using System.Linq;
@@ -16,7 +16,7 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class ResilienceNetworkProbe : MonoBehaviour
     {
         [SerializeField] private Fusion.NetworkObject chestPrefab;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private string control, lastCommand;
         private NetworkId recordedId;
         private PlayerRef recordedOwner;

@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7065165528815959658}
   - component: {fileID: 812188133659022612}
+  - component: {fileID: 7755303329776889457}
   m_Layer: 0
   m_Name: PV_BorderScout
   m_TagString: Untagged
@@ -54,6 +55,32 @@ MonoBehaviour:
   back: {fileID: 4047756884621240102}
   head: {fileID: 1733824048814716457}
   chest: {fileID: 7949561446314531455}
+--- !u!114 &7755303329776889457
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 189753172964702070}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8ee4d726d26089e46b0dccf95c550c03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterAppearanceVisual
+  body:
+  - {fileID: 438161405497350410}
+  - {fileID: 6381785234766724892}
+  - {fileID: 2785644886063834310}
+  face: {fileID: 4820329571696715586}
+  hair: {fileID: 2569222164940200653}
+  brows: {fileID: 6626521787525448388}
+  eyes: {fileID: 5311874754918001451}
+  skin:
+  - {fileID: 7318358439950130702}
+  - {fileID: 4229767445890702893}
+  - {fileID: 4820329571696715586}
+  - {fileID: 5262237348448606173}
+  - {fileID: 438161405497350410}
 --- !u!1 &356294815507452565
 GameObject:
   m_ObjectHideFlags: 0
@@ -274,6 +301,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: d25856cf0a2d2f040aadd8b29f1cb943, type: 2}
     - target: {fileID: -4574940459258153746, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: c9bd2df508967f44fa13cda8bbb12ccc, type: 2}
+    - target: {fileID: -4574940459258153746, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d25856cf0a2d2f040aadd8b29f1cb943, type: 2}
@@ -334,6 +365,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: f307a963c1be19641b5f4acbaa5d11e1, type: 2}
     - target: {fileID: 320708484731849382, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: b17388a2266b6e44b8f89dd7a540f58e, type: 2}
+    - target: {fileID: 320708484731849382, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: d25856cf0a2d2f040aadd8b29f1cb943, type: 2}
@@ -341,6 +376,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: SK_BorderScout
       objectReference: {fileID: 0}
+    - target: {fileID: 2652429497598883690, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 135ff3bd0c7f5d24f93dace56dc88a2a, type: 2}
     - target: {fileID: 2652429497598883690, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
@@ -386,6 +425,10 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 2100000, guid: 15c91c5da90a31c4ba51769153fa8493, type: 2}
     - target: {fileID: 6554826577749454000, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+      propertyPath: m_Mesh
+      value: 
+      objectReference: {fileID: 4300000, guid: 9461c8ef73170a34f944747fc2377e8b, type: 2}
+    - target: {fileID: 6554826577749454000, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
       propertyPath: 'm_Materials.Array.data[0]'
       value: 
       objectReference: {fileID: 2100000, guid: 9c5b8a0591b0c654ea95d6cbb78e2a31, type: 2}
@@ -429,6 +472,11 @@ Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
   m_PrefabInstance: {fileID: 173331209119716268}
   m_PrefabAsset: {fileID: 0}
+--- !u!137 &438161405497350410 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 320708484731849382, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &661679516885322325 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8410180026438526471, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
@@ -456,9 +504,39 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c2c5adeb4a0b8d47851212f8af2ee77, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterAnimationEvents
+--- !u!137 &2569222164940200653 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -6791289550791259807, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &2785644886063834310 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 2652429497598883690, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &4229767445890702893 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -5128213748795683455, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &4820329571696715586 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -4574940459258153746, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &5262237348448606173 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3791763515505425295, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
 --- !u!4 &5306983526780307533 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5458919885533273057, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &5311874754918001451 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: -3760406583317530489, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
   m_PrefabInstance: {fileID: 173331209119716268}
   m_PrefabAsset: {fileID: 0}
 --- !u!95 &5984543353760476733 stripped
@@ -469,6 +547,16 @@ Animator:
 --- !u!137 &6381785234766724892 stripped
 SkinnedMeshRenderer:
   m_CorrespondingSourceObject: {fileID: 6554826577749454000, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &6626521787525448388 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 6454196631679439208, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
+  m_PrefabInstance: {fileID: 173331209119716268}
+  m_PrefabAsset: {fileID: 0}
+--- !u!137 &7318358439950130702 stripped
+SkinnedMeshRenderer:
+  m_CorrespondingSourceObject: {fileID: 7491671918905675170, guid: 2e221f7b41d9ee247aeedcb25d12df6f, type: 3}
   m_PrefabInstance: {fileID: 173331209119716268}
   m_PrefabAsset: {fileID: 0}
 --- !u!4 &8990870589644411295 stripped

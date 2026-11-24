@@ -78,15 +78,15 @@ namespace Fusion.Editor {
 
     private static void VersionInfoGUI() {
       if (string.IsNullOrEmpty(_allVersionInfo)) {
-        var assemblies = System.AppDomain.CurrentDomain.GetAssemblies();
+        var assemblies = UnityEngine.Assemblies.CurrentAssemblies.GetLoadedAssemblies();
         foreach (var asm in assemblies) {
           var assemblyFullName = asm.FullName;
           if (assemblyFullName.StartsWith("Fusion.Runtime,")) {
-            _version = $"{NetworkRunner.BuildStage} / {NetworkRunner.BuildType} / {System.Diagnostics.FileVersionInfo.GetVersionInfo(asm.Location).ProductVersion}";
+            _version = $"{NetworkRunner.BuildStage} / {NetworkRunner.BuildType} / {System.Diagnostics.FileVersionInfo.GetVersionInfo(asm.GetLoadedAssemblyPath()).ProductVersion}";
           }
 
           if (assemblyFullName.StartsWith("Fusion.") || assemblyFullName.StartsWith("Fusion,")) {
-            var fileVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(asm.Location).ToString();
+            var fileVersion = System.Diagnostics.FileVersionInfo.GetVersionInfo(asm.GetLoadedAssemblyPath()).ToString();
             _allVersionInfo += $"{assemblyFullName.Substring(0, assemblyFullName.IndexOf(",", StringComparison.Ordinal))}: {fileVersion} \n";
           }
         }

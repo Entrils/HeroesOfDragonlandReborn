@@ -24,6 +24,7 @@ namespace HeroesOfDragonland.Multiplayer
             internal bool Dead;
             internal readonly DamageContributionLedger Contributions = new();
             internal Action<float, GameObject> OnDamage;
+            internal HashSet<NetworkId> BossParticipants;
             internal Action<EnemyState> OnState;
         }
         [SerializeField] private NetworkCampDefinition definition;
@@ -85,12 +86,12 @@ namespace HeroesOfDragonland.Multiplayer
             chestRetry = TickTimer.None; NextSpawnTimer = TickTimer.None;
             State = NetworkCampState.Pending;
         }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         // Explicit acceptance fixture only; ordinary matches retain the configured spawn schedule.
-        internal bool TryStartDevelopmentBossEncounter()
+        internal bool TryStartDevelopmentEncounter(string flag)
         {
             if (!CanMutateCamp || State != NetworkCampState.Pending
-                || Array.IndexOf(Environment.GetCommandLineArgs(), "-hodrBossCheck") < 0) return false;
+                || Array.IndexOf(Environment.GetCommandLineArgs(), flag) < 0) return false;
             scheduleStarted = true; NextSpawnTimer = TickTimer.None;
             return TryInitialize();
         }
@@ -137,9 +138,12 @@ namespace HeroesOfDragonland.Multiplayer
                         if (!CanMutateCamp || State != NetworkCampState.Active || source == null) return;
                         var actor = source.GetComponent<NetworkObject>();
                         if (actor == null || actor.Runner != Runner) return;
-                        member.Contributions.Record(actor, amount, (float)Runner.SimulationTime);
-                        if (member.Stats.IsDead && member.Enemy.Definition.Boss != null)
-                            MatchSessionData.Credit(actor, MatchSessionData.Metric.Boss);
+                        var balance = NetworkMatchPacing.BalanceFor(Runner);
+                        if (balance != null) member.Contributions.Record(actor, amount, Runner.SimulationTime, balance.CampContributionWindowSeconds);
+                        if (member.Enemy.Definition.Boss == null || !NetworkParticipant.IsAdmitted(actor)) return;
+                        member.BossParticipants ??= new HashSet<NetworkId>();
+                        if (member.BossParticipants.Add(actor.Id))
+                            MatchSessionData.Credit(actor, new MatchStatistics { BossParticipation = 1 });
                     };
                     member.OnState = state => { if (state == EnemyState.Return) member.Contributions.Clear(); };
                     member.Enemy.GetComponent<DamageReceiver>().DamageTaken += member.OnDamage;
@@ -196,6 +200,7 @@ namespace HeroesOfDragonland.Multiplayer
                             if (stats == null || stats.IsDead || distance.sqrMagnitude > experienceRadius * experienceRadius) continue;
                         }
                         var progression = avatar.GetComponent<NetworkSessionProgression>();
+                        MatchSessionData.Credit(avatar, new MatchStatistics { CampsCleared = 1 });
                         if (progression != null && progression.TryGrantExperience(rewardExperience, rewardId)) RewardedPlayers++;
                     }
                 SpawnChest();
@@ -207,8 +212,8 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private void RewardContributors(MatchBalanceConfig balance, string rewardId)
         {
-            var contributors = new Dictionary<NetworkId, DamageContributionLedger.Contribution>();
-            float now = (float)Runner.SimulationTime, a = 0, b = 0;
+            var contributors = new Dictionary<NetworkId, CombatContributionHistory<NetworkObject>.Contribution>();
+            double now = Runner.SimulationTime, a = 0, b = 0;
             foreach (var member in members)
                 foreach (var entry in member.Contributions.Recent(now, balance.CampContributionWindowSeconds, balance.MinimumContributionDamage))
                 {
@@ -227,7 +232,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (actor.GetComponent<NetworkTestPlayer>().Team != winner || actor.GetComponent<CharacterStats>().IsDead) continue;
                 Vector3 offset = actor.transform.position - transform.position; offset.y = 0;
                 if (offset.sqrMagnitude > ConfiguredRadius * ConfiguredRadius) continue;
-                MatchSessionData.Credit(actor, MatchSessionData.Metric.Camp);
+                MatchSessionData.Credit(actor, new MatchStatistics { CampsCleared = 1 });
                 int reward = Mathf.RoundToInt(AwardedExperience * (pacing != null ? pacing.CampMultiplier(winner) : 1));
                 if (actor.GetComponent<NetworkSessionProgression>()?.TryGrantExperience(reward, rewardId) == true) RewardedPlayers++;
             }

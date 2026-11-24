@@ -130,6 +130,9 @@ namespace HeroesOfDragonland.UI
                     ? "You return at your fortress with your gear and level. Death can cost XP."
                     : "You return at your fortress with your gear and progress.";
             view.SetRespawn(text, details);
+            if (respawn != null && respawn.TryGetDeathRecap(out var headline, out var recent, out var assists))
+                view.SetDeathRecap(headline, recent, assists);
+            else view.SetDeathRecap();
         }
         private void OnTargetChanged(Targetable value)
         {

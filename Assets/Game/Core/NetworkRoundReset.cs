@@ -19,7 +19,8 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 if (!obj.IsValid || obj.Runner != runner) continue;
                 if (obj.GetComponent<NetworkEnemy>() != null || obj.GetComponent<NetworkKingObjective>() != null
-                    || obj.GetComponent<NetworkFortressGate>() != null || obj.GetComponent<NetworkCamp>() != null || obj.GetComponent<NetworkLootChest>() != null)
+                    || obj.GetComponent<NetworkFortressGate>() != null || obj.GetComponent<NetworkCamp>() != null
+                    || obj.GetComponent<NetworkLootChest>() != null || obj.GetComponent<NetworkDeployable>() != null)
                 {
                     foreach (var collider in obj.GetComponentsInChildren<Collider>()) collider.enabled = false;
                     runner.Despawn(obj);

@@ -14,6 +14,7 @@ namespace HeroesOfDragonland.UI
         public float BossHealthValue => bossHealth?.value ?? 0;
         private VisualElement root, personal, targetPanel, marker;
         private Label identity, phase, objective, respawn, result, targetName, pacing;
+        private Label recapHeadline, recapRecent, recapAssists;
         private Label quickItem;
         private Label secondaryObjectives, staminaWarning, kingWarning, prompt, feedback, respawnDetails;
         public bool HasObjectiveSummary => secondaryObjectives != null && secondaryObjectives.style.display.value != DisplayStyle.None;
@@ -95,6 +96,11 @@ namespace HeroesOfDragonland.UI
             respawn.style.fontSize = 21;
             respawn.style.unityFontStyleAndWeight = FontStyle.Bold;
             respawnDetails = Label(notice, "");
+            recapHeadline = Label(notice, "");
+            recapRecent = Label(notice, "");
+            recapAssists = Label(notice, "");
+            recapHeadline.enableRichText = recapRecent.enableRichText = recapAssists.enableRichText = false;
+            recapRecent.style.whiteSpace = WhiteSpace.Normal;
             result = Label(notice, "");
             result.style.fontSize = 26;
             result.style.unityFontStyleAndWeight = FontStyle.Bold;
@@ -169,7 +175,13 @@ namespace HeroesOfDragonland.UI
             bossName.text = name; bossStatus.text = status; bossMove.text = move;
             Value(bossHealth, "Health", current, maximum);
         }
-        public void SetLocal(bool visible) { personal.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None; if (!visible) SetRespawn(""); }
+        public void SetLocal(bool visible)
+        {
+            personal.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+            if (visible) return;
+            SetRespawn("");
+            SetDeathRecap();
+        }
         public void SetIdentity(string text) => identity.text = text;
         public void SetQuickItem(int slotCount, int index, string itemName, long quantity)
         {
@@ -191,6 +203,13 @@ namespace HeroesOfDragonland.UI
         public void SetTargetHealth(float value, float maximum) => Value(targetHealth, "Health", value, maximum);
         public void SetKing(bool teamA, float value, float maximum) => Value(teamA ? kingA : kingB, "Team " + (teamA ? "A" : "B") + " King" + (maximum > 0 && value <= 0 ? " · DEFEATED" : ""), value, maximum);
         public void SetMatch(string state, string goal, string outcome) { phase.text = state; objective.text = goal; result.text = outcome; }
+        public void SetDeathRecap(string headline = "", string recent = "", string assists = "")
+        {
+            SetHint(recapHeadline, headline, Color.white);
+            SetHint(recapRecent, recent, Color.white);
+            SetHint(recapAssists, assists, Color.white);
+        }
+
         public void SetRespawn(string value, string details = "") { SetHint(respawn, value, Color.white); SetHint(respawnDetails, details, Color.white); }
         internal void SetObjectives(bool visible) => secondaryObjectives.style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
         internal void SetStaminaWarning(bool active) => SetHint(staminaWarning, active ? "Low stamina · Ease off attacks and dodges" : "", new Color(1, .77f, .34f));

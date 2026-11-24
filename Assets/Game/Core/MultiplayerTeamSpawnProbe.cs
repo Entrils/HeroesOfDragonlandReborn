@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,7 +12,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Opt-in six-peer fixture; never modifies a saved asset or runs in ordinary play.
     public sealed class MultiplayerTeamSpawnProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active, host, released, checkedPlayers;
         private float readyAt, movingAt;
         private MultiplayerBootstrap bootstrap;

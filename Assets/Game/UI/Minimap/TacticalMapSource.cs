@@ -51,7 +51,8 @@ namespace HeroesOfDragonland.UI.Minimap
             { reveals.Bind(null, MapTeam.None); return; }
             reveals.Bind(runner.GetEntityId() + ":" + match.Object.Id + ":" + match.RoundNumber + ":" + local.Id, viewer);
             Visible = true; Heading = local.transform.eulerAngles.y;
-            if (match.State == MatchPhase.Playing)
+            bool deadViewer = local.GetComponent<NetworkCharacterStats>()?.Dead == true;
+            if (match.State == MatchPhase.Playing && !deadViewer)
             {
                 PingViewer = player;
                 PingRound = match.RoundNumber;
@@ -73,7 +74,7 @@ namespace HeroesOfDragonland.UI.Minimap
                     Label = self ? "You" : "Ally", Team = viewer, State = MapMarkerState.Active, Position = position, Heading = self ? Heading : 0 });
             }
             King(match.TeamAKingId, MapTeam.A, runner); King(match.TeamBKingId, MapTeam.B, runner);
-            reveals.Append(markers);
+            if (!deadViewer) reveals.Append(markers);
         }
         private MapMarkerState PublicState(TacticalMapDefinition.Landmark landmark, NetworkRunner runner, NetworkMatch match)
         {

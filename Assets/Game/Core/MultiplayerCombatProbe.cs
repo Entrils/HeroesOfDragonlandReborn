@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ namespace HeroesOfDragonland.Multiplayer
     // No teleport, damage, resource or team command is exposed over the network.
     public sealed class MultiplayerCombatProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private MultiplayerBootstrap bootstrap;
         private string scenario;
         private float nextReport;

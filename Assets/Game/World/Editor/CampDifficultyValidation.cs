@@ -43,7 +43,7 @@ public class CampDifficultyValidation
             Check(seen[tier] && seen[tier + 1], "Both rarities must be reachable");
             Debug.Log(names[tier] + ": valid definition/catalog and 2000 seeded loot rolls");
         }
-        var spawner = UnityEngine.Object.FindFirstObjectByType<NetworkCampSpawner>();
+        var spawner = UnityEngine.Object.FindAnyObjectByType<NetworkCampSpawner>();
         var entries = new SerializedObject(spawner).FindProperty("entries");
         Check(entries.arraySize == 11, "Eleven camp anchors required");
         int[] counts = new int[4];

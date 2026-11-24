@@ -15,6 +15,10 @@ MonoBehaviour:
   displayName: Fire Projectile
   description: Launch fire straight ahead. Allies are ignored; solid geometry stops it.
   effect: 3
+  branch: 2
+  maxRank: 1
+  prerequisites: []
+  exclusiveGroup: 
   ability: {fileID: 11400000, guid: fffb8a33d5aa3bb48afe25777a6df537, type: 2}
   requiredLevel: 1
   requirements: []

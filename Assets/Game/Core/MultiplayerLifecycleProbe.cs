@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,6 +8,8 @@ using HeroesOfDragonland.EquipmentSystem;
 using HeroesOfDragonland.InventorySystem;
 using HeroesOfDragonland.Items;
 using HeroesOfDragonland.Progression;
+using HeroesOfDragonland.AI;
+using HeroesOfDragonland.Skills;
 using HeroesOfDragonland.Stats;
 using HeroesOfDragonland.Teams;
 #endif
@@ -17,15 +19,15 @@ namespace HeroesOfDragonland.Multiplayer
     // Explicit development acceptance only; never runs in ordinary play.
     public sealed class MultiplayerLifecycleProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-        private bool active, seeded, campKilled, chestOpened, finished, sawReturn, sawSecondStart;
+#if UNITY_EDITOR || DEBUG
+        private bool active, seeded, campKilled, chestOpened, finished, sawReturn, sawSecondStart, finalCastStarted;
         private NetworkMatch observed;
         private float playingAt;
         private int checkedRound, checkedFinishRound, endEvents;
         private readonly Dictionary<PlayerRef, NetworkId> oldPlayers = new();
         private readonly Dictionary<PlayerRef, TeamId> oldTeams = new();
         private readonly List<NetworkId> oldWorld = new();
-        private string oldSession;
+        private string oldSession, previousResultId;
         private NetworkCamp camp;
         private void Awake()
         {
@@ -110,7 +112,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (Time.realtimeSinceStartup - playingAt < 3) return;
                 if (match.RoundNumber == 2)
                 {
-                    InSession<NetworkKingObjective>(runner).First(k => k.Team == TeamId.TeamB).Stats.ApplyDamage(99999);
+                    if (!finalCastStarted) CastFinalHit(runner, players);
                     return;
                 }
                 if (!seeded)
@@ -156,6 +158,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (match.SecondsRemaining > match.Configuration.FinishedDelay - 1) return;
                 checkedFinishRound = match.RoundNumber;
                 Check(!match.CanPlay && match.FinishCount == 1, "finished-gate-and-single-result");
+                CheckDetailedResult(match);
                 if (runner.IsServer)
                 {
                     foreach (var player in players)
@@ -171,6 +174,50 @@ namespace HeroesOfDragonland.Multiplayer
                     finished = true; active = false;
                     Debug.Log("[LifecycleComplete] server=" + runner.IsServer);
                 }
+            }
+        }
+
+        private void CastFinalHit(NetworkRunner runner, NetworkObject[] players)
+        {
+            finalCastStarted = true;
+            foreach (var enemy in InSession<NetworkEnemy>(runner)) enemy.GetComponent<EnemyBrain>().enabled = false;
+            var king = InSession<NetworkKingObjective>(runner).First(k => k.Team == TeamId.TeamB);
+            var attacker = players.First(player => player.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamA);
+            var target = king.GetComponentInChildren<CapsuleCollider>().bounds.center;
+            var direction = new[] { king.transform.forward, -king.transform.forward, Vector3.left, Vector3.right }
+                .FirstOrDefault(candidate => Physics.SphereCast(target + candidate * 2f, .2f, -candidate, out var hit, 2f,
+                    ~0, QueryTriggerInteraction.Ignore) && hit.collider.GetComponentInParent<NetworkKingObjective>() == king);
+            Check(direction != Vector3.zero, "unobstructed-finisher-approach");
+            var position = target + direction * 2f - Vector3.up;
+            attacker.GetComponent<NetworkTransform>().Teleport(position, Quaternion.LookRotation(-direction));
+            Check(king.Stats.ApplyDamage(king.Stats.CurrentHealth - 1f) > 0, "seed-king-health-for-real-finisher");
+            var skills = attacker.GetComponent<SessionSkills>();
+            Check(skills.TryLearn(3, skills.SessionId, out _) && skills.TryActivate(3, skills.SessionId, out _),
+                "cast-confirmed-projectile-at-king");
+        }
+
+        private void CheckDetailedResult(NetworkMatch match)
+        {
+            var result = match.LatestResult;
+            Check(result != null && result.RoundNumber == match.RoundNumber && result.Winner == match.Winner
+                && result.DurationSeconds >= 3 && result.Players.Count == 2
+                && Guid.TryParseExact(result.Id, "N", out _) && result.Id != previousResultId, "authoritative-detailed-result");
+            previousResultId = result.Id;
+            Check(result.Players.Count(row => row.Team == TeamId.TeamA) == 1
+                && result.Players.Count(row => row.Team == TeamId.TeamB) == 1, "result-has-both-teams");
+            if (match.RoundNumber == 1)
+            {
+                Check(result.Players.All(row => row.Statistics.ExperienceEarned == 1000 && row.Statistics.HighestLevel > 1
+                    && row.Statistics.ItemsAcquired >= 2 && row.Statistics.DamageTaken >= 20), "round-one-earned-totals");
+                Check(result.TeamA.ChestsOpened + result.TeamB.ChestsOpened == 1, "chest-not-credited-twice");
+                Check(result.TeamA.KingDamage + result.TeamB.KingDamage == 0, "unattributed-king-fixture-does-not-credit-damage");
+            }
+            else
+            {
+                Check(result.Players.All(row => row.Statistics.ExperienceEarned == 0 && row.Statistics.ItemsAcquired == 0
+                    && row.Statistics.ChestsOpened == 0 && row.Statistics.HighestLevel == 1), "new-round-counters-reset");
+                Check(Mathf.Approximately(result.TeamA.KingDamage, 1f) && result.TeamA.KingsKilled == 1
+                    && result.TeamB.KingDamage == 0, "real-fatal-king-hit-included-in-result");
             }
         }
 #endif

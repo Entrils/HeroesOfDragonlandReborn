@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.EquipmentVisualDefinition
   slot: 1
   parts:
-  - prefab: {fileID: 0}
+  - prefab: {fileID: 106726584960895927, guid: fe11b59f8429b3d4bacaa9bfcedb4a0b, type: 3}
     socket: 0
     bone: 55
     pose:
@@ -22,6 +22,6 @@ MonoBehaviour:
       eulerAngles: {x: 0, y: 0, z: 0}
       scale: {x: 1, y: 1, z: 1}
   stowedPose:
-    position: {x: 0, y: 0, z: 0}
-    eulerAngles: {x: 0, y: 0, z: 0}
+    position: {x: -0.27, y: 0.09, z: 0.4}
+    eulerAngles: {x: 0, y: 141, z: 0}
     scale: {x: 1, y: 1, z: 1}

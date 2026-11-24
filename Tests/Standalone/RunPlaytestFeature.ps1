@@ -1,5 +1,5 @@
 param(
-    [Parameter(Mandatory)] [ValidateSet('Defense','Magic','Boss','Fortress','TeamPing')] [string]$Feature,
+    [Parameter(Mandatory)] [ValidateSet('Defense','Magic','Boss','Fortress','TeamPing','Bow','Traps','Pacing')] [string]$Feature,
     [string]$Executable = 'Builds/PlaytestAlpha/Dragonland.exe'
 )
 $ErrorActionPreference = 'Stop'
@@ -9,6 +9,9 @@ $profiles = @{
     Boss = @('-hodrBossCheck', 'BossNetwork')
     Fortress = @('-hodrAssaultCheck', 'AssaultNetwork')
     TeamPing = @('-hodrPingCheck', 'TeamPing')
+    Bow = @('-hodrBowCheck', 'BowNetwork')
+    Traps = @('-hodrTrapsCheck', 'TrapsNetwork')
+    Pacing = @('-hodrPacingCheck', 'PacingNetwork')
 }
 $flag, $tag = $profiles[$Feature]
 $player = (Resolve-Path -LiteralPath $Executable).Path
@@ -17,13 +20,15 @@ $directory = New-Item -ItemType Directory -Path "Builds/Playtest-$Feature-$id"
 $room = "hodr-alpha-$id"
 $processes = [System.Collections.Generic.List[System.Diagnostics.Process]]::new()
 $deadline = [DateTime]::UtcNow.AddSeconds(150)
-$peerCount = if ($Feature -eq 'TeamPing') { 3 } else { 2 }
+$peerCount = switch ($Feature) { 'Traps' { 4 } 'TeamPing' { 3 } default { 2 } }
 
 function Start-FeaturePeer([string]$role, [string]$label = $role) {
     $log = Join-Path $directory.FullName "$label.log"
-    $processes.Add((Start-Process -FilePath $player -WindowStyle Hidden -PassThru -ArgumentList @(
-        '-batchmode', '-nographics', '-hodrMode', $role, '-hodrRoom', $room,
-        '-hodrPlaytestReady', "$peerCount", $flag, '-logFile', ('"' + $log + '"'))))
+    $readyCount = if ($Feature -eq 'Pacing') { 6 } else { $peerCount }
+    $arguments = @('-batchmode', '-nographics', '-hodrMode', $role, '-hodrRoom', $room,
+        '-hodrPlaytestReady', "$readyCount", $flag, '-logFile', ('"' + $log + '"'))
+    if ($Feature -eq 'Pacing' -and $role -eq 'host') { $arguments += @('-hodrBots', '4') }
+    $processes.Add((Start-Process -FilePath $player -WindowStyle Hidden -PassThru -ArgumentList $arguments))
 }
 
 function Wait-FeatureLog([string]$role, [string]$pattern) {
@@ -44,14 +49,21 @@ try {
     Start-FeaturePeer 'host'
     Wait-FeatureLog 'host' '\[MatchLifecycle\] round=0 state=Lobby'
     Start-FeaturePeer 'client'
-    if ($Feature -eq 'TeamPing') {
+    if ($peerCount -ge 3) {
         Wait-FeatureLog 'client' '\[NetworkState\] Connected'
         Start-FeaturePeer 'client' 'client2'
     }
+    if ($peerCount -ge 4) {
+        Wait-FeatureLog 'client2' '\[NetworkState\] Connected'
+        Start-FeaturePeer 'client' 'client3'
+    }
     Wait-FeatureLog 'host' "\[$tag\] PASS .*server=True"
     Wait-FeatureLog 'client' "\[$tag\] PASS .*server=False"
-    if ($Feature -eq 'TeamPing') {
+    if ($peerCount -ge 3) {
         Wait-FeatureLog 'client2' "\[$tag\] PASS .*server=False"
+    }
+    if ($peerCount -ge 4) {
+        Wait-FeatureLog 'client3' "\[$tag\] PASS .*server=False"
     }
     Write-Output "$Feature passed on all $peerCount peers. Reports: $($directory.FullName)"
 } finally {

@@ -12,8 +12,8 @@ namespace HeroesOfDragonland.Art.Editor
     internal static class AudioMixerFactory
     {
         private const BindingFlags Flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
-        private static Type Controller => AppDomain.CurrentDomain.GetAssemblies()
-            .Select(a => a.GetType("UnityEditor.Audio.AudioMixerController")).FirstOrDefault(t => t != null)
+        private static Type Controller => TypeCache.GetTypesDerivedFrom<AudioMixer>()
+            .FirstOrDefault(type => type.FullName == "UnityEditor.Audio.AudioMixerController")
             ?? throw new InvalidOperationException("Unity mixer authoring API unavailable. Create the documented mixer/groups/exposed parameters through MCP, then rerun.");
         private static object Call(object target, string method, params object[] args)
         {

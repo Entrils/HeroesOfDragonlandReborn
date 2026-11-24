@@ -53,7 +53,7 @@ namespace HeroesOfDragonland.Art.Editor
         public static void Start()
         {
             Check(Application.isPlaying, "Play Mode required"); ValidateAssets(); Status = "RUNNING";
-            UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
+            UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
         }
         private static IEnumerator Settle(CharacterVisual visual, CharacterVisualState state, float seconds = .14f)
         {

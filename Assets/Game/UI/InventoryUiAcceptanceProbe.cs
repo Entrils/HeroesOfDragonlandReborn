@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.UI
     [DefaultExecutionOrder(200)]
     public sealed class InventoryUiAcceptanceProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active, preview, completed;
         private InventoryEquipmentPresenter presenter;
         private readonly Dictionary<NetworkObject, int> fixtures = new();

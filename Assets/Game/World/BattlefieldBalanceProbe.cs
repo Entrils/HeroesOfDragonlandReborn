@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using System.Reflection;
@@ -15,7 +15,7 @@ namespace HeroesOfDragonland.World
     // while the saved production delays remain unchanged.
     public sealed class BattlefieldBalanceProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active;
         private int stage;
         private float started, changed;
@@ -33,7 +33,7 @@ namespace HeroesOfDragonland.World
             .SetValue(camp,TickTimer.CreateFromSeconds(camp.Runner,.05f));
         private void Kill(NetworkCamp camp)
         {
-            foreach(var enemy in FindObjectsByType<NetworkEnemy>(FindObjectsSortMode.None))
+            foreach(var enemy in FindObjectsByType<NetworkEnemy>())
                 if(enemy.Runner==camp.Runner && Vector3.Distance(enemy.transform.position,camp.transform.position)<6)
                     enemy.GetComponent<CharacterStats>().ApplyDamage(100000);
         }
@@ -48,7 +48,7 @@ namespace HeroesOfDragonland.World
             if(stage==0)
             {
                 if(Time.unscaledTime-started<8)return;
-                var camps=FindObjectsByType<NetworkCamp>(FindObjectsSortMode.None);
+                var camps=FindObjectsByType<NetworkCamp>();
                 low=camps.First(c=>c.Runner==runner && c.Definition.RespawnDelay==75);
                 center=camps.First(c=>c.Runner==runner && c.Definition.InitialSpawnDelay==150);
                 Check(center.State==NetworkCampState.Pending && center.EnemyCount==0 && !center.TryInitialize(),"center-cannot-spawn-early");

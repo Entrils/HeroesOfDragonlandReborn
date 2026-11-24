@@ -49,6 +49,8 @@ namespace HeroesOfDragonland.UI
                 }
             }
             if (item.Category == ItemCategory.Consumable) text.AppendLine().AppendLine("Choose a quick slot with [ or ], then assign this item with F6.");
+            if (item.Category == ItemCategory.Deployable)
+                text.AppendLine().AppendLine("Assign with F6. Close the bag, aim at nearby ground and press G.");
             return text.ToString();
         }
     }

@@ -25,12 +25,12 @@ namespace HeroesOfDragonland.Art.Editor
             GameObject fixture = null;
             try
             {
-                var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+                var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
                 Check(bootstrap != null, "Missing bootstrap");
                 var main = bootstrap.GetComponent<GameAudioService>(); var director = bootstrap.GetComponent<DynamicMusicDirector>();
                 Check(main != null && main.MusicReady && director != null && director.Catalog != null, "Missing M60/M61 scene installation");
                 Check(bootstrap.GetComponent<LocalMusicContext>() != null, "Missing local context sampler");
-                foreach (var obj in UnityEngine.Object.FindObjectsByType<Fusion.NetworkObject>(FindObjectsSortMode.None))
+                foreach (var obj in UnityEngine.Object.FindObjectsByType<Fusion.NetworkObject>())
                     if (obj.GetComponent<NetworkCharacterStats>() != null) Check(obj.GetComponent<MusicContextSubject>() != null, "Missing context hook: " + obj.name);
                 fixture = new GameObject("Temporary music decks"); fixture.SetActive(false);
                 var service = fixture.AddComponent<GameAudioService>(); var data = new SerializedObject(service);

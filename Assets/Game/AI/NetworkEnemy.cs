@@ -34,6 +34,8 @@ namespace HeroesOfDragonland.Multiplayer
             ? PresentedAttackSet.Get(AttackIndex).Windup : Definition.AttackWindup;
         [Networked] public int AttackEndTick { get; private set; }
         [Networked] public NetworkBool AttackBusy { get; private set; }
+        [Networked] public NetworkBool ProjectileInFlight { get; private set; }
+        [Networked] public Vector3 ProjectilePosition { get; private set; }
         [Networked] public int SpawnIndex { get; private set; }
         private EnemyBrain brain;
         private EnemyMeleeAttack attack;
@@ -83,6 +85,7 @@ namespace HeroesOfDragonland.Multiplayer
             attack.AttackStarted += OnAttackStarted;
             attack.AttackFinished += OnAttackFinished;
             stats.Died += OnDeath;
+            brain.StateChanged += OnBrainStateChanged;
             // Keep NavMesh simulation separate from Fusion's render/restoration writes.
             agent.updatePosition = false;
             agent.updateRotation = false;
@@ -101,6 +104,7 @@ namespace HeroesOfDragonland.Multiplayer
                 GetComponent<EnemyNavigation>().Stop();
                 attack.Cancel();
                 AttackBusy = false;
+                ProjectileInFlight = false;
                 TargetId = default;
                 return;
             }
@@ -135,6 +139,8 @@ namespace HeroesOfDragonland.Multiplayer
             var target = brain.AggroTarget != null ? brain.AggroTarget.GetComponent<NetworkObject>() : null;
             TargetId = target != null && target.IsValid ? target.Id : default;
             AttackBusy = attack.IsBusy && !stats.IsDead;
+            ProjectileInFlight = attack.ProjectileInFlight && !stats.IsDead;
+            if (ProjectileInFlight) ProjectilePosition = attack.ProjectilePosition;
         }
         private void OnAttackStarted()
         {
@@ -147,7 +153,18 @@ namespace HeroesOfDragonland.Multiplayer
             AttackEndTick = 0;
             AttackBusy = true;
         }
-        private void OnAttackFinished() { AttackEndTick = Runner.Tick.Raw; AttackBusy = false; }
+        private void OnAttackFinished()
+        {
+            AttackEndTick = Runner.Tick.Raw;
+            AttackBusy = false;
+            ProjectileInFlight = false;
+        }
+        private void OnBrainStateChanged(EnemyState state)
+        {
+            if (state == EnemyState.Return && Object != null && Object.IsValid && HasStateAuthority)
+                NetworkMatchPacing.MatchFor(Runner)?.ForgetCombatTarget(Object.Id);
+        }
+
         private void OnDeath()
         {
             if (Definition.Boss != null) BossPhase = HeroesOfDragonland.AI.BossPhase.Defeated;
@@ -169,6 +186,8 @@ namespace HeroesOfDragonland.Multiplayer
             var magic = source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>();
             if (magic != null && magic.AllowsProjectileDamage(Runner)) return HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject);
             var player = source.GetComponent<NetworkPlayerCombat>();
+            if (player != null && player.AllowsArrowDamage(Runner))
+                return HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject);
             return player != null && player.Runner == Runner && player.IsAdmitted()
                 && player.ResolvingAttack && !source.GetComponent<CharacterStats>().IsDead;
         }
@@ -183,6 +202,8 @@ namespace HeroesOfDragonland.Multiplayer
             attack.AttackStarted -= OnAttackStarted;
             attack.AttackFinished -= OnAttackFinished;
             stats.Died -= OnDeath;
+            brain.StateChanged -= OnBrainStateChanged;
+            if (hasState) NetworkMatchPacing.MatchFor(runner)?.ForgetCombatTarget(Object.Id);
             agent.enabled = false;
         }
         private void OnDisable()

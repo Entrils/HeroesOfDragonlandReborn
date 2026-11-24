@@ -1,6 +1,9 @@
 using UnityEngine;
 using UnityEngine.InputSystem;
 using HeroesOfDragonland.Combat;
+using HeroesOfDragonland.EquipmentSystem;
+using HeroesOfDragonland.Items;
+using HeroesOfDragonland.Presentation;
 
 namespace HeroesOfDragonland.Player
 {
@@ -21,12 +24,18 @@ namespace HeroesOfDragonland.Player
         private InputAction lookAction;
         private InputAction jumpAction;
         private InputAction attackAction;
+        private Equipment equipment;
+        internal BowShot LocalBow { get; private set; }
 
         private void Awake()
         {
             movement = GetComponent<PlayerMovement>();
             targetLock = GetComponent<TargetLock>();
             meleeAttack = GetComponent<MeleeAttack>();
+            equipment = GetComponent<Equipment>();
+            LocalBow = new BowShot(gameObject);
+            if (GetComponent<BowPresentation>() == null) gameObject.AddComponent<BowPresentation>();
+            LocalBow.Impact += point => GetComponent<BowPresentation>()?.PresentImpact(point, null, Teams.TeamId.Unassigned);
             dodge = GetComponent<PlayerDodge>();
             interactor = GetComponent<HeroesOfDragonland.Interaction.PlayerInteractor>();
             if (inputActions == null || followCamera == null)
@@ -75,32 +84,47 @@ namespace HeroesOfDragonland.Player
             Vector3 direction = yaw * new Vector3(input.x, 0f, input.y);
             Vector3? facing = targetLock != null ? targetLock.FacingDirection : null;
             var defense = GetComponent<CombatDefense>();
-            if (captured && wasCaptured && Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame)
+            var weapon = equipment != null ? equipment.EquippedWeapon : null;
+            bool usingBow = weapon != null && weapon.Archetype == WeaponArchetype.Bow;
+            if (!LocalBow.Drawing && captured && wasCaptured && Keyboard.current != null && Keyboard.current.cKey.wasPressedThisFrame)
                 GetComponent<ParryDefense>()?.TryStart(facing ?? transform.forward);
-            defense?.SetBlockIntent(captured && wasCaptured && Mouse.current != null && Mouse.current.rightButton.isPressed,
-                (meleeAttack != null && meleeAttack.IsBusy) || (dodge != null && dodge.IsBusy));
+            defense?.SetBlockIntent(!usingBow && captured && wasCaptured && Mouse.current != null && Mouse.current.rightButton.isPressed,
+                LocalBow.Drawing || (meleeAttack != null && meleeAttack.IsBusy) || (dodge != null && dodge.IsBusy));
+            if (usingBow)
+            {
+                var aim = BowAim.Read(followCamera.GetComponent<Camera>(), transform, weapon.Range);
+                if (captured && targetLock?.CurrentTarget == null && Mouse.current?.rightButton.isPressed == true)
+                    facing = Vector3.ProjectOnPlane(aim, Vector3.up).normalized;
+                LocalBow.UpdateAim(aim, targetLock?.CurrentTarget);
+                if (captured && wasCaptured && attackAction.WasPressedThisFrame()
+                    && !(defense?.ActionsBlocked ?? false) && !(meleeAttack?.IsBusy ?? false) && !(dodge?.IsBusy ?? false)
+                    && !dodgeAction.WasPressedThisFrame())
+                    LocalBow.TryStart(aim, targetLock?.CurrentTarget);
+            }
+            LocalBow.Tick(Time.deltaTime, !captured || !usingBow || (defense?.ActionsBlocked ?? false));
             if (defense != null && defense.IsStaggered)
             {
                 movement.Tick(Vector3.zero, false, Time.deltaTime, facing);
                 return;
             }
-            if (meleeAttack != null && captured && wasCaptured && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
+            if (!usingBow && meleeAttack != null && captured && wasCaptured && Keyboard.current != null && Keyboard.current.rKey.wasPressedThisFrame)
                 meleeAttack.TryHeavyAttack(facing);
-            if (dodge != null && captured && wasCaptured && dodgeAction.WasPressedThisFrame())
+            if (dodge != null && !LocalBow.Drawing && captured && wasCaptured && dodgeAction.WasPressedThisFrame())
                 dodge.TryDodge(direction, facing);
             if (dodge != null && dodge.IsBusy)
             {
                 dodge.TickDodge(Time.deltaTime, facing);
                 return;
             }
-            if (meleeAttack != null && captured && wasCaptured && attackAction.WasPressedThisFrame())
+            if (!usingBow && meleeAttack != null && captured && wasCaptured && attackAction.WasPressedThisFrame())
                 meleeAttack.TryAttack(facing);
             if (GetComponent<ParryDefense>() is { IsBusy: true } parry) facing = parry.Facing;
             bool attacking = meleeAttack != null && meleeAttack.IsBusy;
             if (interactor != null) interactor.Tick(captured && wasCaptured && !attacking && !(defense != null && defense.ActionsBlocked));
-            movement.Tick(direction * (attacking ? meleeAttack.MovementMultiplier : 1f) * (defense != null ? defense.MovementMultiplier : 1f),
-                captured && !attacking && !(defense != null && defense.ActionsBlocked) && jumpAction.WasPressedThisFrame(), Time.deltaTime,
-                attacking ? meleeAttack.FacingDirection : facing);
+            movement.Tick(direction * (LocalBow.Drawing ? .55f : attacking ? meleeAttack.MovementMultiplier : 1f)
+                * (defense != null ? defense.MovementMultiplier : 1f),
+                captured && !attacking && !LocalBow.Drawing && !(defense != null && defense.ActionsBlocked) && jumpAction.WasPressedThisFrame(), Time.deltaTime,
+                LocalBow.Drawing ? LocalBow.Facing : attacking ? meleeAttack.FacingDirection : facing);
         }
 
         private void OnApplicationFocus(bool focused)
@@ -110,6 +134,7 @@ namespace HeroesOfDragonland.Player
 
         private void OnDisable()
         {
+            LocalBow?.Cancel();
             moveAction?.Disable();
             lookAction?.Disable();
             jumpAction?.Disable();

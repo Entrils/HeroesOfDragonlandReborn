@@ -21,7 +21,7 @@ namespace HeroesOfDragonland.Art.Editor
         public static void ValidateAssets()
         {
             WeaponMovesetValidation.ValidateAssets();
-            foreach (WeaponArchetype kind in Enum.GetValues(typeof(WeaponArchetype)))
+            foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
             {
                 var m = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset").Moveset;
                 Check(m.Combo != null && m.Combo.TryValidate(m.LightAttackCount, out _), kind + " combo references/rules");
@@ -53,7 +53,7 @@ namespace HeroesOfDragonland.Art.Editor
             var items = new List<ItemDefinition>();
             try
             {
-                foreach (WeaponArchetype kind in Enum.GetValues(typeof(WeaponArchetype)))
+                foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
                 {
                     var source = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset");
                     var weapon = UnityEngine.Object.Instantiate(source); temporary.Add(weapon);

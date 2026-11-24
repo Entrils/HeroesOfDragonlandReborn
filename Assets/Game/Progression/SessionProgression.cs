@@ -92,6 +92,8 @@ namespace HeroesOfDragonland.Progression
             finally { processing = false; }
         }
 
+        internal bool HasExperienceReward(string rewardId) => rewardedIds.Contains(rewardId);
+
         // All XP sources share this boundary. IDs are unique per player/session,
         // e.g. camp:<campId>, quest:<questId> or kill:<server-issued-deathId>.
         // A session ID rejects delayed rewards from a previous match.
@@ -115,7 +117,7 @@ namespace HeroesOfDragonland.Progression
                 while (!IsMaximumLevel)
                 {
                     long needed = XPRequiredForNextLevel - CurrentXP;
-                    if (remaining < needed) { CurrentXP += remaining; break; }
+                    if (remaining < needed) { CurrentXP += remaining; remaining = 0; break; }
                     remaining -= needed;
                     int points = pointRewards[Level - 1];
                     Level++;
@@ -128,6 +130,8 @@ namespace HeroesOfDragonland.Progression
                 Revision++;
                 // Observers see the fully committed grant. One level event is emitted
                 // per crossed threshold, in order, with that step's points/total.
+                HeroesOfDragonland.Multiplayer.MatchSessionData.Credit(this,
+                    new HeroesOfDragonland.Multiplayer.MatchStatistics { ExperienceEarned = amount - remaining, HighestLevel = Level });
                 Notify(ExperienceGained, amount);
                 foreach (var levelEvent in levelEvents) Notify(LeveledUp, levelEvent);
                 Notify(Changed);

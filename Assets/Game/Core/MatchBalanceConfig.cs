@@ -29,6 +29,8 @@ namespace HeroesOfDragonland.Multiplayer
         }
 
         [SerializeField] private LevelProgressionDefinition progression;
+        [SerializeField] private RankedRatingSettings rankedRating = RankedRatingSettings.Default;
+        public RankedRatingSettings RankedRating => rankedRating;
         [Header("Respawn: match age and level, identical rules for both teams")]
         [SerializeField, Min(0)] private float earlyRespawnSeconds = 5;
         [SerializeField, Min(0)] private float lateRespawnSeconds = 18;
@@ -39,9 +41,13 @@ namespace HeroesOfDragonland.Multiplayer
         [Header("Death: only unspent progress toward the next level can be lost")]
         [SerializeField, Range(0, 1)] private float deathProgressLossFraction;
         [SerializeField, Min(0)] private int maximumDeathExperienceLoss = 50;
-        [Header("Confirmed player combat only")]
+        [Header("Confirmed combat attribution and rewards")]
         [SerializeField, Min(0)] private int killExperience = 60;
         [SerializeField, Min(0)] private int assistExperiencePool = 30;
+        [SerializeField, Min(0)] private int guardKillExperience = 20;
+        [SerializeField, Min(0)] private int guardAssistExperiencePool = 10;
+        [SerializeField, Min(0)] private int bossKillExperience = 100;
+        [SerializeField, Min(0)] private int bossAssistExperiencePool = 50;
         [SerializeField, Min(0)] private float assistWindowSeconds = 12;
         [SerializeField, Min(0)] private float minimumContributionDamage = 1;
         [SerializeField, Min(0)] private float repeatedVictimRewardCooldown = 60;
@@ -56,6 +62,10 @@ namespace HeroesOfDragonland.Multiplayer
         public LevelProgressionDefinition Progression => progression;
         public int KillExperience => killExperience;
         public int AssistExperiencePool => assistExperiencePool;
+        public int GuardKillExperience => guardKillExperience;
+        public int GuardAssistExperiencePool => guardAssistExperiencePool;
+        public int BossKillExperience => bossKillExperience;
+        public int BossAssistExperiencePool => bossAssistExperiencePool;
         public float AssistWindowSeconds => assistWindowSeconds;
         public float MinimumContributionDamage => minimumContributionDamage;
         public float RepeatedVictimRewardCooldown => repeatedVictimRewardCooldown;
@@ -88,7 +98,8 @@ namespace HeroesOfDragonland.Multiplayer
                 || !Valid(respawnRampEndSeconds) || respawnRampEndSeconds <= respawnRampStartSeconds
                 || !Valid(respawnSecondsPerLevel) || !Valid(maximumRespawnSeconds) || maximumRespawnSeconds < lateRespawnSeconds
                 || !Valid(deathProgressLossFraction) || deathProgressLossFraction > 1 || maximumDeathExperienceLoss < 0
-                || killExperience < 0 || assistExperiencePool < 0 || !Valid(assistWindowSeconds)
+                || killExperience < 0 || assistExperiencePool < 0 || guardKillExperience < 0 || guardAssistExperiencePool < 0
+                || bossKillExperience < 0 || bossAssistExperiencePool < 0 || !Valid(assistWindowSeconds)
                 || !Valid(minimumContributionDamage) || !Valid(repeatedVictimRewardCooldown)
                 || !Valid(comebackLevelGap) || !Valid(comebackBonusPerLevel) || !Valid(maximumComebackMultiplier)
                 || maximumComebackMultiplier < 1 || !Valid(lateMatchStartsAtSeconds) || !Valid(campContributionWindowSeconds)

@@ -16,7 +16,7 @@ namespace HeroesOfDragonland.Art.Editor
         {
             if(Application.isPlaying)throw new InvalidOperationException("Bake in Edit Mode.");
             var scene=SceneManager.GetActiveScene();
-            if(UnityEngine.Object.FindObjectsByType<VfxPool>(FindObjectsInactive.Include,FindObjectsSortMode.None).Length!=1)
+            if(UnityEngine.Object.FindObjectsByType<VfxPool>(FindObjectsInactive.Include).Length!=1)
                 throw new InvalidOperationException("Expected exactly one scene VFX pool.");
             int count=0;
             foreach(var guid in AssetDatabase.FindAssets("t:Prefab",new[]{"Assets/Game/Data"}))

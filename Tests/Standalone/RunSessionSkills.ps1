@@ -1,4 +1,4 @@
-param([string]$Executable = 'Builds/SessionSkills/DragonlandSkills.exe')
+param([string]$Executable = 'Builds/SessionSkills/DragonlandSkills.exe', [switch]$VerifyAppearance)
 $ErrorActionPreference = 'Stop'
 $skillExecutable = (Resolve-Path -LiteralPath $Executable).Path
 $skillRoot = Join-Path (Get-Location) ('Builds/SkillsAcceptance-' + [Guid]::NewGuid().ToString('N').Substring(0,8))
@@ -7,8 +7,10 @@ $skillRoom = 'hodr-skills-' + [Guid]::NewGuid().ToString('N').Substring(0,12)
 $skillPeers = [System.Collections.Generic.List[System.Diagnostics.Process]]::new()
 function StartSkillPeer([string]$mode) {
     $skillLog = Join-Path $skillRoot ($mode + '.log')
-    $skillPeers.Add((Start-Process -FilePath $skillExecutable -WindowStyle Hidden -PassThru -ArgumentList @(
-        '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$skillRoom,'-hodrSkills','-hodrPlaytestReady','2','-logFile',('"' + $skillLog + '"'))))
+    $arguments = @(
+        '-batchmode','-nographics','-hodrMode',$mode,'-hodrRoom',$skillRoom,'-hodrSkills','-hodrPlaytestReady','2','-logFile',('"' + $skillLog + '"'))
+    if ($VerifyAppearance) { $arguments += @('-hodrProfileTest', [Guid]::NewGuid().ToString('N'), '-hodrVerifyAppearance') }
+    $skillPeers.Add((Start-Process -FilePath $skillExecutable -WindowStyle Hidden -PassThru -ArgumentList $arguments))
 }
 function WaitSkillLog([string]$mode, [string]$pattern) {
     $skillDeadline = [DateTime]::UtcNow.AddSeconds(100)
@@ -30,6 +32,7 @@ try {
     StartSkillPeer 'client'
     WaitSkillLog 'host' '\[SkillsComplete\] server=True'
     WaitSkillLog 'client' '\[SkillsComplete\] server=False'
+    if ($VerifyAppearance) { Write-Output "PASS: distinct cosmetic selections on both peers before and after the round reset." }
     Write-Output "PASS: owner RPCs, server-only effects, prerequisites, Mana, cooldowns, damage, defense, passive and session reset. Logs: $skillRoot"
 } finally {
     foreach ($skillPeer in $skillPeers) {

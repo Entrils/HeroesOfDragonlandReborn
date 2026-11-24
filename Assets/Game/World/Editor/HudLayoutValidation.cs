@@ -17,7 +17,7 @@ namespace HeroesOfDragonland.World.Editor
         public static void Setup()
         {
             Check(!Application.isPlaying, "Use Edit Mode");
-            foreach (var settings in UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None).Select(d => d.panelSettings).Distinct())
+            foreach (var settings in UnityEngine.Object.FindObjectsByType<UIDocument>().Select(d => d.panelSettings).Distinct())
             {
                 Undo.RecordObject(settings, "Fit UI to screen");
                 settings.scaleMode = PanelScaleMode.ScaleWithScreenSize;
@@ -25,7 +25,7 @@ namespace HeroesOfDragonland.World.Editor
                 settings.screenMatchMode = PanelScreenMatchMode.Expand;
                 EditorUtility.SetDirty(settings);
             }
-            var camera = UnityEngine.Object.FindFirstObjectByType<BattlefieldCamera>();
+            var camera = UnityEngine.Object.FindAnyObjectByType<BattlefieldCamera>();
             if (camera.GetComponent<BattlefieldLabelVisibility>() == null) Undo.AddComponent<BattlefieldLabelVisibility>(camera.gameObject);
             EditorSceneManager.MarkSceneDirty(camera.gameObject.scene);
             EditorSceneManager.SaveScene(camera.gameObject.scene); AssetDatabase.SaveAssets();
@@ -33,13 +33,13 @@ namespace HeroesOfDragonland.World.Editor
         public static void StartChecks()
         {
             Check(Application.isPlaying, "Use Play Mode"); Status = "RUNNING";
-            UnityEngine.Object.FindFirstObjectByType<HeroesOfDragonland.Multiplayer.MultiplayerBootstrap>().StartCoroutine(Run());
+            UnityEngine.Object.FindAnyObjectByType<HeroesOfDragonland.Multiplayer.MultiplayerBootstrap>().StartCoroutine(Run());
         }
         public static void CaptureGame()
         {
             var gameView = typeof(UnityEditor.Editor).Assembly.GetType("UnityEditor.GameView");
             EditorWindow.GetWindow(gameView).Focus();
-            UnityEngine.Object.FindFirstObjectByType<HeroesOfDragonland.Multiplayer.MultiplayerBootstrap>().StartCoroutine(CaptureFrame());
+            UnityEngine.Object.FindAnyObjectByType<HeroesOfDragonland.Multiplayer.MultiplayerBootstrap>().StartCoroutine(CaptureFrame());
         }
         private static IEnumerator CaptureFrame()
         {
@@ -58,11 +58,11 @@ namespace HeroesOfDragonland.World.Editor
         }
         private static IEnumerator Run()
         {
-            var documents = UnityEngine.Object.FindObjectsByType<UIDocument>(FindObjectsSortMode.None);
+            var documents = UnityEngine.Object.FindObjectsByType<UIDocument>();
             var settings = documents.Select(d => d.panelSettings).Distinct().ToArray();
             var originals = settings.Select(s => s.targetTexture).ToArray();
             RenderTexture texture = null;
-            var view = UnityEngine.Object.FindFirstObjectByType<GameplayHudView>();
+            var view = UnityEngine.Object.FindAnyObjectByType<GameplayHudView>();
             try
             {
                 view.SetTarget(true); view.SetTargetName("Neutral Stone Warden - contested boss"); view.SetTargetHealth(1500, 1800);

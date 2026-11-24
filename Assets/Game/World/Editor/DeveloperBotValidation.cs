@@ -1,4 +1,4 @@
-﻿#if UNITY_EDITOR || DEVELOPMENT_BUILD
+﻿#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using System.Collections;
@@ -21,14 +21,14 @@ namespace HeroesOfDragonland.World.Editor
         public static void Start()
         {
             Check(Application.isPlaying, "Use Play Mode");
-            var service = UnityEngine.Object.FindFirstObjectByType<DeveloperBotService>();
+            var service = UnityEngine.Object.FindAnyObjectByType<DeveloperBotService>();
             Check(!service.SetBotCount(-1) && !service.SetBotCount(6), "Reject out of range counts");
             Check(service.SetBotCount(5), "Accept five bots");
             service.StartLocalMatch();
         }
         public static string Report()
         {
-            var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var report = new System.Text.StringBuilder(bootstrap.Status + "\n");
             if (!bootstrap.Running) return report.ToString();
             var match = bootstrap.GetComponent<NetworkFortressSpawner>().Match;
@@ -44,7 +44,7 @@ namespace HeroesOfDragonland.World.Editor
         }
         public static void AssertRoster()
         {
-            var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var service = bootstrap.GetComponent<DeveloperBotService>();
             var actors = bootstrap.Avatars.ToArray();
             Check(bootstrap.Running && service.SpawnedCount == 5 && actors.Length == 6, "One human plus five bots");
@@ -67,16 +67,16 @@ namespace HeroesOfDragonland.World.Editor
         {
             AssertRoster();
             ScenarioResult = "RUNNING";
-            UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>().StartCoroutine(Scenarios());
+            UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Scenarios());
         }
         public static void StartLifecycle()
         {
             AssertRoster(); ScenarioResult = "RUNNING lifecycle";
-            UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>().StartCoroutine(Lifecycle());
+            UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Lifecycle());
         }
         private static IEnumerator Lifecycle()
         {
-            var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var service = bootstrap.GetComponent<DeveloperBotService>();
             try
             {
@@ -92,7 +92,7 @@ namespace HeroesOfDragonland.World.Editor
                 var match = bootstrap.GetComponent<NetworkFortressSpawner>().Match;
                 int round = match.RoundNumber;
                 var oldIds = service.Avatars.Select(a => a.Id).ToArray();
-                var king = UnityEngine.Object.FindObjectsByType<NetworkKingObjective>(FindObjectsSortMode.None).First(k => k.Object.IsValid && k.Runner == bootstrap.Runner);
+                var king = UnityEngine.Object.FindObjectsByType<NetworkKingObjective>().First(k => k.Object.IsValid && k.Runner == bootstrap.Runner);
                 king.Stats.ApplyDamage(100000);
                 Check(match.State == MatchPhase.Finished && !NetworkMatch.AllowsGameplay(bootstrap.Runner), "King death closes gameplay");
                 ScenarioResult = "RUNNING lifecycle: all counts passed, waiting for round reset";
@@ -133,7 +133,7 @@ namespace HeroesOfDragonland.World.Editor
         }
         private static IEnumerator Scenarios()
         {
-            var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var service = bootstrap.GetComponent<DeveloperBotService>();
             var human = bootstrap.Avatars.First(a => !a.GetComponent<NetworkTestPlayer>().IsBot);
             var runner = bootstrap.Runner;
@@ -146,7 +146,7 @@ namespace HeroesOfDragonland.World.Editor
                 var botObject = service.Avatars.Single(); var bot = botObject.GetComponent<NetworkTestPlayer>();
                 Check(bot.Team != human.GetComponent<NetworkTestPlayer>().Team, "Replacement balances human team");
                 Place(human, new Vector3(0, 1, -40));
-                var neutral = UnityEngine.Object.FindObjectsByType<NetworkEnemy>(FindObjectsSortMode.None)
+                var neutral = UnityEngine.Object.FindObjectsByType<NetworkEnemy>()
                     .First(e => e.Object != null && e.Object.IsValid && e.Runner == runner && e.GetComponent<NetworkFortressGuard>() == null
                         && e.GetComponent<CharacterStats>().MaxHealth <= 40 && !e.GetComponent<CharacterStats>().IsDead);
                 Place(botObject, neutral.transform.position + Vector3.up + Vector3.back * 1.5f); Bias(bot, true);
@@ -173,7 +173,7 @@ namespace HeroesOfDragonland.World.Editor
                 Check(human.GetComponent<CharacterStats>().CurrentHealth < health, "Bot identifies and attacks enemy player");
                 Place(human, new Vector3(0, 1, -40));
                 botObject.GetComponent<CharacterStats>().ResetToFull();
-                var guard = UnityEngine.Object.FindObjectsByType<NetworkFortressGuard>(FindObjectsSortMode.None)
+                var guard = UnityEngine.Object.FindObjectsByType<NetworkFortressGuard>()
                     .First(g => g.IsEnemy(bot) && g.GetComponent<NetworkEnemy>().Object.IsValid);
                 var guardStats = guard.GetComponent<CharacterStats>();
                 Place(botObject, guard.transform.position + Vector3.up + Vector3.back * 1.4f); Bias(bot, false);
@@ -183,7 +183,7 @@ namespace HeroesOfDragonland.World.Editor
                 ScenarioResult = "RUNNING: camp, chest, PvP and guard passed";
                 // Clear the guard as scenario arrangement; King damage still comes from bot attacks.
                 guardStats.ApplyDamage(100000);
-                var king = UnityEngine.Object.FindObjectsByType<NetworkKingObjective>(FindObjectsSortMode.None)
+                var king = UnityEngine.Object.FindObjectsByType<NetworkKingObjective>()
                     .First(k => k.Team != bot.Team && k.Object.IsValid);
                 botObject.GetComponent<CharacterStats>().ResetToFull();
                 Place(botObject, king.transform.position + Vector3.up + Vector3.back * 1.8f); Bias(bot, false);

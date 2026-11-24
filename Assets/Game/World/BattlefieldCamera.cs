@@ -11,8 +11,10 @@ namespace HeroesOfDragonland.World
     public sealed class BattlefieldCamera : MonoBehaviour
     {
         [SerializeField] private MultiplayerBootstrap bootstrap;
+        [SerializeField] private Transform spectatorScenery;
         private ThirdPersonCamera follow;
         private Camera view;
+        private BattlefieldSpectator spectator;
         private Transform localTarget;
         private LocalGameplayInputGate gate;
         private bool captured;
@@ -23,6 +25,9 @@ namespace HeroesOfDragonland.World
         {
             follow = GetComponent<ThirdPersonCamera>();
             view = GetComponent<Camera>();
+            spectator = GetComponent<BattlefieldSpectator>();
+            if (spectator == null) spectator = gameObject.AddComponent<BattlefieldSpectator>();
+            spectator.Configure(view, spectatorScenery);
             view.orthographic = false;
             view.fieldOfView = 60;
             view.nearClipPlane = .1f;
@@ -40,9 +45,17 @@ namespace HeroesOfDragonland.World
                 follow.enabled = next != null;
                 follow.SetTarget(next, new Vector3(0, .6f, 0));
             }
-            follow.enabled = localTarget != null;
             var match = bootstrap != null ? bootstrap.GetComponent<NetworkFortressSpawner>()?.Match : null;
-            bool playing = localTarget != null && match != null && match.Object != null && match.Object.IsValid && match.CanPlay;
+            bool activeMatch = localTarget != null && match != null && match.Object != null && match.Object.IsValid && match.CanPlay;
+            bool spectating = activeMatch && localTarget.TryGetComponent<NetworkCharacterStats>(out var health) && health.Dead;
+            if (spectating && !spectator.Active)
+            {
+                localTarget.GetComponent<TargetLock>()?.Unlock();
+                bootstrap.GetComponent<HeroesOfDragonland.UI.Minimap.TacticalMapSource>()?.Refresh();
+            }
+            spectator.UpdateView(bootstrap, localTarget != null ? localTarget.GetComponent<NetworkTestPlayer>() : null, spectating);
+            follow.enabled = localTarget != null && !spectating;
+            bool playing = activeMatch && !spectating;
             gate = bootstrap != null ? bootstrap.GetComponent<LocalGameplayInputGate>() : null;
             if (playing && !wasPlaying) Capture(true);
             if (!playing && wasPlaying) Capture(false);
@@ -52,11 +65,11 @@ namespace HeroesOfDragonland.World
                 if (Keyboard.current.escapeKey.wasPressedThisFrame) Capture(false);
                 else if (playing && Keyboard.current.enterKey.wasPressedThisFrame) Capture(true);
             }
-            gate?.SetBlocked(this, playing && !captured);
+            gate?.SetBlocked(this, spectating || (playing && !captured));
             bool acceptLook = captured && Application.isFocused && (gate == null || !gate.IsBlocked);
             if (gate != null && gate.IsBlocked && captured) { Cursor.lockState = CursorLockMode.None; Cursor.visible = true; }
             else if (captured && Application.isFocused) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
-            if (localTarget == null) return;
+            if (localTarget == null || spectating) return;
             var targeting = localTarget.GetComponent<TargetLock>();
             follow.SetFocusPoint(targeting != null && targeting.CurrentTarget != null ? targeting.CurrentTarget.AimPosition : (Vector3?)null);
             follow.ApplyLook(acceptLook && Mouse.current != null ? Mouse.current.delta.ReadValue() : Vector2.zero, true, Time.deltaTime);
@@ -74,6 +87,7 @@ namespace HeroesOfDragonland.World
         }
         private void OnDisable()
         {
+            spectator?.StopViewing();
             gate?.SetBlocked(this, false);
             if (follow != null) { follow.SetTarget(null, Vector3.zero); follow.enabled = false; }
             localTarget = null;

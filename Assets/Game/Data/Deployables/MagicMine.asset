@@ -1,0 +1,27 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e21334fd53bcb5a459a13594a5ade26d, type: 3}
+  m_Name: MagicMine
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.DeployableDefinition
+  prefab: {fileID: 1153695724408112950, guid: feadad650d4495d4bb8ac2043fb6be50, type: 3}
+  placementRange: 5
+  minimumSpacing: 2
+  footprintRadius: 0.45
+  clearanceHeight: 0.35
+  triggerRadius: 0.8
+  effectRadius: 2.7
+  armingSeconds: 0.65
+  lifetime: 45
+  damage: 36
+  movementSeconds: 0
+  movementMultiplier: 1
+  friendlyFire: 0

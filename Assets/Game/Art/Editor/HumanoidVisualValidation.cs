@@ -38,11 +38,11 @@ namespace HeroesOfDragonland.Art.Editor
         public static void Start()
         {
             Check(Application.isPlaying,"Use Play Mode");ValidateAssets();Status="RUNNING";
-            UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
+            UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
         }
         private static IEnumerator Run()
         {
-            var bootstrap=UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap=UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             var actor=bootstrap.Avatars.First(); var player=actor.GetComponent<NetworkTestPlayer>();
             var adapter=actor.GetComponent<NetworkCharacterVisual>(); var visual=adapter.Visual;
             GameObject fixture=null,lockSource=null,lockCamera=null;

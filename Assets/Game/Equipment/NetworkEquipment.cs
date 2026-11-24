@@ -51,7 +51,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
         public bool RequestEquip(int index, EquipmentSlot slot) => Request(index, slot, false);
         public bool RequestUnequip(EquipmentSlot slot) => Request(-1, slot, true);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         // Automation can send a stale request through the same validated RPC path.
         internal void RequestStaleForValidation(int index, EquipmentSlot slot, long oldInventory, long oldEquipment)
         {

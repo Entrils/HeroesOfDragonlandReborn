@@ -1,9 +1,10 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Interaction;
 using HeroesOfDragonland.Items;
 using HeroesOfDragonland.Player;
+using HeroesOfDragonland.Presentation;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -126,6 +127,21 @@ namespace HeroesOfDragonland.World
                     for (int i = 0; i < flow.Bag.SlotCount && flow.Step == last; i++) flow.EquipTrainingWeapon(i);
                     break;
                 case TutorialFlow.Lesson.Camp:
+                    if (!began)
+                    {
+                        began = true;
+                        var equipment = player.GetComponent<CharacterEquipmentVisual>();
+                        var sword = equipment != null ? equipment.GetVisual(EquipmentSlot.MainHand) : null;
+                        if (sword == null || sword.name != "PV_IronSword(Clone)")
+                            throw new InvalidOperationException("[TutorialCheck] FAIL equipped training sword model is missing.");
+                        var rig = player.GetComponentInChildren<CharacterVisual>();
+                        if (sword.transform.parent != rig.GetSocket(CharacterSocket.RightHand))
+                            throw new InvalidOperationException("[TutorialCheck] FAIL training sword is not held in the right hand.");
+                        var chest = GameObject.Find("Training chest").GetComponent<LootChest>();
+                        if (chest.Revision != 1)
+                            throw new InvalidOperationException("[TutorialCheck] FAIL training chest awarded more than once.");
+                        Debug.Log("[TutorialCheck] PASS single training chest claim and IronSword in hand.");
+                    }
                     foreach (var enemy in flow.PracticeCamp.Enemies)
                         if (!enemy.GetComponent<HeroesOfDragonland.Stats.CharacterStats>().IsDead)
                         { Swing(enemy.transform.position, false); break; }

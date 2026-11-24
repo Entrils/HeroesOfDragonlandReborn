@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Abilities
     // Explicit development fixture only. Requests use the ordinary owning-player RPC.
     public sealed class MagicNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
@@ -38,16 +38,16 @@ namespace HeroesOfDragonland.Abilities
         {
             var runner = bootstrap.Runner;
             if (complete || runner == null || !runner.IsRunning || !NetworkMatch.AllowsGameplay(runner)) return;
-            var humans = FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None)
+            var humans = FindObjectsByType<NetworkTestPlayer>()
                 .Where(p => p.Object != null && p.Object.IsValid && p.Runner == runner && !p.IsBot).ToArray();
             if (humans.Length != 2) return;
             if (began < 0) began = Time.realtimeSinceStartup;
             float age = Time.realtimeSinceStartup - began;
             if (runner.IsServer)
             {
-                foreach (var bot in FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None).Where(p => p.Object != null && p.Object.IsValid && p.Runner == runner && p.IsBot))
+                foreach (var bot in FindObjectsByType<NetworkTestPlayer>().Where(p => p.Object != null && p.Object.IsValid && p.Runner == runner && p.IsBot))
                     bot.GetComponent<MeleeAttack>().enabled = false;
-                foreach (var enemy in FindObjectsByType<NetworkEnemy>(FindObjectsSortMode.None).Where(e => e.Object != null && e.Object.IsValid && e.Runner == runner))
+                foreach (var enemy in FindObjectsByType<NetworkEnemy>().Where(e => e.Object != null && e.Object.IsValid && e.Runner == runner))
                     enemy.GetComponent<EnemyMeleeAttack>().enabled = false;
                 foreach (var human in humans)
                 {

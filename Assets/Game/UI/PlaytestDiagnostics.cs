@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Globalization;
 using Fusion.Statistics;
@@ -13,7 +13,7 @@ namespace HeroesOfDragonland.UI
     [DisallowMultipleComponent]
     public sealed class PlaytestDiagnostics : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private const string Prefix = "[Playtest]";
         private static readonly CultureInfo Invariant = CultureInfo.InvariantCulture;
         private MultiplayerBootstrap bootstrap;

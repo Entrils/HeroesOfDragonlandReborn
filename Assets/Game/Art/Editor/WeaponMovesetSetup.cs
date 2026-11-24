@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Art.Editor
             HumanoidAssetBuilder.Folder(Folder);
             var library = AssetDatabase.LoadAssetAtPath<CharacterAnimationLibrary>(ProductionCharacterAnimatorBuilder.LibraryPath);
             if (library == null) throw new InvalidOperationException("Build the humanoid animation pipeline first.");
-            foreach (WeaponArchetype kind in Enum.GetValues(typeof(WeaponArchetype)))
+            foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
             {
                 var weapon = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset");
                 if (weapon == null) throw new InvalidOperationException("Missing weapon " + kind);

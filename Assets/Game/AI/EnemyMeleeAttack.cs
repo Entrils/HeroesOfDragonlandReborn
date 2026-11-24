@@ -29,6 +29,9 @@ namespace HeroesOfDragonland.AI
         public float Windup => UsesAttackSet ? ActiveSet.Get(AttackIndex).Windup : definition.AttackWindup;
         public float StaggerPower => definition != null ? definition.StaggerPower : 0;
         public bool IsBusy { get; private set; }
+        public float AttackElapsed => elapsed;
+        public bool ProjectileInFlight => IsBusy && projectileReleased;
+        public Vector3 ProjectilePosition => projectilePosition;
         public bool ResolvingHit { get; private set; }
         public bool IsResolvingMeleeHit => ResolvingHit && IsBusy && !definition.IsRanged;
         public float PoiseDamage => StaggerPower;
@@ -95,16 +98,16 @@ namespace HeroesOfDragonland.AI
                         var victim = collider.GetComponentInParent<EnemyThreatTarget>();
                         if (victim == null || !hit.Add(victim) || !move.Contains(origin, facing, victim.NavigationPosition)
                             || !GetComponent<EnemyPerception>().CanSee(victim)) continue;
-                        victim.Receiver.TakeDamage(move.Damage, gameObject);
+                        victim.Receiver.TakeDamage(move.Damage, gameObject, move.DisplayName);
                     }
                 }
                 finally { ResolvingHit = false; }
             }
             else if (CanHit(target) && Vector3.Angle(facing, target.NavigationPosition - transform.position) <= 60)
             {
-                IDamageable receiver = target.Receiver;
+                var receiver = target.Receiver;
                 ResolvingHit = true;
-                try { receiver.TakeDamage(definition.Damage, gameObject); }
+                try { receiver.TakeDamage(definition.Damage, gameObject, "Melee attack"); }
                 finally { ResolvingHit = false; }
             }
             Cancel();
@@ -129,7 +132,7 @@ namespace HeroesOfDragonland.AI
                 if (victim != null && GetComponent<EnemyPerception>().CanTarget(victim))
                 {
                     ResolvingHit = true;
-                    try { victim.Receiver.TakeDamage(definition.Damage, gameObject); }
+                    try { victim.Receiver.TakeDamage(definition.Damage, gameObject, definition.Archetype == EnemyArchetype.Archer ? "Arrow" : "Amethyst Bolt"); }
                     finally { ResolvingHit = false; }
                 }
                 Cancel(); return;

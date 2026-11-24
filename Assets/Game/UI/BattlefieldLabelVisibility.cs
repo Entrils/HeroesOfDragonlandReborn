@@ -15,7 +15,7 @@ namespace HeroesOfDragonland.UI
         {
             if (Time.unscaledTime >= nextScan)
             {
-                labels = FindObjectsByType<TextMesh>(FindObjectsSortMode.None);
+                labels = FindObjectsByType<TextMesh>();
                 nextScan = Time.unscaledTime + .5f;
             }
             foreach (var label in labels)

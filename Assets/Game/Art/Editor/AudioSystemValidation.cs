@@ -32,11 +32,11 @@ namespace HeroesOfDragonland.Art.Editor
             float[] original = null;
             try
             {
-                var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+                var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
                 Check(bootstrap != null, "Missing bootstrap");
                 var service = bootstrap.GetComponent<GameAudioService>();
                 Check(service != null && service.isActiveAndEnabled && service.Listener != null, "Missing/disabled audio service or listener");
-                Check(UnityEngine.Object.FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Count(l => l.isActiveAndEnabled) == 1, "Expected one active AudioListener");
+                Check(UnityEngine.Object.FindObjectsByType<AudioListener>().Count(l => l.isActiveAndEnabled) == 1, "Expected one active AudioListener");
                 fixture = new GameObject("Temporary bounded audio pool"); fixture.SetActive(false);
                 var pool = fixture.AddComponent<GameAudioService>(); var data = new SerializedObject(pool);
                 data.FindProperty("catalog").objectReferenceValue = service.Catalog;

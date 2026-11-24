@@ -27,6 +27,8 @@ namespace HeroesOfDragonland.Items
         public WeaponDefinition Weapon => weapon;
         [SerializeField] private ConsumableDefinition consumable;
         public ConsumableDefinition Consumable => consumable;
+        [SerializeField] private DeployableDefinition deployable;
+        public DeployableDefinition Deployable => deployable;
 
         public string Id => id;
         public string DisplayName => displayName;
@@ -68,6 +70,10 @@ namespace HeroesOfDragonland.Items
             else if (category == ItemCategory.Consumable && (consumable == null || !consumable.IsValid))
                 error = "Consumable item requires a valid ConsumableDefinition.";
             else if (category != ItemCategory.Consumable && consumable != null) error = "Only consumable items may reference a consumable definition.";
+            else if (category == ItemCategory.Deployable && (deployable == null || !deployable.IsValid))
+                error = "Deployable item requires a valid DeployableDefinition.";
+            else if (category != ItemCategory.Deployable && deployable != null)
+                error = "Only deployable items may reference a deployable definition.";
             else if (float.IsNaN(weight) || float.IsInfinity(weight) || weight < 0) error = "Weight must be finite and nonnegative.";
             else if (maximumStackSize < 1 || value < 0) error = "Stack size must be positive and value nonnegative.";
             else

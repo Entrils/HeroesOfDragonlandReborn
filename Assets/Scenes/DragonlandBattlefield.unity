@@ -61742,6 +61742,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.BattlefieldCamera
   bootstrap: {fileID: 863030322}
+  spectatorScenery: {fileID: 898210165}
 --- !u!114 &1130054954
 MonoBehaviour:
   m_ObjectHideFlags: 0

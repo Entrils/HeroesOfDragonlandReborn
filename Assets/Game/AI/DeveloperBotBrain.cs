@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using Fusion;
 using HeroesOfDragonland.AI;
 using HeroesOfDragonland.Combat;
@@ -143,31 +143,31 @@ namespace HeroesOfDragonland.Multiplayer
             // Its teammates still clear guards and engage the enemy ahead of it.
             bool siegeLead = AutomatedMatchSimulation.Active != null && player.SpawnLane == 0 && playing > 120;
             float nearest = siegeLead ? 4 : 9;
-            foreach (var enemy in Object.FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None))
+            foreach (var enemy in Object.FindObjectsByType<NetworkTestPlayer>())
                 if (Eligible(enemy.Object) && enemy.Team != player.Team && Distance(enemy.transform.position) < nearest)
                 { nearest = Distance(enemy.transform.position); target = enemy.Object; }
             if (target != null) { Goal = DeveloperBotGoal.EnemyPlayer; return; }
             nearest = siegeLead ? 4 : 14;
-            if (age >= chestAt) foreach (var chest in Object.FindObjectsByType<NetworkLootChest>(FindObjectsSortMode.None))
+            if (age >= chestAt) foreach (var chest in Object.FindObjectsByType<NetworkLootChest>())
                 if (chest.Object != null && chest.Object.IsValid && chest.Runner == player.Runner && !chest.IsOpen && Distance(chest.transform.position) < nearest)
                 { nearest = Distance(chest.transform.position); target = chest.Object; }
             if (target != null) { Goal = DeveloperBotGoal.Chest; return; }
             bool farm = !siegeLead && (age + player.SpawnLane * 13) % 100 < 45;
             nearest = float.PositiveInfinity;
-            if (farm) foreach (var enemy in Object.FindObjectsByType<NetworkEnemy>(FindObjectsSortMode.None))
+            if (farm) foreach (var enemy in Object.FindObjectsByType<NetworkEnemy>())
                 if (Eligible(enemy.Object) && enemy.GetComponent<NetworkFortressGuard>() == null && Distance(enemy.transform.position) < nearest)
                 { nearest = Distance(enemy.transform.position); target = enemy.Object; }
             if (target != null) { Goal = DeveloperBotGoal.NeutralCamp; return; }
             // Siege needs to remove the real closed gate, rather than path indefinitely
             // toward an objective behind it. Damage still uses the ordinary melee policy.
             nearest = float.PositiveInfinity;
-            foreach (var gate in Object.FindObjectsByType<NetworkFortressGate>(FindObjectsSortMode.None))
+            foreach (var gate in Object.FindObjectsByType<NetworkFortressGate>())
                 if (gate.Team != player.Team && !gate.IsOpen && Eligible(gate.Object) && Distance(gate.transform.position) < nearest)
                 { nearest = Distance(gate.transform.position); target = gate.Object; }
             if (target != null) { Goal = DeveloperBotGoal.FortressGate; return; }
             if (siegeLead && TrySelectKing()) return;
             nearest = float.PositiveInfinity;
-            foreach (var guard in Object.FindObjectsByType<NetworkFortressGuard>(FindObjectsSortMode.None))
+            foreach (var guard in Object.FindObjectsByType<NetworkFortressGuard>())
             {
                 var enemy = guard.GetComponent<NetworkEnemy>();
                 if (guard.IsEnemy(player) && Eligible(enemy.Object) && Distance(guard.transform.position) < nearest)
@@ -194,7 +194,7 @@ namespace HeroesOfDragonland.Multiplayer
 
         private bool TrySelectKing()
         {
-            foreach (var king in Object.FindObjectsByType<NetworkKingObjective>(FindObjectsSortMode.None))
+            foreach (var king in Object.FindObjectsByType<NetworkKingObjective>())
             {
                 if (king.Team == player.Team || !Eligible(king.Object)) continue;
                 target = king.Object;

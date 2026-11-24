@@ -34,14 +34,16 @@ namespace HeroesOfDragonland.Multiplayer
             var player = source.GetComponent<NetworkTestPlayer>();
             return match != null && match.Owns(this) && match.CanPlay
                 && attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
-                && (attacker.ResolvingAttack || source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>()?.AllowsProjectileDamage(Runner) == true)
+                && (attacker.ResolvingAttack || attacker.AllowsArrowDamage(Runner) || source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>()?.AllowsProjectileDamage(Runner) == true)
                 && !source.GetComponent<CharacterStats>().IsDead && player != null
                 && (player.Team == TeamId.TeamA || player.Team == TeamId.TeamB) && player.Team != team;
         }
         private void OnDeath() => Match?.TryFinish(this);
-        private void OnDamage(float _, GameObject source)
+        private void OnDamage(float amount, GameObject source)
         {
-            if (Stats.IsDead && source != null) MatchSessionData.Credit(source.GetComponent<NetworkObject>(), MatchSessionData.Metric.King);
+            if (source != null && Match is { } match && match.Owns(this))
+                MatchSessionData.Credit(source.GetComponent<NetworkObject>(), new MatchStatistics
+                { KingDamage = amount, KingsKilled = Stats.IsDead ? 1 : 0 });
         }
         public override void Despawned(NetworkRunner runner, bool hasState)
         {

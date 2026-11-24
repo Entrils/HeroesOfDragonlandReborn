@@ -17,7 +17,7 @@ namespace HeroesOfDragonland.World.Editor
         public static void Setup()
         {
             Check(!Application.isPlaying, "Use Edit Mode");
-            var camera = UnityEngine.Object.FindFirstObjectByType<BattlefieldCamera>();
+            var camera = UnityEngine.Object.FindAnyObjectByType<BattlefieldCamera>();
             Undo.RecordObject(camera.transform, "Restore third-person camera");
             var view = camera.GetComponent<Camera>(); Undo.RecordObject(view, "Restore perspective");
             if (camera.GetComponent<ThirdPersonCamera>() == null) Undo.AddComponent<ThirdPersonCamera>(camera.gameObject);
@@ -29,14 +29,14 @@ namespace HeroesOfDragonland.World.Editor
         public static void StartChecks()
         {
             Check(Application.isPlaying, "Use Play Mode"); Status = "RUNNING";
-            UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
+            UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
         }
         private static IEnumerator Run()
         {
             GameObject wall = null;
             try
             {
-                var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+                var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
                 NetworkObject avatar = null;
                 Check(bootstrap.Running && bootstrap.Runner.TryGetPlayerObject(bootstrap.Runner.LocalPlayer, out avatar), "Local human exists");
                 var camera = Camera.main; var binder = camera.GetComponent<BattlefieldCamera>(); var follow = camera.GetComponent<ThirdPersonCamera>();

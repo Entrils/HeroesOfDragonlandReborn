@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 #endif
@@ -8,7 +8,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Opt-in real host/client acceptance; inert in ordinary play and release builds.
     public sealed class LobbyNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active, readied, started, killed, sawFinished, sawReturn, done;
         private float playingAt, deadline;
         private void Awake()
@@ -57,7 +57,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (b.Runner.IsServer && !killed && Time.realtimeSinceStartup - playingAt > 4)
                 {
                     killed = true;
-                    var king = FindObjectsByType<NetworkKingObjective>(FindObjectsSortMode.None).First(k => k.Runner == b.Runner);
+                    var king = FindObjectsByType<NetworkKingObjective>().First(k => k.Runner == b.Runner);
                     king.Stats.ApplyDamage(999999);
                 }
             }

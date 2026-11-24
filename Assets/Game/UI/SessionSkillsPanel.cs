@@ -1,6 +1,7 @@
 using Fusion;
 using HeroesOfDragonland.Multiplayer;
 using HeroesOfDragonland.Player;
+using HeroesOfDragonland.Profiles;
 using HeroesOfDragonland.Skills;
 using UnityEngine;
 using UnityEngine.InputSystem;
@@ -15,8 +16,12 @@ namespace HeroesOfDragonland.UI
         private VisualElement window;
         private Button toggle;
         private Label points, status;
-        private readonly Label[] descriptions = new Label[SessionSkills.SkillCount], blockers = new Label[SessionSkills.SkillCount];
-        private readonly Button[] learn = new Button[SessionSkills.SkillCount], use = new Button[SessionSkills.SkillCount];
+        private BuildPresetPicker presetPicker;
+        private readonly Label[] descriptions = new Label[SessionSkills.Capacity], blockers = new Label[SessionSkills.Capacity];
+        private readonly Button[] learn = new Button[SessionSkills.Capacity], use = new Button[SessionSkills.Capacity];
+        private readonly VisualElement[] cards = new VisualElement[SessionSkills.Capacity];
+        private readonly Button[] branches = new Button[4];
+        private SkillBranch branch;
         private NetworkSessionSkills network;
         private SessionSkills skills;
         private LocalGameplayInputGate gate;
@@ -43,11 +48,23 @@ namespace HeroesOfDragonland.UI
             points = new Label(); points.style.flexGrow = 1; points.style.fontSize = 20; header.Add(points);
             header.Add(new Button(() => SetOpen(false)) { text = "Close [K / Esc]" }); window.Add(header);
             window.Add(new Label("Skills and skill points reset each session. Requirements use base + allocated attributes."));
+            presetPicker = new BuildPresetPicker(LocalPlayerProfile.Current, Refresh);
+            window.Add(presetPicker);
+            var tabs = new VisualElement();
+            tabs.style.flexDirection = FlexDirection.Row;
+            tabs.style.flexWrap = Wrap.Wrap;
+            for (int i = 0; i < branches.Length; i++)
+            {
+                var selected = (SkillBranch)i;
+                branches[i] = new Button(() => { branch = selected; Refresh(); });
+                tabs.Add(branches[i]);
+            }
+            window.Add(tabs);
             var scroll = new ScrollView(); scroll.style.flexShrink = 1; window.Add(scroll);
-            for (int i = 0; i < SessionSkills.SkillCount; i++)
+            for (int i = 0; i < SessionSkills.Capacity; i++)
             {
                 int index = i;
-                var card = new VisualElement(); card.style.marginTop = 12; card.style.paddingBottom = 8;
+                var card = cards[i] = new VisualElement(); card.style.marginTop = 12; card.style.paddingBottom = 8;
                 descriptions[i] = new Label(); descriptions[i].style.whiteSpace = WhiteSpace.Normal; card.Add(descriptions[i]);
                 blockers[i] = new Label(); blockers[i].style.whiteSpace = WhiteSpace.Normal;
                 blockers[i].style.color = new Color(1, .77f, .34f); card.Add(blockers[i]);
@@ -98,19 +115,43 @@ namespace HeroesOfDragonland.UI
             if (skills == null) return;
             points.text = "SESSION SKILLS — Points: " + skills.SkillPoints;
             bool available = !pending && network.CanRequest;
-            for (int i = 0; i < SessionSkills.SkillCount; i++)
+            var preset = presetPicker.Selected;
+            for (int i = 0; i < branches.Length; i++)
+            {
+                var tab = (SkillBranch)i;
+                bool hasPriority = false;
+                if (preset != null)
+                    for (int index = 0; index < skills.NodeCount && !hasPriority; index++)
+                    {
+                        var node = skills.GetDefinition(index);
+                        hasPriority = node != null && node.Branch == tab && preset.SkillPriority(node, out _) > 0;
+                    }
+                branches[i].text = hasPriority ? $"{tab} (preset)" : tab.ToString();
+                branches[i].SetEnabled(tab != branch);
+            }
+            for (int i = 0; i < SessionSkills.Capacity; i++)
             {
                 var definition = skills.GetDefinition(i);
-                if (definition == null) { descriptions[i].text = "Unconfigured skill"; blockers[i].text = ""; learn[i].SetEnabled(false); use[i].SetEnabled(false); continue; }
+                bool visible = definition != null && definition.Branch == branch;
+                cards[i].style.display = visible ? DisplayStyle.Flex : DisplayStyle.None;
+                if (!visible) continue;
                 bool canLearn = skills.CanLearn(i, out string learnReason), canUse = skills.CanActivate(i, out string useReason);
-                string blocker = skills.IsLearned(i) ? useReason : learnReason;
+                int rank = skills.GetRank(i);
+                string blocker = rank == definition.MaxRank && definition.Kind == SkillKind.Active ? useReason : learnReason;
+                learn[i].text = rank == 0 ? "Learn" : "Rank up";
+                learn[i].style.display = rank < definition.MaxRank ? DisplayStyle.Flex : DisplayStyle.None;
                 blockers[i].text = blocker;
                 blockers[i].style.display = string.IsNullOrEmpty(blocker) ? DisplayStyle.None : DisplayStyle.Flex;
                 string requirements = "Level " + definition.RequiredLevel;
                 foreach (var requirement in definition.Requirements) requirements += ", " + requirement.Stat + " " + requirement.MinimumValue;
-                descriptions[i].text = definition.DisplayName + " | " + definition.Kind + (skills.IsLearned(i) ? " | Learned" : "")
+                foreach (var prerequisite in definition.Prerequisites)
+                    requirements += $", {prerequisite.Skill.DisplayName} rank {prerequisite.Rank}";
+                int targetRank = 0;
+                int priority = preset?.SkillPriority(definition, out targetRank) ?? 0;
+                string recommendation = priority > 0 ? $" | Preset #{priority}, target rank {targetRank}" : "";
+                descriptions[i].text = definition.DisplayName + recommendation + " | " + definition.Kind + " | Rank " + rank + " / " + definition.MaxRank
                     + "\n" + definition.Description + "\nRequires: " + requirements + " | Points: " + definition.PointCost
-                    + (definition.Kind == SkillKind.Active ? " | Mana: " + definition.ManaCost + " | Cooldown: " + definition.Cooldown + "s" : "")
+                    + (definition.Kind == SkillKind.Active ? " | Mana: " + skills.ManaCost(definition).ToString("0.##") + " | Cooldown: " + skills.Cooldown(definition).ToString("0.##") + "s" : "")
                     + (definition.Ability != null ? " | Cast: " + definition.Ability.CastTime + "s | Range: " + definition.Ability.Range + "m" : "")
                     + (skills.CooldownRemaining(i) > 0 ? "\nReady in " + skills.CooldownRemaining(i).ToString("0.0") + "s" : "");
                 learn[i].SetEnabled(available && canLearn); use[i].SetEnabled(available && canUse);

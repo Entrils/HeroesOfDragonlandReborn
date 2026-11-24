@@ -133,7 +133,7 @@ namespace HeroesOfDragonland.Art.Editor
                         (thigh,HumanBodyBones.LeftUpperLeg,new Vector3(-.11f,.73f,0)),(thigh,HumanBodyBones.RightUpperLeg,new Vector3(.11f,.73f,0)),
                         (shin,HumanBodyBones.LeftLowerLeg,new Vector3(-.11f,.325f,0)),(shin,HumanBodyBones.RightLowerLeg,new Vector3(.11f,.325f,0))) };
                 var weapons = new List<EquipmentVisualDefinition>();
-                foreach (WeaponArchetype archetype in Enum.GetValues(typeof(WeaponArchetype)))
+                foreach (WeaponArchetype archetype in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
                     weapons.Add(Recipe("EV_" + archetype,EquipmentSlot.MainHand,rig,(null,HumanBodyBones.LastBone,Vector3.zero)));
                 var catalog = AssetDatabase.LoadAssetAtPath<EquipmentVisualCatalog>(CatalogPath);
                 if (catalog == null)
@@ -190,7 +190,7 @@ namespace HeroesOfDragonland.Art.Editor
             foreach (var slot in ArmorSlots)
                 if (AssetDatabase.LoadAssetAtPath<EquipmentVisualDefinition>(Folder + "/Definitions/EV_" + slot + ".asset") == null)
                     throw new InvalidOperationException("Missing armor recipe: " + slot);
-            foreach (WeaponArchetype archetype in Enum.GetValues(typeof(WeaponArchetype)))
+            foreach (WeaponArchetype archetype in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
                 if (AssetDatabase.LoadAssetAtPath<EquipmentVisualDefinition>(Folder + "/Definitions/EV_" + archetype + ".asset") == null)
                     throw new InvalidOperationException("Missing weapon recipe: " + archetype);
             int players = 0;
@@ -198,7 +198,9 @@ namespace HeroesOfDragonland.Art.Editor
             {
                 var prefab = AssetDatabase.LoadAssetAtPath<GameObject>(AssetDatabase.GUIDToAssetPath(guid));
                 if (prefab.GetComponent<NetworkTestPlayer>() == null || prefab.GetComponentInChildren<CharacterVisual>(true) == null) continue;
-                if (prefab.GetComponent<CharacterEquipmentVisual>()?.Catalog != catalog) throw new InvalidOperationException("Player visual catalog is unassigned: " + prefab.name);
+                var assigned = prefab.GetComponent<CharacterEquipmentVisual>()?.Catalog;
+                if (assigned == null || !assigned.TryValidate(out _))
+                    throw new InvalidOperationException("Player visual catalog is missing or invalid: " + prefab.name);
                 players++;
             }
             if (players == 0) throw new InvalidOperationException("No humanoid player prefabs validated.");

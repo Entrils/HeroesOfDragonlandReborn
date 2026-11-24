@@ -12,7 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c5366f3fe40577499218cc70c159200, type: 3}
   m_Name: EquipmentVisualCatalog
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.EquipmentVisualCatalog
-  items: []
+  items:
+  - item: {fileID: 11400000, guid: f0f5377d2b04bb04aa6e4185d75fa693, type: 2}
+    visual: {fileID: 11400000, guid: 02f96ed87a9163f4894caa93ee310ea0, type: 2}
   weapons:
   - archetype: 0
     visual: {fileID: 11400000, guid: bea7c2fd34d8cff42aa7d1a39bccf9f1, type: 2}

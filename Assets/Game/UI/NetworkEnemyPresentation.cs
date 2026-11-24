@@ -8,9 +8,11 @@ namespace HeroesOfDragonland.Multiplayer
     {
         [SerializeField] private Transform body;
         [SerializeField] private TextMesh label;
+        [SerializeField] private GameObject projectilePrefab;
         private NetworkEnemy enemy;
         private NetworkCharacterStats stats;
         private LineRenderer missile;
+        private GameObject projectile;
         private Vector3 restPosition;
         private Quaternion restRotation;
         public bool AttackVisible { get; private set; }
@@ -19,7 +21,12 @@ namespace HeroesOfDragonland.Multiplayer
         {
             enemy = GetComponent<NetworkEnemy>();
             stats = GetComponent<NetworkCharacterStats>();
-            if (enemy.Definition.IsRanged)
+            if (projectilePrefab != null)
+            {
+                projectile = Instantiate(projectilePrefab, transform);
+                projectile.SetActive(false);
+            }
+            else if (enemy.Definition.IsRanged)
             {
                 var visual = new GameObject("Enemy projectile cue"); visual.transform.SetParent(transform);
                 missile = visual.AddComponent<LineRenderer>(); missile.positionCount = 2;
@@ -31,6 +38,11 @@ namespace HeroesOfDragonland.Multiplayer
             if (body != null) { restPosition = body.localPosition; restRotation = body.localRotation; }
         }
         private void OnDestroy() { if (missile != null) Destroy(missile.sharedMaterial); }
+        private void OnDisable()
+        {
+            if (projectile != null) projectile.SetActive(false);
+            if (missile != null) missile.enabled = false;
+        }
         private void LateUpdate()
         {
             if (enemy.Object == null || !enemy.Object.IsValid) return;
@@ -38,7 +50,14 @@ namespace HeroesOfDragonland.Multiplayer
             float age = (float)(time - enemy.AttackStartTick * (double)enemy.Runner.DeltaTime);
             AttackVisible = NetworkMatch.AllowsGameplay(enemy.Runner) && !stats.Dead && enemy.AttackSequence > 0 && age >= 0 && age < enemy.AttackWindup
                 && (enemy.AttackEndTick == 0 || time < enemy.AttackEndTick * (double)enemy.Runner.DeltaTime);
-            if (missile != null)
+            if (projectile != null)
+            {
+                bool visible = NetworkMatch.AllowsGameplay(enemy.Runner) && !stats.Dead && enemy.ProjectileInFlight;
+                if (visible)
+                    projectile.transform.SetPositionAndRotation(enemy.ProjectilePosition, Quaternion.LookRotation(enemy.AttackForward));
+                projectile.SetActive(visible);
+            }
+            else if (missile != null)
             {
                 float distance = (age - enemy.AttackWindup) * enemy.Definition.ProjectileSpeed;
                 missile.enabled = NetworkMatch.AllowsGameplay(enemy.Runner) && !stats.Dead && enemy.AttackSequence > 0 && distance >= 0 && distance < enemy.Definition.AttackRange

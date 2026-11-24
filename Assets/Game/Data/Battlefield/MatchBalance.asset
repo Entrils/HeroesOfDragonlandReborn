@@ -13,6 +13,11 @@ MonoBehaviour:
   m_Name: MatchBalance
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.MatchBalanceConfig
   progression: {fileID: 11400000, guid: c4289cad8b82c094483fc72e30536c0a, type: 2}
+  rankedRating:
+    startingRating: 1000
+    winPoints: 25
+    lossPoints: 25
+    provisionalMatches: 5
   earlyRespawnSeconds: 5
   lateRespawnSeconds: 18
   respawnRampStartSeconds: 300
@@ -23,6 +28,10 @@ MonoBehaviour:
   maximumDeathExperienceLoss: 50
   killExperience: 60
   assistExperiencePool: 30
+  guardKillExperience: 20
+  guardAssistExperiencePool: 10
+  bossKillExperience: 100
+  bossAssistExperiencePool: 50
   assistWindowSeconds: 12
   minimumContributionDamage: 1
   repeatedVictimRewardCooldown: 60

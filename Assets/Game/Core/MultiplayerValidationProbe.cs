@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Globalization;
 using System.Linq;
@@ -10,7 +10,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Development build probe exercises the real input/transport path, never writes network state.
     public sealed class MultiplayerValidationProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private MultiplayerBootstrap bootstrap;
         private bool active;
         private bool moving;

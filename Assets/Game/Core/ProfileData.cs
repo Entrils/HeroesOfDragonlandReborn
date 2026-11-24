@@ -11,9 +11,19 @@ namespace HeroesOfDragonland.Profiles
         public bool TutorialCompleted;
         public bool TutorialSkipped;
         public ProfileTotals Totals = new();
+        public HeroesOfDragonland.Multiplayer.RankedPlayerData Ranked = HeroesOfDragonland.Multiplayer.RankedPlayerData.New;
         public CosmeticSelections Cosmetics = new();
+        public HeroesOfDragonland.Cosmetics.CosmeticCollectionData CosmeticItems = new();
+        public BuildPresetPreferences BuildPresets = new();
         internal const int ReceiptLimit = 128;
         [UnityEngine.SerializeField] internal List<string> RecordedRounds = new();
+        [UnityEngine.SerializeField] internal List<string> UnlockedAchievements = new();
+    }
+
+    [Serializable]
+    public sealed class BuildPresetPreferences
+    {
+        public string SelectedPresetId = "";
     }
 
     [Serializable]
@@ -35,6 +45,9 @@ namespace HeroesOfDragonland.Profiles
     public sealed class ProfileTotals
     {
         public long Matches, Wins, Losses, Kills, Deaths, CampsCleared, KingsKilled, BossesKilled;
+        public long Assists, BossParticipation, ChestsOpened, ExperienceEarned, GuardsKilled, ItemsAcquired;
+        public int HighestLevel;
+        public double PlayerDamage, DamageTaken, Healing, KingDamage, MatchSeconds;
     }
 
     [Serializable]
@@ -42,5 +55,6 @@ namespace HeroesOfDragonland.Profiles
     {
         public string BannerId = "";
         public string AppearanceId = "";
+        public int AppearanceCode;
     }
 }

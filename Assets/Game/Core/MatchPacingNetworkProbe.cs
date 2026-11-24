@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using System.Reflection;
@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Explicit development acceptance only. Production values and match rules are unchanged.
     public sealed class MatchPacingNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
@@ -27,13 +27,13 @@ namespace HeroesOfDragonland.Multiplayer
         }
         private MultiplayerBootstrap bootstrap;
         private NetworkMatch match;
-        private NetworkObject attacker, victim, helper;
+        private NetworkObject attacker, victim, helper, freshHelper;
         private NetworkCamp camp;
         private CharacterStats target;
         private int stage, firstRound;
         private float started = -1, changed, nextCast;
-        private long attackerXP, helperXP, victimXP;
-        private bool initialized, complete, clientObserved, replicaDenied;
+        private long attackerXP, helperXP, victimXP, freshHelperXP;
+        private bool initialized, complete, clientObserved, replicaDenied, checkedRecap;
         private static readonly Vector3 Duel = new(0, 1, 22);
         private static void Check(bool condition, string name) { if (!condition) throw new InvalidOperationException("[PacingNetwork] FAIL " + name); }
         private static void Place(NetworkObject actor, Vector3 position, Vector3 facing) => actor.GetComponent<NetworkTransform>().Teleport(position, Quaternion.LookRotation(facing));
@@ -57,6 +57,9 @@ namespace HeroesOfDragonland.Multiplayer
                 {
                     foreach (var enemy in FindObjectsByType<NetworkEnemy>().Where(e => e.Object != null && e.Object.IsValid && e.Runner == runner)) enemy.GetComponent<EnemyBrain>().enabled = false;
                     helper = bootstrap.Avatars.First(a => a.GetComponent<NetworkTestPlayer>().IsBot && a.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamA);
+                    freshHelper = bootstrap.Avatars.First(a => a != helper && a.GetComponent<NetworkTestPlayer>().IsBot
+                        && a.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamA);
+                    freshHelperXP = freshHelper.GetComponent<SessionProgression>().CurrentXP;
                     foreach (var bot in bootstrap.Avatars.Where(a => a.GetComponent<NetworkTestPlayer>().IsBot))
                     { bot.GetComponent<NetworkTestPlayer>().enabled = false; Place(bot, new Vector3(-5, 1, -22), Vector3.forward); }
                     foreach (var actor in bootstrap.Avatars.Where(a => a.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamB))
@@ -73,9 +76,20 @@ namespace HeroesOfDragonland.Multiplayer
                     var progression = victim.GetComponent<SessionProgression>();
                     if (progression.IsInitialized) { Check(!progression.TryAddExperience(999, progression.SessionId, "forged", out _) && !progression.TryApplyDeathLoss(999, progression.SessionId, "forged-death", out _), "replica XP and death loss denied"); replicaDenied = true; }
                 }
+                var respawn = victim != null ? victim.GetComponent<NetworkPlayerRespawn>() : null;
+                if (respawn != null && !checkedRecap && respawn.DeathSequence == 1 && respawn.TryGetDeathRecap(out string final, out string recent, out string assists))
+                {
+                    Check(final.Contains("Fire Projectile") && final.Contains("10 damage") && recent.Contains("World damage")
+                        && assists.StartsWith("Assists: Player "), "owner sees real final spell, applied damage, recent sources and assistant");
+                    Check(!attacker.GetComponent<NetworkPlayerRespawn>().TryGetDeathRecap(out _, out _, out _), "replica recap stays private");
+                    checkedRecap = true;
+                    Debug.Log("[PacingNetwork] Private death recap verified.");
+                }
+                if (checkedRecap && respawn != null && !respawn.WaitingForRespawn)
+                    Check(!respawn.TryGetDeathRecap(out _, out _, out _), "recap clears on respawn");
                 if (match.Balance.IsLate(match.PlayingSeconds))
                 {
-                    Check(replicaDenied && match.GetComponent<NetworkMatchPacing>().CampMultiplier(TeamId.TeamA) > 1, "visible replicated catch-up");
+                    Check(checkedRecap && replicaDenied && match.GetComponent<NetworkMatchPacing>().CampMultiplier(TeamId.TeamA) > 1, "visible replicated catch-up");
                     Check(attacker.GetComponent<NetworkPlayerExperienceRewards>().Kills == 1, "replicated kill reward count");
                     Check(FindObjectsByType<NetworkPlayerExperienceRewards>().Any(p => p.Object != null && p.Object.IsValid && p.Runner == runner && p.Assists == 1), "replicated assist");
                     clientObserved = true;
@@ -117,10 +131,22 @@ namespace HeroesOfDragonland.Multiplayer
                     Next(3); break;
                 case 3:
                     if (victim.GetComponent<CharacterStats>().IsDead || victim.GetComponent<NetworkPlayerRespawn>().IsSpawnProtected) break;
-                    Place(victim, Duel, Vector3.back); victim.GetComponent<CharacterStats>().ApplyDamage(victim.GetComponent<CharacterStats>().CurrentHealth - 10); Next(4); break;
+                    Place(victim, Duel, Vector3.back);
+                    Place(freshHelper, Duel - Vector3.forward * 1.5f, Vector3.forward);
+                    freshHelper.GetComponent<NetworkPlayerCombat>().TickIntent(new NetworkPlayerInput { LightAttackPress = 1 }, Vector3.forward, false);
+                    Next(8); break;
+                case 8:
+                    var secondLife = victim.GetComponent<CharacterStats>();
+                    if (secondLife.CurrentHealth >= secondLife.MaxHealth) break;
+                    Place(freshHelper, Duel + Vector3.right * 6, Vector3.forward);
+                    secondLife.ApplyDamage(secondLife.CurrentHealth - 10); Next(4); break;
                 case 4:
                     if (!victim.GetComponent<CharacterStats>().IsDead || age < 1) break;
                     Check(attacker.GetComponent<NetworkPlayerExperienceRewards>().Kills == 1 && attacker.GetComponent<SessionProgression>().CurrentXP == attackerXP + config.KillExperience, "repeat victim gives no farm XP");
+                    Check(freshHelper.GetComponent<NetworkPlayerExperienceRewards>().Assists == 1
+                        && freshHelper.GetComponent<SessionProgression>().CurrentXP == freshHelperXP + config.AssistExperiencePool,
+                        "fresh assistant earns XP independently of finisher cooldown");
+                    Debug.Log("[PacingNetwork] Independent assist reward verified.");
                     camp = FindObjectsByType<NetworkCamp>().First(c => c.Runner == runner && c.Definition.Difficulty == CampDifficulty.Tier1 && c.State == NetworkCampState.Active);
                     var enemies = FindObjectsByType<NetworkEnemy>().Where(e => e.Object != null && e.Object.IsValid && e.Runner == runner && Vector3.Distance(e.transform.position, camp.transform.position) < 5).ToArray();
                     Check(enemies.Length == camp.EnemyCount, "camp fixture members");

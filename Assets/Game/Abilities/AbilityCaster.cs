@@ -45,6 +45,9 @@ namespace HeroesOfDragonland.Abilities
             lastHealth = health;
         }
         private bool Has(CastInterruption flag) => (casting.Interruptions & flag) != 0;
+        private float ManaCost(AbilityDefinition definition) =>
+            definition.ManaCost * stats.SkillCostMultiplier(SkillEffect.SpellEfficiency);
+
         public bool CanStart(AbilityDefinition definition, CharacterStats target, out string reason)
         {
             reason = "";
@@ -55,7 +58,7 @@ namespace HeroesOfDragonland.Abilities
                 || GetComponent<NetworkPlayerDodge>()?.Busy == true || GetComponent<HeroesOfDragonland.Player.PlayerDodge>()?.IsBusy == true)
                 reason = "Finish your current action first.";
             else if (!ValidTarget(definition, target)) reason = "Requires a living ally or self within range and line of sight.";
-            else if (stats.CurrentMana < definition.ManaCost) reason = ManaRequired(stats.CurrentMana, definition.ManaCost);
+            else if (stats.CurrentMana < ManaCost(definition)) reason = ManaRequired(stats.CurrentMana, ManaCost(definition));
             return reason.Length == 0;
         }
         internal static string ManaRequired(float current, float required) =>
@@ -65,7 +68,7 @@ namespace HeroesOfDragonland.Abilities
             reason = "Casting requires authority.";
             if (!HasAuthority || !CanStart(definition, target, out reason)) return false;
             if (session != skills.SessionId) { Clear(); session = skills.SessionId; }
-            if (!stats.TrySpendMana(definition.ManaCost)) { reason = ManaRequired(stats.CurrentMana, definition.ManaCost); return false; }
+            if (!stats.TrySpendMana(ManaCost(definition))) { reason = ManaRequired(stats.CurrentMana, ManaCost(definition)); return false; }
             casting = definition; castTarget = target != null ? target : stats;
             castOrigin = transform.position; castDirection = transform.forward.normalized; CastRemaining = definition.CastTime;
             Cue(definition, AbilityCue.CastStarted, transform.position, castDirection);
@@ -98,7 +101,7 @@ namespace HeroesOfDragonland.Abilities
         public CharacterStats SelectHealingTarget(AbilityDefinition definition)
         {
             CharacterStats best = null; float distance = definition.Range;
-            foreach (var candidate in FindObjectsByType<CharacterStats>(FindObjectsSortMode.None))
+            foreach (var candidate in FindObjectsByType<CharacterStats>())
             {
                 if (candidate == stats || candidate.CurrentHealth >= candidate.MaxHealth || !ValidTarget(definition, candidate)) continue;
                 Vector3 delta = candidate.transform.position - transform.position;
@@ -137,7 +140,10 @@ namespace HeroesOfDragonland.Abilities
                 case AbilityEffect.FireProjectile:
                     projectiles.Add(new Projectile { Definition = definition, Position = origin, Direction = castDirection, Remaining = definition.Range }); break;
                 case AbilityEffect.Heal:
-                    target.Heal(definition.Magnitude); Cue(definition, AbilityCue.Impact, target.transform.position + Vector3.up, Vector3.up); break;
+                    float restored = target.Heal(definition.Magnitude);
+                    if (restored > 0f) HeroesOfDragonland.Multiplayer.MatchSessionData.Credit(this,
+                        new HeroesOfDragonland.Multiplayer.MatchStatistics { Healing = restored });
+                    Cue(definition, AbilityCue.Impact, target.transform.position + Vector3.up, Vector3.up); break;
                 case AbilityEffect.Shield:
                     if (ShieldRemaining > 0) EndShield();
                     shieldDefinition = definition; ShieldCapacity = definition.Magnitude; ShieldRemaining = definition.Duration; break;
@@ -156,7 +162,7 @@ namespace HeroesOfDragonland.Abilities
                 {
                     if (TeamIdentity.AreAllies(TeamIdentity.Find(gameObject), TeamIdentity.Find(receiver.gameObject))) continue;
                     IsResolvingProjectile = true;
-                    try { receiver.TakeDamage(projectile.Definition.Magnitude, gameObject); }
+                    try { receiver.TakeDamage(projectile.Definition.Magnitude, gameObject, "Fire Projectile"); }
                     finally { IsResolvingProjectile = false; }
                 }
                 Cue(projectile.Definition, AbilityCue.Impact, projectile.Position + projectile.Direction * hit.distance, projectile.Direction);

@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -19,12 +19,12 @@ namespace HeroesOfDragonland.Presentation
     [DefaultExecutionOrder(200)]
     public sealed class WeaponMovesetNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
             if (!Environment.GetCommandLineArgs().Contains("-hodrMovesetCheck") && !Environment.GetCommandLineArgs().Contains("-hodrChainCheck")) return;
-            var bootstrap = FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap = FindAnyObjectByType<MultiplayerBootstrap>();
             if (bootstrap != null) bootstrap.gameObject.AddComponent<WeaponMovesetNetworkProbe>();
         }
         private MultiplayerBootstrap bootstrap;
@@ -44,7 +44,7 @@ namespace HeroesOfDragonland.Presentation
         {
             var runner = bootstrap.Runner;
             if (runner == null || !runner.IsRunning || !NetworkMatch.AllowsGameplay(runner)) return;
-            var humans = FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None)
+            var humans = FindObjectsByType<NetworkTestPlayer>()
                 .Where(p => p.Object != null && p.Object.IsValid && p.Runner == runner && !p.IsBot).ToArray();
             if (humans.Length < 2) return;
             if (began < 0) began = Time.realtimeSinceStartup;

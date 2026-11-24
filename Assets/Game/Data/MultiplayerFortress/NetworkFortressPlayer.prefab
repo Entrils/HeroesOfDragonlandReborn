@@ -528,6 +528,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 96d46df7dc56dc04291d157190919bdc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkTestPlayer
+  pingLifetime: 6
+  pingCooldown: 1
+  maxActivePings: 3
   movementSpeed: 5
   arenaHalfExtent: 18
   _Team: 0
@@ -668,6 +671,18 @@ MonoBehaviour:
     _length: 0
     _data:
       Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000u
+  _BowItemId:
+    _length: 0
+    _data:
+      Data: 0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000u
+  _BowDrawing:
+    RawValue: 0
+  _BowDrawProgress: 0
+  _BowReleaseProgress: 0
+  _ArrowInFlight:
+    RawValue: 0
+  _ArrowPosition: {x: 0, y: 0, z: 0}
+  _ArrowDirection: {x: 0, y: 0, z: 0}
   _Blocking:
     RawValue: 0
   _Staggered:
@@ -905,6 +920,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b0d2ded6fc408a745961718519f649f8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Multiplayer.NetworkInventory
+  quickSlotCount: 4
   _SnapshotRevision: 0
   _SlotCount: 0
 --- !u!114 &4488618273864493367
@@ -1044,6 +1060,7 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 15876007c813b5a4e8dfc7d83d18a434, type: 2}
   - {fileID: 11400000, guid: 7af65419e5fb5bd46a62bf3dd171b50b, type: 2}
   - {fileID: 11400000, guid: 0d3f8e903ebb09c4a8c879ea40aac359, type: 2}
+  tree: {fileID: 11400000, guid: 27e9fcfd0d46ac240acd31c083bd63f5, type: 2}
 --- !u!114 &8138339929408888723
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1064,6 +1081,7 @@ MonoBehaviour:
   _LearnedMask: 0
   _GuardRemaining: 0
   _Cooldowns: []
+  _Ranks: 
   _Revision: 0
 --- !u!114 &1087429863972279791
 MonoBehaviour:
@@ -1110,6 +1128,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Presentation.CharacterEquipmentVisual
   visual: {fileID: 1992838907265756711}
   visualCatalog: {fileID: 11400000, guid: 346b29b443f301e4087799791ab1c790, type: 2}
+  hairRenderer: {fileID: 0}
 --- !u!114 &674641152699617684
 MonoBehaviour:
   m_ObjectHideFlags: 0

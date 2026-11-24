@@ -32,6 +32,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5238631973176497196}
+  - {fileID: 477012841355934454}
   m_Father: {fileID: 4254070413805566990}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!33 &9028266099071376752
@@ -244,6 +245,7 @@ Transform:
   m_Children:
   - {fileID: 2774996794960206017}
   - {fileID: 2161747309187108992}
+  - {fileID: 6344497926319608995}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &4382762083791503311
@@ -405,6 +407,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.World.FortressGate
   team: 1
   gateBody: {fileID: 2774996794960206017}
+  breachedVisual: {fileID: 6001046036440403481}
 --- !u!208 &919638139989039616
 NavMeshObstacle:
   m_ObjectHideFlags: 0
@@ -511,6 +514,84 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6f026e72511ed8b4dbe1f847d2336215, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.UI.Minimap.TacticalMapSubject
+--- !u!1001 &77697932407381277
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 2774996794960206017}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 0.8333333
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 0.25
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalScale.z
+      value: 0.17241378
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b32e4debf07aeab4b9f26c7a1ddc8d3d, type: 2}
+    - target: {fileID: 919132149155446097, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+      propertyPath: m_Name
+      value: FortressGate_TeamA
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+--- !u!4 &477012841355934454 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 99fc3e749aa9b774b9b48b0f4ee84e48, type: 3}
+  m_PrefabInstance: {fileID: 77697932407381277}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &1766189153089150075
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -519,6 +600,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2774996794960206017}
     m_Modifications:
+    - target: {fileID: 4284013885880285008, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
       propertyPath: m_LocalScale.x
       value: 0.33333334
@@ -575,6 +660,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Imported wooden gate
       objectReference: {fileID: 0}
+    - target: {fileID: 8682536389636684425, guid: 78ece8e1a990d414facf91e790081568, type: 3}
+      propertyPath: m_Enabled
+      value: 0
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 8849705094920582808, guid: 78ece8e1a990d414facf91e790081568, type: 3}
     m_RemovedGameObjects: []
@@ -585,4 +674,79 @@ PrefabInstance:
 Transform:
   m_CorrespondingSourceObject: {fileID: 5778575355731675223, guid: 78ece8e1a990d414facf91e790081568, type: 3}
   m_PrefabInstance: {fileID: 1766189153089150075}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1001 &6883354293492446024
+PrefabInstance:
+  m_ObjectHideFlags: 0
+  serializedVersion: 2
+  m_Modification:
+    serializedVersion: 3
+    m_TransformParent: {fileID: 4254070413805566990}
+    m_Modifications:
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalRotation.w
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalRotation.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalRotation.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalRotation.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: -7511558181221131132, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: 'm_Materials.Array.data[0]'
+      value: 
+      objectReference: {fileID: 2100000, guid: b32e4debf07aeab4b9f26c7a1ddc8d3d, type: 2}
+    - target: {fileID: 919132149155446097, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_Name
+      value: FortressGate_Breached
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
+    m_RemovedComponents: []
+    m_RemovedGameObjects: []
+    m_AddedGameObjects: []
+    m_AddedComponents: []
+  m_SourcePrefab: {fileID: 100100000, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+--- !u!1 &6001046036440403481 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+  m_PrefabInstance: {fileID: 6883354293492446024}
+  m_PrefabAsset: {fileID: 0}
+--- !u!4 &6344497926319608995 stripped
+Transform:
+  m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 78c3737a48c1d3946a3d00c599154277, type: 3}
+  m_PrefabInstance: {fileID: 6883354293492446024}
   m_PrefabAsset: {fileID: 0}

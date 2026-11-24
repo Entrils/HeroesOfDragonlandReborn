@@ -2,6 +2,7 @@ using System;
 using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Stats;
 using UnityEngine;
+using HeroesOfDragonland.Skills;
 using HeroesOfDragonland.EquipmentSystem;
 
 namespace HeroesOfDragonland.Player
@@ -46,7 +47,8 @@ namespace HeroesOfDragonland.Player
             fallback.y = 0f;
             Vector3 direction = movementDirection.sqrMagnitude > 0.0001f ? movementDirection : fallback;
             rollModifiers = GetComponent<Equipment>()?.DodgeModifiers ?? WeightDodgeModifiers.Light;
-            if (!stats.TrySpendStamina(definition.StaminaCost * Mathf.Max(0.01f, rollModifiers.stamina))) return false;
+            if (!stats.TrySpendStamina(definition.StaminaCost * Mathf.Max(0.01f, rollModifiers.stamina)
+                * stats.SkillCostMultiplier(SkillEffect.DodgeEfficiency))) return false;
             if (attack != null && attack.IsBusy && !attack.TryCancelForDodge()) return false;
             Direction = direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
             elapsed = 0f;

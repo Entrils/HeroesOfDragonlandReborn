@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.IO;
 using System.Linq;
@@ -21,7 +21,7 @@ namespace HeroesOfDragonland.Presentation
     [DisallowMultipleComponent]
     public sealed class PresentationAcceptanceProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private string control, last;
         private MultiplayerBootstrap bootstrap;
         private GameAudioService audioService;
@@ -146,7 +146,7 @@ namespace HeroesOfDragonland.Presentation
                 Debug.Log("[PresentationActor] id="+actor.Id+" team="+player.Team+" local="+actor.HasInputAuthority+" suspended="+player.IsSuspended+" dead="+actor.GetComponent<NetworkCharacterStats>().Dead+" main="+equipment.GetItemId(EquipmentSlot.MainHand)+" chest="+equipment.GetItemId(EquipmentSlot.Chest));
             }
             Check(source.Markers.All(m=>m.Kind!=MapMarkerKind.RevealedEnemy),"Unexpected reveal producer");
-            Check(FindObjectsByType<AudioListener>(FindObjectsSortMode.None).Count(l=>l.isActiveAndEnabled)==1,"Listener count");
+            Check(FindObjectsByType<AudioListener>().Count(l=>l.isActiveAndEnabled)==1,"Listener count");
             Check(audioService.GetComponentsInChildren<AudioSource>(true).Length==audioService.Capacity+3,"Audio source growth");
             Debug.Log("[PresentationCheck] PASS local team="+team+" mapVisible="+source.Visible+" markers="+source.Markers.Count+" compass="+source.Heading+" music="+GetComponent<DynamicMusicDirector>().State+" voices="+audioService.ActiveVoices+" sources="+audioService.GetComponentsInChildren<AudioSource>(true).Length+" pool="+GetComponent<VfxPool>().name);
             Debug.Log("[PresentationAudio] "+string.Join(",",Enum.GetValues(typeof(AudioCue)).Cast<AudioCue>().Where(c=>cues[(int)c]>0).Select(c=>c+"="+cues[(int)c])));

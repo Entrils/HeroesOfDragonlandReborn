@@ -233,7 +233,7 @@
         .Select(x => new Regex(x)).ToArray();
 
       Predicate<Assembly> filter = x => !filters.Any(f => f.IsMatch(x.FullName)) &&
-                                        (assemblyNames == null || assemblyNames.Length == 0 || Array.IndexOf(assemblyNames, x.Location) >= 0);
+                                        (assemblyNames == null || assemblyNames.Length == 0 || Array.IndexOf(assemblyNames, x.GetLoadedAssemblyPath()) >= 0);
 
       HashSet<string> generatedFilesToRemove = null;
 

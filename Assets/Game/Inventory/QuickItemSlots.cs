@@ -44,8 +44,12 @@ namespace HeroesOfDragonland.InventorySystem
             if (!IsQuickIndex(quickIndex) || inventoryIndex < 0 || inventoryIndex >= inventory.SlotCount)
                 return false;
             string id = inventory.GetSlot(inventoryIndex).ItemId;
-            if (!inventory.TryResolveItem(id, out var item) || item.Category != ItemCategory.Consumable
-                || item.Consumable is not { IsValid: true }) return false;
+            if (!inventory.TryResolveItem(id, out var item) || !(item.Category switch
+                {
+                    ItemCategory.Consumable => item.Consumable is { IsValid: true },
+                    ItemCategory.Deployable => item.Deployable is { IsValid: true },
+                    _ => false
+                })) return false;
             itemIds[quickIndex] = id;
             Refresh();
             return true;

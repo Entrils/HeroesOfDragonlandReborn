@@ -14,7 +14,11 @@ namespace HeroesOfDragonland.Skills
     {
         public const int SkillCount = 6;
         [SerializeField] private SkillDefinition[] definitions = new SkillDefinition[SkillCount];
-        private readonly float[] cooldowns = new float[SkillCount];
+        public const int Capacity = 24;
+        [SerializeField] private SkillTreeDefinition tree;
+        private readonly float[] cooldowns = new float[Capacity];
+        private readonly byte[] ranks = new byte[Capacity];
+        private bool validTree;
         private SessionProgression progression;
         private CharacterStats stats;
         private CharacterAttributes attributes;
@@ -28,13 +32,22 @@ namespace HeroesOfDragonland.Skills
         public bool HasAuthority => GetComponent<ISessionSkillAuthority>()?.CanMutateSkills ?? stats.CanMutate;
         public bool IsInvulnerable => isActiveAndEnabled && HasAuthority && !stats.IsDead && guardRemaining > 0;
         public event Action Changed;
-        public SkillDefinition GetDefinition(int index) => index >= 0 && index < SkillCount && definitions != null
-            && definitions.Length == SkillCount ? definitions[index] : null;
-        public bool IsLearned(int index) => index >= 0 && index < SkillCount && (learnedMask & (1 << index)) != 0;
-        public float CooldownRemaining(int index) => index >= 0 && index < SkillCount ? cooldowns[index] : 0;
+        public event Action RanksChanged;
+        public int NodeCount => tree != null ? (validTree ? tree.Count : 0) : SkillCount;
+        public SkillDefinition GetDefinition(int index)
+        {
+            if (index < 0 || index >= NodeCount) return null;
+            return tree != null ? tree.GetNode(index) : (definitions != null && index < definitions.Length ? definitions[index] : null);
+        }
+
+        public int GetRank(int index) => index >= 0 && index < NodeCount ? ranks[index] : 0;
+        public bool IsLearned(int index) => GetRank(index) > 0;
+        public float CooldownRemaining(int index) => index >= 0 && index < NodeCount ? cooldowns[index] : 0;
 
         private void Awake()
         {
+            validTree = tree != null && tree.IsValid();
+            if (tree != null && !validTree) Debug.LogError("Invalid session skill tree.", this);
             progression = GetComponent<SessionProgression>(); stats = GetComponent<CharacterStats>();
             attributes = GetComponent<CharacterAttributes>();
         }
@@ -58,7 +71,11 @@ namespace HeroesOfDragonland.Skills
             if (!progression.HasAuthority || SessionId == id) return;
             SessionId = id; highestLevel = 1; SkillPoints = 1; learnedMask = 0;
             GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Clear();
-            guardRemaining = 0; Array.Clear(cooldowns, 0, cooldowns.Length); Notify();
+            guardRemaining = 0;
+            Array.Clear(cooldowns, 0, cooldowns.Length);
+            Array.Clear(ranks, 0, ranks.Length);
+            RanksChanged?.Invoke();
+            Notify();
         }
         private void OnProgression()
         {
@@ -86,9 +103,26 @@ namespace HeroesOfDragonland.Skills
         {
             reason = MissingRequirements(index);
             if (reason.Length > 0) return false;
-            if (IsLearned(index)) reason = "Already learned.";
+            var definition = GetDefinition(index);
+            if (GetRank(index) >= definition.MaxRank) reason = "Maximum rank reached.";
             else if (stats.IsDead) reason = "Cannot learn while dead.";
-            else if (SkillPoints < GetDefinition(index).PointCost) reason = "Not enough skill points.";
+            else if (tree != null)
+            {
+                foreach (var prerequisite in definition.Prerequisites)
+                    if (GetRank(tree.IndexOf(prerequisite.Skill)) < prerequisite.Rank)
+                    {
+                        reason = $"Requires {prerequisite.Skill.DisplayName} rank {prerequisite.Rank}.";
+                        break;
+                    }
+                if (reason.Length == 0 && !string.IsNullOrEmpty(definition.ExclusiveGroup))
+                    for (int i = 0; i < NodeCount; i++)
+                        if (i != index && IsLearned(i) && GetDefinition(i).ExclusiveGroup == definition.ExclusiveGroup)
+                        {
+                            reason = $"Cannot be combined with {GetDefinition(i).DisplayName}.";
+                            break;
+                        }
+            }
+            if (reason.Length == 0 && SkillPoints < definition.PointCost) reason = "Not enough skill points.";
             return reason.Length == 0;
         }
         public bool TryLearn(int index, string sessionId, out string reason)
@@ -99,7 +133,12 @@ namespace HeroesOfDragonland.Skills
             processing = true;
             try
             {
-                SkillPoints -= GetDefinition(index).PointCost; learnedMask |= 1 << index; Notify(); return true;
+                SkillPoints -= GetDefinition(index).PointCost;
+                ranks[index]++;
+                learnedMask |= 1 << index;
+                RanksChanged?.Invoke();
+                Notify();
+                return true;
             }
             finally { processing = false; }
         }
@@ -114,8 +153,8 @@ namespace HeroesOfDragonland.Skills
             else if (GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>() is { CastRemaining: > 0 }) reason = "Already casting.";
             else if (GetComponent<CombatDefense>()?.ActionsBlocked == true) reason = "Finish your current action first.";
             else if (cooldowns[index] > 0) reason = "Skill is on cooldown.";
-            else if (stats.CurrentMana < definition.ManaCost)
-                reason = HeroesOfDragonland.Abilities.AbilityCaster.ManaRequired(stats.CurrentMana, definition.ManaCost);
+            else if (stats.CurrentMana < ManaCost(definition))
+                reason = HeroesOfDragonland.Abilities.AbilityCaster.ManaRequired(stats.CurrentMana, ManaCost(definition));
             else if (GetComponent<MeleeAttack>()?.IsBusy == true || GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerCombat>()?.AttackBusy == true
                 || GetComponent<HeroesOfDragonland.Multiplayer.NetworkPlayerDodge>()?.Busy == true
                 || GetComponent<HeroesOfDragonland.Player.PlayerDodge>()?.IsBusy == true) reason = "Finish your current action first.";
@@ -155,7 +194,7 @@ namespace HeroesOfDragonland.Skills
                 }
                 else if (!stats.TrySpendMana(definition.ManaCost))
                 { reason = HeroesOfDragonland.Abilities.AbilityCaster.ManaRequired(stats.CurrentMana, definition.ManaCost); return false; }
-                cooldowns[index] = definition.Cooldown;
+                cooldowns[index] = Cooldown(definition);
                 if (definition.Effect == SkillEffect.Guard) guardRemaining = definition.Magnitude;
                 Notify(); return true;
             }
@@ -164,29 +203,47 @@ namespace HeroesOfDragonland.Skills
         public float ModifyMeleeDamage(float damage)
         {
             if (!isActiveAndEnabled || !HasAuthority || stats.IsDead) return damage;
-            for (int i = 0; i < SkillCount; i++)
-            {
-                var definition = GetDefinition(i);
-                if (IsLearned(i) && definition != null && definition.Effect == SkillEffect.MeleeTraining
-                    && MissingRequirements(i).Length == 0) damage += definition.Magnitude;
-            }
-            return damage;
+            return damage + GetBonus(SkillEffect.MeleeTraining);
         }
+
+        public float GetBonus(SkillEffect effect)
+        {
+            if (!isActiveAndEnabled) return 0;
+            float total = 0;
+            for (int i = 0; i < NodeCount; i++)
+                if (ranks[i] > 0 && GetDefinition(i) is { Kind: SkillKind.Passive } node && node.Effect == effect)
+                    total += node.Magnitude * ranks[i];
+            return total;
+        }
+
+        public float CostMultiplier(SkillEffect effect) => 1f - Mathf.Clamp(GetBonus(effect), 0f, .75f);
+        public float ManaCost(SkillDefinition skill) => skill.ManaCost
+            * (skill.Effect == SkillEffect.Ability ? CostMultiplier(SkillEffect.SpellEfficiency) : 1f);
+        public float Cooldown(SkillDefinition skill) => skill.Cooldown
+            * (skill.Effect == SkillEffect.Ability ? CostMultiplier(SkillEffect.SpellCooldown) : 1f);
         private void Update() { if (GetComponent<ISessionSkillAuthority>() == null) { Tick(Time.deltaTime); GetComponent<HeroesOfDragonland.Abilities.AbilityCaster>()?.Tick(Time.deltaTime); } }
         public void Tick(float deltaTime)
         {
             if (!HasAuthority || deltaTime <= 0 || float.IsNaN(deltaTime) || float.IsInfinity(deltaTime)) return;
             bool changed = false;
-            for (int i = 0; i < SkillCount; i++)
+            for (int i = 0; i < NodeCount; i++)
                 if (cooldowns[i] > 0) { cooldowns[i] = Mathf.Max(0, cooldowns[i] - deltaTime); changed = true; }
             if (guardRemaining > 0) { guardRemaining = stats.IsDead ? 0 : Mathf.Max(0, guardRemaining - deltaTime); changed = true; }
             if (changed) Notify();
         }
-        internal void ApplySnapshot(string sessionId, int points, int mask, float guard, float[] remaining)
+        internal void ApplySnapshot(string sessionId, int points, int mask, float guard, float[] remaining, byte[] newRanks)
         {
-            if (GetComponent<ISessionSkillAuthority>() == null || HasAuthority || remaining == null || remaining.Length != SkillCount) return;
+            if (GetComponent<ISessionSkillAuthority>() == null || HasAuthority || remaining.Length != Capacity || newRanks.Length != Capacity) return;
             SessionId = sessionId; SkillPoints = points; learnedMask = mask; guardRemaining = guard;
-            Array.Copy(remaining, cooldowns, SkillCount); Notify();
+            bool ranksChanged = false;
+            for (int i = 0; i < Capacity; i++)
+            {
+                ranksChanged |= ranks[i] != newRanks[i];
+                ranks[i] = newRanks[i];
+            }
+            Array.Copy(remaining, cooldowns, Capacity);
+            if (ranksChanged) RanksChanged?.Invoke();
+            Notify();
         }
         private void Notify()
         {

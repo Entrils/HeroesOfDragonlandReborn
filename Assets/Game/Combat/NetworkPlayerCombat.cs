@@ -2,6 +2,11 @@ using Fusion;
 using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Stats;
 using HeroesOfDragonland.Teams;
+using HeroesOfDragonland.EquipmentSystem;
+using HeroesOfDragonland.Items;
+using HeroesOfDragonland.Presentation;
+using HeroesOfDragonland.Presentation.Vfx;
+using HeroesOfDragonland.Targeting;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -19,6 +24,16 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public NetworkBool HeavyAttack { get; private set; }
         [Networked] public int AttackMoveIndex { get; private set; }
         [Networked] public NetworkString<_32> AttackWeaponId { get; private set; }
+        [Networked] public NetworkString<_32> BowItemId { get; private set; }
+        [Networked] public NetworkBool BowDrawing { get; private set; }
+        [Networked] public float BowDrawProgress { get; private set; }
+        [Networked] public float BowReleaseProgress { get; private set; }
+        [Networked] public NetworkBool ArrowInFlight { get; private set; }
+        [Networked] public Vector3 ArrowPosition { get; private set; }
+        [Networked] public Vector3 ArrowDirection { get; private set; }
+        [Networked] private TickTimer TrapRoot { get; set; }
+        [Networked] private TickTimer TrapSlow { get; set; }
+        [Networked] private float TrapSlowMultiplier { get; set; }
         [Networked] public NetworkBool Blocking { get; private set; }
         [Networked] public NetworkBool Staggered { get; private set; }
         [Networked] public int GuardBreakSequence { get; private set; }
@@ -39,18 +54,42 @@ namespace HeroesOfDragonland.Multiplayer
         private MeleeAttack melee;
         private CharacterStats stats;
         private NetworkTestPlayer player;
+        private Equipment gear;
+        private BowShot bow;
         private readonly AttackPressSequence presses = new AttackPressSequence();
         private readonly AttackPressSequence parryPresses = new AttackPressSequence();
         public bool CanDodgeCancel => melee != null && melee.CanDodgeCancel;
         public bool ResolvingAttack { get; private set; }
         public MeleeAttackDefinition Definition => melee.Definition;
-        public bool IsBusy => melee.IsBusy;
-        public float MovementMultiplier => melee.MovementMultiplier * (Defense != null ? Defense.MovementMultiplier : 1f);
+        public bool IsBusy => melee.IsBusy || (bow != null && (bow.Drawing || bow.ReleaseRemaining > 0));
+        public Vector3 ActionFacing => bow.Drawing && bow.Facing.sqrMagnitude > .01f ? bow.Facing
+            : melee.IsBusy ? AttackFacing : transform.forward;
+        public float MovementMultiplier => (bow.Drawing ? .55f : melee.MovementMultiplier)
+            * (Defense != null ? Defense.MovementMultiplier : 1f);
+        public float DeployableMovementMultiplier => !TrapRoot.ExpiredOrNotRunning(Runner) ? 0
+            : !TrapSlow.ExpiredOrNotRunning(Runner) ? TrapSlowMultiplier : 1;
+
+        internal void ApplyDeployableMovement(float multiplier, float seconds)
+        {
+            if (!IsAdmitted() || stats.IsDead || !NetworkMatch.AllowsGameplay(Runner)) return;
+            if (multiplier <= 0)
+                TrapRoot = TickTimer.CreateFromSeconds(Runner, Mathf.Max(seconds, TrapRoot.RemainingTime(Runner) ?? 0));
+            else if (multiplier < 1 && (TrapSlow.ExpiredOrNotRunning(Runner) || multiplier <= TrapSlowMultiplier))
+            {
+                float duration = multiplier == TrapSlowMultiplier ? Mathf.Max(seconds, TrapSlow.RemainingTime(Runner) ?? 0) : seconds;
+                TrapSlow = TickTimer.CreateFromSeconds(Runner, duration);
+                TrapSlowMultiplier = multiplier;
+            }
+        }
         private void Awake()
         {
             melee = GetComponent<MeleeAttack>();
             stats = GetComponent<CharacterStats>();
             player = GetComponent<NetworkTestPlayer>();
+            gear = GetComponent<Equipment>();
+            bow = new BowShot(gameObject);
+            bow.Impact += BroadcastArrowImpact;
+            if (GetComponent<BowPresentation>() == null) gameObject.AddComponent<BowPresentation>();
             melee.AttackStarted += PublishAcceptedAttack;
         }
         private void OnDestroy() { if (melee != null) melee.AttackStarted -= PublishAcceptedAttack; }
@@ -69,14 +108,29 @@ namespace HeroesOfDragonland.Multiplayer
             bool parryPressed = parryPresses.TryRead(input.ParryPress, 0, out _);
             if (!NetworkMatch.AllowsGameplay(Runner) || input.SuppressAttacks || stats.IsDead)
             {
-                melee.DiscardBufferedAttack(); Defense?.SetBlockIntent(false, dodgeBusy || melee.IsBusy);
+                bow.CancelDraw();
+                melee.DiscardBufferedAttack(); Defense?.SetBlockIntent(false, dodgeBusy || IsBusy);
                 PublishDefense(); return;
             }
-            if (parryPressed && !dodgeBusy && GetComponent<ParryDefense>() is { } parry && parry.TryStart(facing))
+            bool bowEquipped = gear != null && gear.EquippedWeapon != null && gear.EquippedWeapon.Archetype == WeaponArchetype.Bow;
+            if (parryPressed && !dodgeBusy && !bow.Drawing && GetComponent<ParryDefense>() is { } parry && parry.TryStart(facing))
                 ParryStartTick = Runner.Tick.Raw;
-            Defense?.SetBlockIntent(input.Block, dodgeBusy || melee.IsBusy);
+            Defense?.SetBlockIntent(input.Block && !bowEquipped, dodgeBusy || IsBusy);
             PublishDefense();
-            if (dodgeBusy || ActionsBlocked) { melee.DiscardBufferedAttack(); return; }
+            if (dodgeBusy || ActionsBlocked) { bow.CancelDraw(); melee.DiscardBufferedAttack(); return; }
+            if (bowEquipped)
+            {
+                melee.DiscardBufferedAttack();
+                Targetable target = null;
+                if (input.LockedOn && input.BowTarget != default && Runner.TryFindObject(input.BowTarget, out var candidate))
+                    target = candidate.GetComponentInChildren<Targetable>();
+                Vector3 aim = input.BowAim;
+                if (aim == Vector3.zero) aim = facing;
+                bow.UpdateAim(aim, target);
+                if (pressed && attack == AttackInputKind.Light && !melee.IsBusy && bow.TryStart(aim, target))
+                    BowItemId = gear.GetItemId(EquipmentSlot.MainHand);
+                return;
+            }
             if (pressed) melee.RequestAttack(attack, facing);
         }
 
@@ -107,14 +161,41 @@ namespace HeroesOfDragonland.Multiplayer
         public void AfterTick()
         {
             if (!IsAdmitted()) return;
-            if (!NetworkMatch.AllowsGameplay(Runner)) { melee.Cancel(); Defense?.ResetState(); PublishDefense(); AttackBusy = false; return; }
+            if (!NetworkMatch.AllowsGameplay(Runner)) { melee.Cancel(); ResetBow(); Defense?.ResetState(); PublishDefense(); AttackBusy = false; return; }
             // Every player's movement tick has completed before server hit geometry is sampled.
             Physics.SyncTransforms();
             ResolvingAttack = true;
             try { melee.TickAttack(Runner.DeltaTime); }
             finally { ResolvingAttack = false; }
+            bow.Tick(Runner.DeltaTime, ActionsBlocked);
+            PublishBow();
             AttackBusy = melee.IsBusy && !stats.IsDead;
             PublishDefense();
+        }
+
+        private void PublishBow()
+        {
+            BowDrawing = bow.Drawing;
+            BowDrawProgress = bow.DrawProgress;
+            BowReleaseProgress = bow.ReleaseRemaining > 0 ? bow.ReleaseRemaining / bow.ReleaseDuration : 0;
+            ArrowInFlight = bow.InFlight;
+            if (bow.InFlight) { ArrowPosition = bow.Position; ArrowDirection = bow.Direction; }
+        }
+
+        private void ResetBow() { bow.Cancel(); PublishBow(); }
+
+        public bool AllowsArrowDamage(NetworkRunner runner) => runner == Runner && Runner.IsServer && HasStateAuthority
+            && IsAdmitted() && NetworkMatch.AllowsGameplay(Runner) && !stats.IsDead && bow.ResolvingHit;
+
+        private void BroadcastArrowImpact(Vector3 point)
+        {
+            if (Runner.IsForward) RPC_ArrowImpact(point);
+        }
+
+        [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
+        private void RPC_ArrowImpact(Vector3 point)
+        {
+            GetComponent<BowPresentation>()?.PresentImpact(point, Runner, player.Team);
         }
 
         private void PublishMoveset()
@@ -127,7 +208,7 @@ namespace HeroesOfDragonland.Multiplayer
         internal void SuspendConnection()
         {
             if (!Runner.IsServer || !HasStateAuthority) return;
-            melee.Cancel(); Defense?.ResetState(); PublishDefense(); AttackBusy = false;
+            melee.Cancel(); ResetBow(); Defense?.ResetState(); PublishDefense(); AttackBusy = false;
             ResetConnectionInput();
         }
         internal void ResetConnectionInput() { presses.Reset(); parryPresses.Reset(); }
@@ -135,7 +216,8 @@ namespace HeroesOfDragonland.Multiplayer
         internal void CancelForRespawn()
         {
             if (!IsAdmitted()) return;
-            melee.Cancel(); Defense?.ResetState(); PublishDefense(); AttackBusy = false;
+            TrapRoot = TrapSlow = TickTimer.None;
+            melee.Cancel(); ResetBow(); Defense?.ResetState(); PublishDefense(); AttackBusy = false;
         }
 
         private void PublishDefense()
@@ -159,6 +241,7 @@ namespace HeroesOfDragonland.Multiplayer
         public bool AllowsDamage(GameObject source)
         {
             if (!IsAdmitted() || !NetworkMatch.AllowsGameplay(Runner) || stats.IsDead || source == null || source == gameObject) return false;
+            if (source.TryGetComponent<NetworkDeployable>(out var trap)) return trap.AllowsTrapDamage(Runner, gameObject);
             var magic = source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>();
             if (magic != null && magic.AllowsProjectileDamage(Runner))
                 return TeamIdentity.AreEnemies(TeamIdentity.Find(source), GetComponent<TeamIdentity>());
@@ -169,6 +252,8 @@ namespace HeroesOfDragonland.Multiplayer
                 return enemy.Runner == Runner && enemy.IsResolvingAttack && (guard == null || guard.IsEnemy(player));
             }
             var attacker = source.GetComponent<NetworkPlayerCombat>();
+            if (attacker != null && attacker.AllowsArrowDamage(Runner))
+                return TeamIdentity.AreEnemies(TeamIdentity.Find(source), GetComponent<TeamIdentity>());
             return attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
                 && attacker.ResolvingAttack && attacker.melee.IsResolvingMeleeHit && !attacker.stats.IsDead
                 && player.Team != TeamId.Unassigned && attacker.player.Team != TeamId.Unassigned

@@ -23,7 +23,7 @@ namespace HeroesOfDragonland.World
         }
         public static void Open() => SceneManager.LoadScene(ScenePath);
         public static void ReturnToMenu() => SceneManager.LoadScene(BattlefieldPath);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void OpenAcceptanceScene()
         {

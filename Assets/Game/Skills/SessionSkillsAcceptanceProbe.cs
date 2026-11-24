@@ -1,13 +1,18 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using Fusion;
 using HeroesOfDragonland.Combat;
+using HeroesOfDragonland.Cosmetics;
+using HeroesOfDragonland.EquipmentSystem;
+using HeroesOfDragonland.InventorySystem;
 using HeroesOfDragonland.Items;
 using HeroesOfDragonland.Multiplayer;
 using HeroesOfDragonland.Progression;
+using HeroesOfDragonland.Presentation;
+using HeroesOfDragonland.Profiles;
 using HeroesOfDragonland.Stats;
 #endif
 
@@ -16,16 +21,74 @@ namespace HeroesOfDragonland.Skills
     // Explicit test mode only. Gameplay and UI never grant XP or allocate attributes here.
     public sealed class SessionSkillsAcceptanceProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active, complete;
         private int localStep, serverStep;
-        private float nextAction, serverActionAt;
+        private const int EnduranceNode = 8, QuickStrikesNode = 10;
+        private float nextAction, serverActionAt, initialStamina;
         private string initialSession;
         private readonly HashSet<NetworkObject> seeded = new(), guardsChecked = new();
         private readonly HashSet<NetworkSessionSkills> monitored = new();
         private NetworkObject attacker, victim;
         private bool hitObserved;
-        private void Awake() => active = Environment.GetCommandLineArgs().Contains("-hodrSkills");
+        private bool verifyAppearance, sawSkins;
+
+        private void Awake()
+        {
+            var args = Environment.GetCommandLineArgs();
+            active = args.Contains("-hodrSkills");
+            verifyAppearance = active && LocalPlayerProfile.IsTestProfile && args.Contains("-hodrVerifyAppearance");
+            if (!verifyAppearance) return;
+            bool host = args.Contains("host");
+            var profile = LocalPlayerProfile.Current;
+            profile.SetAppearance(FixtureAppearance(host));
+            foreach (var id in FixtureCosmetics(host))
+            {
+                if (!profile.CosmeticItems.Owns(id)) profile.CosmeticItems.Grant(id);
+                Check(profile.CosmeticItems.Equip(id), "equip test cosmetic " + id);
+            }
+        }
+
+        private static CharacterAppearance FixtureAppearance(bool host)
+        {
+            CharacterAppearance appearance = default;
+            foreach (var slot in CharacterAppearance.Slots)
+                appearance = appearance.With(slot, host ? 1 : CharacterAppearance.Count(slot) - 1);
+            return host ? appearance : appearance.With(AppearanceSlot.Hairstyle, 0);
+        }
+
+        private static string[] FixtureCosmetics(bool host) => host
+            ? new[] { "armor.ironwood", "weapon.ember", "banner.dawn", "emblem.star", "pose.salute", "icon.compass" }
+            : new[] { "armor.wintersteel", "weapon.frost", "banner.pine", "emblem.flame", "pose.fist", "icon.crown", "appearance.copper" };
+
+        private bool CheckAppearance(NetworkRunner runner, NetworkObject localActor)
+        {
+            if (!verifyAppearance) return true;
+            var avatars = runner.ActivePlayers.Select(owner => runner.TryGetPlayerObject(owner, out var avatar) ? avatar : null)
+                .Where(avatar => avatar != null && avatar.IsValid).ToArray();
+            if (avatars.Length != 2 || avatars.Any(avatar => !avatar.GetComponent<NetworkTestPlayer>().HasSubmittedAppearance)) return false;
+            foreach (var avatar in avatars)
+            {
+                bool host = runner.IsServer == (avatar == localActor);
+                var expected = host ? FixtureAppearance(true) : CosmeticCatalog.Find("appearance.copper").Appearance;
+                var actor = avatar.GetComponent<NetworkTestPlayer>();
+                Check(actor.Appearance.Code == expected.Code, "owner and remote see the correct distinct appearance");
+                foreach (var id in FixtureCosmetics(host))
+                {
+                    var category = CosmeticCatalog.Find(id).Category;
+                    if (category == CosmeticCategory.ProfileIcon || category == CosmeticCategory.CharacterAppearance)
+                        Check(actor.Cosmetics.Get(category) == null, "no redundant profile or preset ID on wire");
+                    else Check(actor.Cosmetics.Get(category)?.Id == id, "replicated cosmetic " + id);
+                }
+                var view = avatar.GetComponentInChildren<CharacterAppearanceVisual>(true);
+                Check(view != null, "gameplay player has a cosmetic visual");
+                if (view.AppliedCode != expected.Code) return false;
+                var hair = view.GetComponentsInChildren<SkinnedMeshRenderer>().Single(mesh => mesh.name == "Scout_Hair");
+                Check(hair.forceRenderingOff == (expected.Get(AppearanceSlot.Hairstyle) == 1), "replicated hairstyle visible state matches selection");
+            }
+            Check(LocalPlayerProfile.Current.Appearance.Code == FixtureAppearance(runner.IsServer).Code, "profile choice survives round changes");
+            return true;
+        }
         private void Check(bool condition, string label)
         {
             if (!condition) { active = false; throw new InvalidOperationException("[SkillCheck] FAIL " + label); }
@@ -45,14 +108,14 @@ namespace HeroesOfDragonland.Skills
                     Check(progression.TryIncreaseAttribute(ItemStat.Vitality, progression.SessionId, out _)
                         && progression.TryIncreaseAttribute(ItemStat.Vitality, progression.SessionId, out _), "server-allocates-test-prerequisites");
                 }
-                if (skills.GuardRemaining > 0 && guardsChecked.Add(actor))
+                if (skills.GuardRemaining > 0 && skills.GetRank(EnduranceNode) == 2 && guardsChecked.Add(actor))
                 {
                     float before = stats.CurrentHealth;
                     Check(stats.ApplyDamage(10) == 0 && stats.CurrentHealth == before, "server-guard-prevents-damage");
                     Check(Mathf.Approximately(skills.ModifyMeleeDamage(25), 30), "server-passive-adds-five-once");
                 }
             }
-            if (actors.Length != 2 || guardsChecked.Count != 2 || serverStep > 3) return;
+            if (actors.Length != 2 || guardsChecked.Count != 2 || serverStep > 4) return;
             if (serverStep == 0)
             {
                 if (actors.Any(actor => actor.GetComponent<SessionSkills>().GuardRemaining > 0
@@ -87,10 +150,60 @@ namespace HeroesOfDragonland.Skills
             {
                 Check(hitObserved, "passive-applies-to-normal-melee");
                 victim.GetComponent<DamageReceiver>().DamageTaken -= ObserveNormalHit;
+                if (verifyAppearance)
+                    foreach (var actor in actors)
+                    {
+                        EquipSample(actor, "7c3f6239de33cab4d94641a03e925f76", EquipmentSlot.Chest);
+                        EquipSample(actor, "b4d4a0612c1acd74d98f66ef3969959f", EquipmentSlot.MainHand);
+                    }
+                serverStep = 4; serverActionAt = Time.unscaledTime + (verifyAppearance ? 2f : 0f);
+            }
+            else if (serverStep == 4 && Time.unscaledTime > serverActionAt)
+            {
                 GetComponent<MultiplayerBootstrap>().ResetRoundPlayers();
-                serverStep = 4;
+                serverStep = 5;
             }
         }
+        private void EquipSample(NetworkObject actor, string id, EquipmentSlot slot)
+        {
+            Check(actor.GetComponent<NetworkInventory>().TryAddItem(id), "grant sample equipment");
+            var inventory = actor.GetComponent<Inventory>();
+            int index = Enumerable.Range(0, inventory.SlotCount).First(i => inventory.GetSlot(i).ItemId == id);
+            Check(actor.GetComponent<Equipment>().TryEquip(index, slot, out _), "equip sample " + slot);
+        }
+
+        private void CheckSkinMaterials(NetworkRunner runner)
+        {
+            if (!verifyAppearance || sawSkins) return;
+            var avatars = runner.ActivePlayers.Select(owner => runner.TryGetPlayerObject(owner, out var avatar) ? avatar : null)
+                .Where(avatar => avatar != null && avatar.IsValid).ToArray();
+            if (avatars.Length != 2) return;
+            var block = new MaterialPropertyBlock();
+            foreach (var actor in avatars)
+            {
+                var view = actor.GetComponent<CharacterEquipmentVisual>();
+                foreach (var slot in new[] { EquipmentSlot.Chest, EquipmentSlot.MainHand })
+                {
+                    var part = view.GetVisual(slot);
+                    if (part == null) return;
+                    var category = slot == EquipmentSlot.Chest ? CosmeticCategory.ArmorSkin : CosmeticCategory.WeaponSkin;
+                    var skin = actor.GetComponent<NetworkTestPlayer>().Cosmetics.Get(category);
+                    if (skin == null) return;
+                    foreach (var renderer in part.GetComponentsInChildren<Renderer>())
+                        for (int i = 0; i < renderer.sharedMaterials.Length; i++)
+                        {
+                            var material = renderer.sharedMaterials[i];
+                            if (!material.HasProperty("_BaseColor")) continue;
+                            renderer.GetPropertyBlock(block, i);
+                            if (block.isEmpty) return;
+                            Check(Vector4.Distance(block.GetColor("_BaseColor"), material.GetColor("_BaseColor") * skin.Color) < .001f,
+                                "equipped " + slot + " material uses replicated cosmetic");
+                        }
+                }
+            }
+            sawSkins = true;
+        }
+
         private void ObserveHit(float amount, GameObject source)
         { if (source == attacker.gameObject) { Check(Mathf.Approximately(amount, 60), "strike-damage-is-two-times-base-plus-passive"); hitObserved = true; } }
         private void ObserveNormalHit(float amount, GameObject source)
@@ -101,6 +214,7 @@ namespace HeroesOfDragonland.Skills
             var bootstrap = GetComponent<MultiplayerBootstrap>(); var runner = bootstrap.Runner;
             if (runner == null || !runner.IsRunning || !NetworkMatch.AllowsGameplay(runner)) return;
             if (runner.IsServer) ServerFixtures(runner);
+            CheckSkinMaterials(runner);
             if (!runner.TryGetPlayerObject(runner.LocalPlayer, out var actor) || actor == null || !actor.IsValid) return;
             var skills = actor.GetComponent<SessionSkills>(); var network = actor.GetComponent<NetworkSessionSkills>();
             CheckComponents(skills, network);
@@ -110,7 +224,12 @@ namespace HeroesOfDragonland.Skills
             switch (localStep)
             {
                 case 0:
+                    if (!CheckAppearance(runner, actor)) return;
                     initialSession = skills.SessionId;
+                    Check(skills.NodeCount == 17 && skills.GetDefinition(QuickStrikesNode).Branch == SkillBranch.Agility,
+                        "installed-tree-with-multiple-branches");
+                    Check(!skills.CanLearn(QuickStrikesNode, out string prerequisite) && prerequisite.Contains("Endurance rank 2"),
+                        "rank-prerequisite-blocks-purchase");
                     Check(actor.HasInputAuthority && skills.LearnedMask == 0 && skills.SkillPoints == 1, "fresh-session-owned-skill-state");
                     Check(!skills.CanLearn(1, out _) && skills.MissingRequirements(1).Contains("Level"), "level-prerequisite");
                     Check(skills.MissingRequirements(2).Contains("Vitality"), "stat-prerequisite");
@@ -129,20 +248,32 @@ namespace HeroesOfDragonland.Skills
                     Check(!skills.CanActivate(2, out _), "passive-cannot-be-cast");
                     if (!runner.IsServer)
                         Check(!skills.TryActivate(0, skills.SessionId, out _) && Mathf.Approximately(skills.ModifyMeleeDamage(25), 25), "replica-cannot-apply-effects");
-                    Check(network.RequestActivate(0), "owner-requests-strike"); localStep++; break;
+                    initialStamina = actor.GetComponent<CharacterStats>().MaxStamina;
+                    Check(network.RequestLearn(EnduranceNode), "warrior-invests-in-agility"); localStep++; break;
                 case 4:
+                    if (skills.GetRank(EnduranceNode) != 1) return;
+                    Check(!skills.CanLearn(QuickStrikesNode, out _), "rank-one-does-not-unlock-rank-two-gate");
+                    Check(network.RequestLearn(EnduranceNode), "owner-requests-second-rank"); localStep++; break;
+                case 5:
+                    if (skills.GetRank(EnduranceNode) != 2) return;
+                    if (!Mathf.Approximately(actor.GetComponent<CharacterStats>().MaxStamina, initialStamina + 24)) return;
+                    Check(skills.CanLearn(QuickStrikesNode, out _), "rank-two-unlocks-node-and-stamina-replicates");
+                    Check(network.RequestActivate(0), "owner-requests-strike"); localStep++; break;
+                case 6:
                     if (skills.CooldownRemaining(0) <= 0 || actor.GetComponent<NetworkPlayerCombat>().AttackBusy
                         || actor.GetComponent<NetworkPlayerCombat>().IsBusy) return;
                     Check(actor.GetComponent<CharacterStats>().CurrentMana < actor.GetComponent<CharacterStats>().MaxMana, "mana-payment-replicated");
                     Check(!skills.CanActivate(0, out _), "cooldown-prevents-recast");
                     Check(network.RequestActivate(1), "owner-requests-guard"); localStep++; break;
-                case 5:
+                case 7:
                     if (skills.GuardRemaining <= 0) return;
                     Check(skills.CooldownRemaining(1) > 0, "defensive-effect-and-cooldown-replicated"); localStep++; break;
-                case 6:
-                    if (skills.SessionId == initialSession) return;
+                case 8:
+                    if (skills.SessionId == initialSession || !CheckAppearance(runner, actor)) return;
+                    if (verifyAppearance) Check(sawSkins, "both avatars showed armor and weapon skin on equipped meshes");
                     Check(skills.LearnedMask == 0 && skills.SkillPoints == 1 && skills.GuardRemaining == 0
-                        && skills.CooldownRemaining(0) == 0 && skills.CooldownRemaining(1) == 0, "new-session-clears-all-skills-and-cooldowns");
+                        && skills.GetRank(EnduranceNode) == 0 && skills.CooldownRemaining(0) == 0
+                        && skills.CooldownRemaining(1) == 0, "new-session-clears-all-skills-and-cooldowns");
                     complete = true; Debug.Log("[SkillsComplete] server=" + runner.IsServer); break;
             }
         }

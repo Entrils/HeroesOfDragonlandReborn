@@ -55,17 +55,25 @@ namespace HeroesOfDragonland.Multiplayer
             if (IsOpen || chest.IsOpen) { message = "Chest has already been looted."; return false; }
             // No team ownership restriction: first accepted server request wins.
             bool accepted = chest.TryInteract(player.GetComponent<Inventory>(), out message);
-            if (accepted) OpenedBy = sender;
+            if (accepted)
+            {
+                OpenedBy = sender;
+                MatchSessionData.Credit(player, new MatchStatistics { ChestsOpened = 1 });
+            }
             return accepted;
         }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         internal bool TryOpenForBot(NetworkObject actor, out string message)
         {
             message = "Chest is unavailable.";
             if (!CanMutateChest || actor == null || actor.Runner != Runner || actor.InputAuthority != PlayerRef.None
                 || !NetworkParticipant.IsAdmitted(actor) || !actor.GetComponent<NetworkTestPlayer>().IsBot || IsOpen || chest.IsOpen) return false;
             bool accepted = chest.TryInteract(actor.GetComponent<Inventory>(), out message);
-            if (accepted) OpenedByBot = actor.Id;
+            if (accepted)
+            {
+                OpenedByBot = actor.Id;
+                MatchSessionData.Credit(actor, new MatchStatistics { ChestsOpened = 1 });
+            }
             return accepted;
         }
 #endif

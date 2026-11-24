@@ -56,25 +56,30 @@ namespace HeroesOfDragonland.Multiplayer
         public string SessionId { get; private set; }
         public string RoomName { get; private set; }
         public OnlineSessionKind SessionKind { get; private set; }
+        public bool IsRankedQueue => SessionKind == OnlineSessionKind.Ranked;
         public string DisplayRoom => OnlineMatchmaking.DisplayName(SessionKind, RoomName ?? "");
         public string Region => Running && runner.SessionInfo.IsValid ? runner.SessionInfo.Region : "";
         internal void SetLobbyVisibility(bool inLobby) => lobbyAdvertised = inLobby;
         internal NetworkObject PlayerPrefab => playerPrefab;
         internal int NextParticipantNumber() => ++nextParticipant;
-        internal bool ReserveBot(int key, out HeroesOfDragonland.Teams.TeamId team) => roster.TryAssign(key, out team);
+        internal bool ReserveBot(int key, out HeroesOfDragonland.Teams.TeamId team)
+        {
+            team = HeroesOfDragonland.Teams.TeamId.Unassigned;
+            return !IsRankedQueue && roster.TryAssign(key, out team);
+        }
         internal void ReleaseBot(int key) => roster.Remove(key);
         public IEnumerable<NetworkObject> Avatars
         {
             get
             {
                 foreach (var actor in players.Values) if (actor != null && actor.IsValid) yield return actor;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                 var bots = GetComponent<DeveloperBotService>();
                 if (bots != null) foreach (var actor in bots.Avatars) yield return actor;
 #endif
             }
         }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         internal bool SimulationSpectator { get; set; }
         internal Vector2? TestInput { get; set; }
         internal bool? TestAttack { get; set; }
@@ -84,6 +89,7 @@ namespace HeroesOfDragonland.Multiplayer
         internal bool? TestParry { get; set; }
         internal Vector2? TestFacing { get; set; }
         internal bool? TestLockedOn {get;set;}
+        internal NetworkId TestBowTarget { get; set; }
 #endif
 
         private void OnDestroy()
@@ -94,8 +100,10 @@ namespace HeroesOfDragonland.Multiplayer
 
         private void Start()
         {
+            if (!TryGetComponent<HeroesOfDragonland.Platform.PlatformSessionBridge>(out _))
+                gameObject.AddComponent<HeroesOfDragonland.Platform.PlatformSessionBridge>();
             string[] args = Environment.GetCommandLineArgs();
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (Array.IndexOf(args, "-hodrSoak") >= 0) return; // The opt-in driver owns startup.
 #endif
             string mode = null, room = "dragonland-m1";
@@ -107,8 +115,9 @@ namespace HeroesOfDragonland.Multiplayer
             if (mode == "host") _ = StartSession(GameMode.Host, room);
             else if (mode == "server") _ = StartSession(GameMode.Server, room);
             else if (mode == "client") _ = StartSession(GameMode.Client, room);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             else if (mode == "quick") _ = QuickPlay();
+            else if (mode == "ranked") _ = RankedPlay();
             else if (mode == "private-host") _ = CreatePrivateMatch();
             else if (mode == "private-join") _ = JoinPrivateMatch(room);
             else if (mode == "custom-host") _ = CustomLobby(room, true);
@@ -128,7 +137,7 @@ namespace HeroesOfDragonland.Multiplayer
             bool parry = keys != null && keys.cKey.isPressed;
             bool parryTap = keys != null && keys.cKey.wasPressedThisFrame;
             bool testing = false;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             testing = TestAttack.HasValue || TestHeavyAttack.HasValue || TestParry.HasValue;
             if (TestAttack.HasValue) { light = TestAttack.Value; lightTap = false; }
             if (TestHeavyAttack.HasValue) { heavy = TestHeavyAttack.Value; heavyTap = false; }
@@ -154,6 +163,7 @@ namespace HeroesOfDragonland.Multiplayer
         }
 
         public Task StartSession(GameMode mode, string sessionName) => StartSessionCore(mode, sessionName, OnlineSessionKind.CustomLobby, false);
+        public Task RankedPlay() => StartSessionCore(GameMode.AutoHostOrClient, null, OnlineSessionKind.Ranked, false, OnlineParty.Solo);
         public Task QuickPlay() => StartSessionCore(GameMode.AutoHostOrClient, null, OnlineSessionKind.QuickPlay, false, OnlineParty.Solo);
         public Task CreatePrivateMatch() => JoinPrivateMatch(OnlineMatchmaking.NewRoomCode(), true);
         public Task JoinPrivateMatch(string code) => JoinPrivateMatch(code, false);
@@ -178,9 +188,9 @@ namespace HeroesOfDragonland.Multiplayer
             if (busy || runner != null || (reconnectLoop && !resuming))
             { RequestNotice = "A connection request is already active. Leave or cancel before joining again."; return; }
             RequestNotice = null;
-            bool searching = kind == OnlineSessionKind.QuickPlay && mode == GameMode.AutoHostOrClient && !resuming;
+            bool searching = OnlineMatchmaking.IsQueue(kind) && mode == GameMode.AutoHostOrClient && !resuming;
             bool supported = mode == GameMode.Host || mode == GameMode.Server || mode == GameMode.Client || searching;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             supported |= mode == GameMode.Single;
 #endif
             if (!supported)
@@ -226,8 +236,8 @@ namespace HeroesOfDragonland.Multiplayer
                     SessionName = RoomName,
                     PlayerCount = NetworkTeamRoster.PlayerCapacity,
                     EnableClientSessionCreation = searching,
-                    CustomLobbyName = kind == OnlineSessionKind.QuickPlay ? OnlineMatchmaking.QueueName : null,
-                    SessionProperties = searching ? OnlineMatchmaking.QuickProperties() : null,
+                    CustomLobbyName = OnlineMatchmaking.IsQueue(kind) ? OnlineMatchmaking.QueueName(kind) : null,
+                    SessionProperties = searching ? OnlineMatchmaking.QueueProperties(kind) : null,
                     ConnectionToken = connectionToken,
                     StartGameCancellationToken = joinCancellation.Token,
                     IsVisible = searching,
@@ -251,7 +261,8 @@ namespace HeroesOfDragonland.Multiplayer
                     if (SessionStarted != null) foreach (Action<NetworkRunner> handler in SessionStarted.GetInvocationList())
                         try { handler(runner); } catch (Exception e) { Debug.LogException(e, this); throw; }
                     SetConnectionState(NetworkConnectionState.Connected, resuming ? "Reconnected to the match."
-                        : searching ? (runner.IsServer ? "Quick Play lobby created." : "Quick Play lobby joined.") : "Connected.");
+                        : searching ? ((kind == OnlineSessionKind.Ranked ? "Ranked" : "Quick Play")
+                            + (runner.IsServer ? " lobby created." : " lobby joined.")) : "Connected.");
                     SetStatus(mode + " connected / " + RoomName);
                 }
             }
@@ -299,7 +310,7 @@ namespace HeroesOfDragonland.Multiplayer
 
         private async Task ReleaseRunner()
         {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             GetComponent<DeveloperBotService>()?.ReleaseSession();
 #endif
             var previous = runner;
@@ -375,7 +386,7 @@ namespace HeroesOfDragonland.Multiplayer
                 else if (Time.realtimeSinceStartup - lastServerProgress > 3 && ConnectionState == NetworkConnectionState.Connected)
                     SetConnectionState(NetworkConnectionState.Interrupted);
             }
-            if (Running && runner.IsServer && SessionKind == OnlineSessionKind.QuickPlay && runner.SessionInfo.IsValid
+            if (Running && runner.IsServer && OnlineMatchmaking.IsQueue(SessionKind) && runner.SessionInfo.IsValid
                 && runner.SessionInfo.IsVisible != lobbyAdvertised) runner.SessionInfo.IsVisible = lobbyAdvertised;
             GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>()?.SetBlocked(this,
                 ConnectionState == NetworkConnectionState.Interrupted || ConnectionState == NetworkConnectionState.Reconnecting);
@@ -409,7 +420,7 @@ namespace HeroesOfDragonland.Multiplayer
             reconnects.Expire(runner, roster, true);
             // A new identity also invalidates old reward IDs and delayed avatar RPCs.
             SessionId = Guid.NewGuid().ToString("N");
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             GetComponent<DeveloperBotService>()?.ClearAvatars();
 #endif
             var previous = new List<NetworkObject>(players.Values);
@@ -425,7 +436,7 @@ namespace HeroesOfDragonland.Multiplayer
             GetComponent<TeamSpawnService>()?.ResetReservations();
             foreach (var player in runner.ActivePlayers) pendingSpawns.Add(player);
             foreach (var player in runner.ActivePlayers) OnPlayerJoined(runner, player);
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             GetComponent<DeveloperBotService>()?.SpawnPending();
 #endif
         }
@@ -433,7 +444,7 @@ namespace HeroesOfDragonland.Multiplayer
         public void OnPlayerJoined(NetworkRunner source, PlayerRef player)
         {
             if (source != runner || !source.IsServer || players.ContainsKey(player)) return;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (SimulationSpectator && player == source.LocalPlayer) { pendingSpawns.Remove(player); return; }
 #endif
             bool active = false;
@@ -452,6 +463,7 @@ namespace HeroesOfDragonland.Multiplayer
                 resumed.GetComponent<NetworkPlayerResources>()?.ReplicateTo(player, true);
                 resumed.GetComponent<NetworkPlayerCombat>()?.ResetConnectionInput();
                 resumed.GetComponent<NetworkTestPlayer>().SetSuspended(false);
+                NetworkMatchPacing.MatchFor(source)?.SendResultReceipt(resumed);
                 pendingSpawns.Remove(player);
                 Debug.Log("[Resilience] Resumed reserved avatar " + resumed.Id + " owner=" + player);
                 return;
@@ -554,6 +566,8 @@ namespace HeroesOfDragonland.Multiplayer
             bool heavy = false, block = false;
             Vector2 facing = Vector2.zero;
             bool lockedOn=false;
+            Vector3 bowAim = Vector3.zero;
+            NetworkId bowTarget = default;
             if (source.ProvideInput && Application.isFocused && Keyboard.current != null)
             {
                 var keys = Keyboard.current;
@@ -571,19 +585,30 @@ namespace HeroesOfDragonland.Multiplayer
                 var targeting = local.GetComponent<NetworkLocalTargeting>();
                 if (targeting != null) facing = targeting.FacingIntent;
                 if(targeting!=null)lockedOn=targeting.IsLockedOn;
+                var weapon = local.GetComponent<HeroesOfDragonland.EquipmentSystem.Equipment>()?.EquippedWeapon;
+                if (weapon != null && weapon.Archetype == HeroesOfDragonland.Items.WeaponArchetype.Bow)
+                {
+                    bowAim = HeroesOfDragonland.Combat.BowAim.Read(Camera.main, local.transform, weapon.Range);
+                    if (block && !lockedOn) facing = new Vector2(bowAim.x, bowAim.z).normalized;
+                    if (lockedOn && local.GetComponent<HeroesOfDragonland.Player.TargetLock>()?.CurrentTarget
+                        ?.GetComponentInParent<NetworkObject>() is { } target && target.IsValid)
+                        bowTarget = target.Id;
+                }
             }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             if (TestInput.HasValue) move = TestInput.Value;
             if (TestAttack.HasValue) attack = TestAttack.Value;
             if (TestDodge.HasValue) dodge = TestDodge.Value;
             if (TestHeavyAttack.HasValue) heavy = TestHeavyAttack.Value;
             if (TestBlock.HasValue) block = TestBlock.Value;
             if (TestFacing.HasValue) facing = TestFacing.Value;
+            if (TestFacing is { } aim && aim.sqrMagnitude > .01f) bowAim = new Vector3(aim.x, 0, aim.y).normalized;
             if(TestLockedOn.HasValue)lockedOn=TestLockedOn.Value;
+            if (TestBowTarget != default) bowTarget = TestBowTarget;
 #endif
             input.Set(new NetworkPlayerInput { Move = Vector2.ClampMagnitude(move, 1), Attack = attack, HeavyAttack = heavy,
                 LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, ParryPress = parryPress, SuppressAttacks = suppressAttacks,
-                Block = block, Dodge = dodge, Facing = facing, LockedOn=lockedOn });
+                Block = block, Dodge = dodge, Facing = facing, LockedOn=lockedOn, BowAim = bowAim, BowTarget = bowTarget });
         }
 
         public void OnInputMissing(NetworkRunner source, PlayerRef player, NetworkInput input)
@@ -601,7 +626,7 @@ namespace HeroesOfDragonland.Multiplayer
         public void OnShutdown(NetworkRunner source, ShutdownReason reason)
         {
             if (source != runner) return;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             GetComponent<DeveloperBotService>()?.ReleaseSession();
 #endif
             players.Clear(); roster.Clear(); pendingSpawns.Clear(); reconnects.Clear();
@@ -638,7 +663,9 @@ namespace HeroesOfDragonland.Multiplayer
         public void OnSceneLoadStart(NetworkRunner source) { }
         public void OnSessionListUpdated(NetworkRunner source, List<SessionInfo> sessions) { }
         public void OnCustomAuthenticationResponse(NetworkRunner source, Dictionary<string, object> data) { }
+#pragma warning disable CS0618 // Fusion still requires this legacy callback in INetworkRunnerCallbacks.
         public void OnUserSimulationMessage(NetworkRunner source, SimulationMessagePtr message) { }
+#pragma warning restore CS0618
         public void OnObjectExitAOI(NetworkRunner source, NetworkObject obj, PlayerRef player) { }
         public void OnObjectEnterAOI(NetworkRunner source, NetworkObject obj, PlayerRef player) { }
         public void OnReliableDataReceived(NetworkRunner source, PlayerRef player, ReliableKey key, ReadOnlySpan<byte> data) { }

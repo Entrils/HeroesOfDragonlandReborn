@@ -4,6 +4,7 @@ using HeroesOfDragonland.Stats;
 using HeroesOfDragonland.Items;
 using HeroesOfDragonland.EquipmentSystem;
 using UnityEngine;
+using HeroesOfDragonland.Skills;
 
 namespace HeroesOfDragonland.Combat
 {
@@ -21,6 +22,7 @@ namespace HeroesOfDragonland.Combat
         private float damageMultiplier = 1f;
         private MeleeAttackDefinition committedDefinition;
         private WeaponDefinition committedWeapon;
+        private string committedRecapAction;
         private WeaponMove committedMove;
         private WeaponMoveset committedMoveset;
         private readonly AttackChainState chain = new AttackChainState();
@@ -111,7 +113,7 @@ namespace HeroesOfDragonland.Combat
             var gear = GetComponent<Equipment>();
             if (gear != null && !gear.CanUseEquippedWeapon(out _)) return false;
             var weapon = EquippedWeapon;
-            if (weapon != null && !weapon.TryValidate(out _)) return false;
+            if (weapon != null && (weapon.Archetype == WeaponArchetype.Bow || !weapon.TryValidate(out _))) return false;
             var moveset = weapon != null ? weapon.Moveset : null;
             if (continuation && (weapon != committedWeapon || moveset != committedMoveset || moveset == null)) return false;
             var move = moveset != null ? moveset.GetMove(heavy, index) : null;
@@ -123,11 +125,14 @@ namespace HeroesOfDragonland.Combat
             if (continuation) Finish(false);
             committedDefinition = profile;
             committedWeapon = weapon;
+            committedRecapAction = !spendStamina ? "Power Strike" : gear?.GetItem(EquipmentSlot.MainHand)?.DisplayName
+                ?? weapon?.Archetype.ToString() ?? "Unarmed strike";
             committedMove = move;
             committedMoveset = moveset;
             MoveIndex = index;
             committedTiming = move != null ? 1f / move.AttackSpeed
                 : (heavy ? profile.HeavyTimingMultiplier : 1f) / (weapon != null ? weapon.AttackSpeed : 1f);
+            committedTiming /= 1f + stats.SkillBonus(SkillEffect.AttackSpeed);
             committedHitCenter = profile.HitCenter;
             committedHitHalfExtents = profile.HitHalfExtents;
             if (weapon != null)
@@ -208,7 +213,9 @@ namespace HeroesOfDragonland.Combat
                 }
                 if (blocked) continue;
                 hitTargets.Add(receiver);
-                receiver.TakeDamage(committedDamage * damageMultiplier, gameObject);
+                float damage = committedDamage * damageMultiplier;
+                if (receiver is DamageReceiver combatReceiver) combatReceiver.TakeDamage(damage, gameObject, committedRecapAction);
+                else receiver.TakeDamage(damage, gameObject);
             }
         }
 

@@ -1,4 +1,5 @@
 using HeroesOfDragonland.Multiplayer;
+using HeroesOfDragonland.Cosmetics;
 using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Teams;
 using UnityEngine;
@@ -11,6 +12,7 @@ namespace HeroesOfDragonland.Presentation
     {
         [SerializeField] private CharacterVisual visual;
         private NetworkTestPlayer player;
+        private CharacterAppearanceVisual appearance;
         private NetworkPlayerCombat combat;
         private NetworkPlayerDodge dodge;
         private NetworkCharacterStats stats;
@@ -24,6 +26,7 @@ namespace HeroesOfDragonland.Presentation
             player = GetComponent<NetworkTestPlayer>(); combat = GetComponent<NetworkPlayerCombat>();
             dodge = GetComponent<NetworkPlayerDodge>(); stats = GetComponent<NetworkCharacterStats>();
             animationState=GetComponent<NetworkCharacterAnimationState>();
+            appearance = visual != null ? visual.GetComponent<CharacterAppearanceVisual>() : null;
         }
         private void OnEnable() => sampled = false;
         private void LateUpdate()
@@ -82,6 +85,10 @@ namespace HeroesOfDragonland.Presentation
                     state.ActionSequence=animationState!=null?animationState.DeathTick:0;break;
             }
             visual.Apply(state, Time.deltaTime);
+            appearance?.Apply(player.Appearance);
+            if (!state.Dead && player.CosmeticState != 0
+                && NetworkMatchPacing.MatchFor(player.Runner) is { State: MatchPhase.Finished } match && match.Winner == player.Team)
+                CosmeticPresentation.Pose(visual, player.Cosmetics.Get(CosmeticCategory.VictoryPose)?.Gesture ?? VictoryGesture.None);
             if (shownTeam != player.Team)
             {
                 shownTeam = player.Team;

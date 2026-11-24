@@ -13,6 +13,7 @@ namespace HeroesOfDragonland.UI
     {
         private readonly Dictionary<NetworkId, int> campCompletions = new();
         private NetworkChestInteractor chest;
+        private NetworkInventory deployables;
         private LocalGameplayInputGate inputGate;
         private int lastLevel, contextRound = -1;
         private float kingAHealth = -1, kingBHealth = -1, kingWarningUntil, nextCampCheck, feedbackUntil;
@@ -27,6 +28,9 @@ namespace HeroesOfDragonland.UI
             if (chest != null) chest.InteractionResolved -= OnInteraction;
             chest = value != null ? value.GetComponent<NetworkChestInteractor>() : null;
             if (chest != null) chest.InteractionResolved += OnInteraction;
+            if (deployables != null) deployables.DeployableResolved -= OnInteraction;
+            deployables = value != null ? value.GetComponent<NetworkInventory>() : null;
+            if (deployables != null) deployables.DeployableResolved += OnInteraction;
             inputGate = bootstrap != null ? bootstrap.GetComponent<LocalGameplayInputGate>() : null;
             lastLevel = 0;
             lowStamina = false;

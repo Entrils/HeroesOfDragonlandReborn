@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.World
         private InventorySlot[] pending = Array.Empty<InventorySlot>();
         private bool processing;
         private bool networkLootRolled;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private string simulationRollId;
         private long simulationRollAmount;
 #endif
@@ -73,7 +73,7 @@ namespace HeroesOfDragonland.World
                     {
                         if (!lootTable.TryRoll(new System.Random(Guid.NewGuid().GetHashCode()), out pending, out message)) return false;
                         networkLootRolled = true;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                         simulationRollId = Guid.NewGuid().ToString("N");
                         foreach (var reward in pending) simulationRollAmount += reward.Amount;
                         HeroesOfDragonland.Multiplayer.MatchSimulationLootAudit.Roll(simulationRollId, simulationRollAmount);
@@ -84,7 +84,7 @@ namespace HeroesOfDragonland.World
                         claimant = player;
                         IsOpen = true;
                         Revision++;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                         HeroesOfDragonland.Multiplayer.MatchSimulationLootAudit.Claim(simulationRollId, simulationRollAmount, player.name);
 #endif
                         Changed?.Invoke();
@@ -98,7 +98,7 @@ namespace HeroesOfDragonland.World
                         IsOpen = true;
                         Revision++;
                         // Commit replicated state before inventory observers can reenter.
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                         HeroesOfDragonland.Multiplayer.MatchSimulationLootAudit.Claim(simulationRollId, simulationRollAmount, player.name);
 #endif
                         Changed?.Invoke();

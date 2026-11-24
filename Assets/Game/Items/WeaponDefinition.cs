@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace HeroesOfDragonland.Items
 {
-    public enum WeaponArchetype { Sword = 0, Greatsword = 1, Spear = 2, Staff = 3 }
+    public enum WeaponArchetype { Sword = 0, Greatsword = 1, Spear = 2, Staff = 3, Bow = 4 }
 
     [Serializable]
     public struct WeaponScalingPlaceholder
@@ -33,6 +33,7 @@ namespace HeroesOfDragonland.Items
         [SerializeField] private WeaponAttackAnimationSet attackAnimationSet;
         [SerializeField] private HeroesOfDragonland.Combat.WeaponMoveset moveset;
         [SerializeField] private GameObject weaponPrefab;
+        [SerializeField] private BowProfile bow;
 
         public WeaponArchetype Archetype => archetype;
         public HeroesOfDragonland.Combat.WeaponMoveset Moveset => moveset;
@@ -44,12 +45,16 @@ namespace HeroesOfDragonland.Items
         public IReadOnlyList<WeaponScalingPlaceholder> ScalingPlaceholders => Array.AsReadOnly(scalingPlaceholders ?? Array.Empty<WeaponScalingPlaceholder>());
         public WeaponAttackAnimationSet AttackAnimationSet => attackAnimationSet;
         public GameObject WeaponPrefab => weaponPrefab;
+        public BowProfile Bow => bow;
         public bool TryValidate(out string error)
         {
             if (!Enum.IsDefined(typeof(WeaponArchetype), archetype)) error = "Unknown weapon archetype.";
             else if (!Finite(baseDamage, 0) || !Finite(staminaCost, 0) || !Finite(attackSpeed, 0.05f) || !Finite(range, 0.1f))
                 error = "Weapon damage, stamina, speed and range must be finite and within their allowed ranges.";
-            else if (moveset != null ? !moveset.TryValidate(out _) : attackAnimationSet == null || !attackAnimationSet.TryValidate(out _)) error = "Weapon requires a valid moveset or legacy attack set.";
+            else if (archetype == WeaponArchetype.Bow && (bow == null || !bow.IsValid || moveset != null))
+                error = "Bow requires a valid ranged profile and uses no melee moveset.";
+            else if (archetype != WeaponArchetype.Bow && (moveset != null ? !moveset.TryValidate(out _) : attackAnimationSet == null || !attackAnimationSet.TryValidate(out _)))
+                error = "Weapon requires a valid moveset or legacy attack set.";
             else if (weaponPrefab == null) error = "Weapon prefab is required.";
             else
             {

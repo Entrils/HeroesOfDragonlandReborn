@@ -1,5 +1,6 @@
 using System;
 using HeroesOfDragonland.Items;
+using HeroesOfDragonland.Multiplayer;
 using UnityEngine;
 
 namespace HeroesOfDragonland.InventorySystem
@@ -15,7 +16,17 @@ namespace HeroesOfDragonland.InventorySystem
         public bool HasAuthority => GetComponent<IInventoryAuthority>()?.CanMutateInventory ?? hasAuthority;
         public ItemCatalog Catalog => catalog;
         internal bool TryDeposit(InventorySlot[] rewards, Action<InventorySlot[]> commitRemainder, bool requireAll = false)
-            => HasAuthority && State.TryDeposit(rewards, commitRemainder, requireAll);
+        {
+            if (!HasAuthority) return false;
+            return State.TryDeposit(rewards, remaining =>
+            {
+                long added = 0;
+                foreach (var reward in rewards) added += reward.Amount;
+                foreach (var reward in remaining) added -= reward.Amount;
+                MatchSessionData.Credit(this, new MatchStatistics { ItemsAcquired = added });
+                commitRemainder(remaining);
+            }, requireAll);
+        }
         public bool TryResolveItem(string id, out ItemDefinition item)
         {
             item = null;
@@ -47,7 +58,12 @@ namespace HeroesOfDragonland.InventorySystem
         public InventorySlot GetSlot(int index) => State.GetSlot(index);
         public long GetAmount(string id) => State.GetAmount(id);
         public bool CanAdd(string id, int amount = 1) => State.CanAdd(id, amount);
-        public bool TryAdd(string id, int amount = 1) => HasAuthority && State.TryAdd(id, amount);
+        public bool TryAdd(string id, int amount = 1)
+        {
+            if (!HasAuthority || !State.TryAdd(id, amount)) return false;
+            MatchSessionData.Credit(this, new MatchStatistics { ItemsAcquired = amount });
+            return true;
+        }
         public bool TryAdd(ItemDefinition item, int amount = 1) => item != null && TryAdd(item.Id, amount);
         public bool TryRemove(string id, int amount = 1) => HasAuthority && State.TryRemove(id, amount);
         public bool TryRemove(ItemDefinition item, int amount = 1) => item != null && TryRemove(item.Id, amount);

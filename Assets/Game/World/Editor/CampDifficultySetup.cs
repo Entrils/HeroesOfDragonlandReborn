@@ -86,7 +86,7 @@ namespace HeroesOfDragonland.World.Editor
 
         private static void ConfigureAnchors()
         {
-            var spawner = UnityEngine.Object.FindFirstObjectByType<NetworkCampSpawner>();
+            var spawner = UnityEngine.Object.FindAnyObjectByType<NetworkCampSpawner>();
             Edit(spawner, data => {
                 var entries = data.FindProperty("entries");
                 entries.arraySize = 11;
@@ -98,10 +98,10 @@ namespace HeroesOfDragonland.World.Editor
                     if (i >= 8) entry.FindPropertyRelative("localPosition").vector3Value = i == 8 ? Vector3.zero : new Vector3(0, 0, i == 9 ? 18 : -18);
                     if (i >= 8) entry.FindPropertyRelative("yaw").floatValue = i == 10 ? 180 : 0;
                     string markerName = "Camp " + (i + 1) + " |";
-                    var marker = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None).FirstOrDefault(t => t.name.StartsWith(markerName));
+                    var marker = UnityEngine.Object.FindObjectsByType<Transform>().FirstOrDefault(t => t.name.StartsWith(markerName));
                     if (marker == null)
                     {
-                        var template = UnityEngine.Object.FindObjectsByType<Transform>(FindObjectsSortMode.None).First(t => t.name.StartsWith("Camp 9 |"));
+                        var template = UnityEngine.Object.FindObjectsByType<Transform>().First(t => t.name.StartsWith("Camp 9 |"));
                         marker = UnityEngine.Object.Instantiate(template, template.parent);
                         Undo.RegisterCreatedObjectUndo(marker.gameObject, "Add Tier 3 camp marker");
                     }

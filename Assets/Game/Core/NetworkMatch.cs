@@ -1,5 +1,6 @@
 using System;
 using Fusion;
+using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Profiles;
 using HeroesOfDragonland.Teams;
 using UnityEngine;
@@ -46,7 +47,18 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public NetworkId TeamBKingId { get; private set; }
         private readonly OnlineLobbyState lobby = new();
         private readonly MatchSessionData profileRound = new();
-        private bool pendingProfileResults;
+        private readonly MatchCombatAttribution attribution = new();
+        private bool pendingResults;
+        private int rankedStartHumans;
+        [Networked] private NetworkBool DetailedResultRated { get; set; }
+        [Networked] private NetworkString<_32> DetailedResultId { get; set; }
+        [Networked] private int DetailedResultRound { get; set; }
+        [Networked] private TeamId DetailedResultWinner { get; set; }
+        [Networked] private float DetailedResultDuration { get; set; }
+        [Networked] private int DetailedResultCount { get; set; }
+        [Networked, Capacity(NetworkTeamRoster.PlayerCapacity)] private NetworkArray<MatchPlayerResult> DetailedResultRows => default;
+        public MatchResult LatestResult { get; private set; }
+        public event Action<MatchResult> DetailedResultPublished;
         [Networked] public NetworkBool AllowShortMatch { get; private set; }
         public bool LocalReady
         {
@@ -65,8 +77,9 @@ namespace HeroesOfDragonland.Multiplayer
                     if (!slot.IsBot) humans++;
                     if (slot.Team == TeamId.TeamA) a++; else if (slot.Team == TeamId.TeamB) b++;
                 }
+                if (bootstrap.IsRankedQueue && (humans != NetworkTeamRoster.PlayerCapacity || Balance == null || !Balance.RankedRating.IsValid)) return false;
                 bool participantsAllowed = humans > 0;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                 participantsAllowed |= bootstrap != null && bootstrap.SimulationSpectator;
 #endif
                 return participantsAllowed && MatchLifecycleRules.HasEnoughPlayers(a, b, AllowShortMatch ? 2 : 6);
@@ -93,8 +106,8 @@ namespace HeroesOfDragonland.Multiplayer
 
         public bool SetShortMatch(bool allow)
         {
-            if (!IsServerOwner || State != MatchPhase.Lobby) return false;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+            if (!IsServerOwner || State != MatchPhase.Lobby || bootstrap.IsRankedQueue) return false;
+#if UNITY_EDITOR || DEBUG
             if (AllowShortMatch != allow) lobby.ClearReady();
             AllowShortMatch = allow;
             RequiredPlayers = allow ? 2 : 6;
@@ -148,7 +161,7 @@ namespace HeroesOfDragonland.Multiplayer
         public override void FixedUpdateNetwork()
         {
             if (!IsServerOwner) return;
-            if (pendingProfileResults) PublishProfiles();
+            if (pendingResults) PublishDetailedResult();
             RefreshLobby();
             switch (State)
             {
@@ -162,7 +175,18 @@ namespace HeroesOfDragonland.Multiplayer
                     break;
                 case MatchPhase.Starting:
                     if (!EnoughConnections) BeginReturn();
-                    else if (EnoughPlayers && PhaseTimer.Expired(Runner)) SetPhase(MatchPhase.Playing);
+                    else if (EnoughPlayers && PhaseTimer.Expired(Runner))
+                    {
+                        foreach (var avatar in bootstrap.Avatars) profileRound.Include(avatar);
+                        var (a, b) = CountRankedHumans();
+                        rankedStartHumans = a == NetworkTeamRoster.TeamCapacity && b == NetworkTeamRoster.TeamCapacity ? a + b : 0;
+                        if (bootstrap.IsRankedQueue && rankedStartHumans != NetworkTeamRoster.PlayerCapacity)
+                        {
+                            BeginReturn();
+                            break;
+                        }
+                        SetPhase(MatchPhase.Playing);
+                    }
                     break;
                 case MatchPhase.Playing:
                     PlayingSeconds += Runner.DeltaTime;
@@ -200,14 +224,14 @@ namespace HeroesOfDragonland.Multiplayer
         private void RefreshLobby()
         {
             int botCount = 0;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             botCount = bootstrap.GetComponent<DeveloperBotService>()?.SpawnedCount ?? 0;
 #endif
             lobby.Observe(Runner.ActivePlayers, botCount);
             int index = 0, a = 0, b = 0;
             foreach (var player in Runner.ActivePlayers)
             {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                 if (bootstrap.SimulationSpectator && player == Runner.LocalPlayer) continue;
 #endif
                 if (index >= NetworkTeamRoster.PlayerCapacity) break;
@@ -218,7 +242,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (ready && team == TeamId.TeamA) a++;
                 if (ready && team == TeamId.TeamB) b++;
             }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             var bots = bootstrap.GetComponent<DeveloperBotService>();
             if (bots != null) foreach (var avatar in bots.Avatars)
             {
@@ -249,8 +273,10 @@ namespace HeroesOfDragonland.Multiplayer
             if (balance != null && !balance.TryValidate(out var balanceError))
             { PreparationError = balanceError; return; }
             PlayingSeconds = 0;
+            rankedStartHumans = 0;
             profileRound.Begin(Guid.NewGuid().ToString("N"));
-            pendingProfileResults = false;
+            attribution.Clear();
+            pendingResults = false;
             RoundNumber++; FinishCount = 0; MatchEnded = false; Winner = TeamId.Unassigned;
             SetPhase(MatchPhase.Starting, lifecycle.StartingDelay);
             try
@@ -323,44 +349,114 @@ namespace HeroesOfDragonland.Multiplayer
             MatchEnded = true;
             // DamageTaken follows the King's death callback. Publish on the next tick
             // so the fatal hit can still credit its attacker.
-            pendingProfileResults = true;
+            pendingResults = true;
             SetPhase(MatchPhase.Finished, lifecycle.FinishedDelay);
             NotifyObservers();
             return true;
         }
-        internal void CreditProfile(NetworkObject avatar, MatchSessionData.Metric metric)
+        internal void RecordCombatDamage(NetworkObject victim, GameObject source, string action, float amount, bool lethal)
         {
-            if (!IsServerOwner || profileRound.RoundId == null || avatar.Runner != Runner
-                || !NetworkParticipant.IsAdmitted(avatar) || avatar.InputAuthority == PlayerRef.None
-                || (State != MatchPhase.Playing && !(State == MatchPhase.Finished && pendingProfileResults && metric == MatchSessionData.Metric.King))) return;
-            profileRound.Add(avatar.Id, metric);
-        }
-        private void PublishProfiles()
-        {
-            pendingProfileResults = false;
-            foreach (var player in Runner.ActivePlayers)
+            if (IsServerOwner && CanPlay && victim != null && victim.IsValid && victim.HasStateAuthority && victim.Runner == Runner)
             {
-                if (!Runner.TryGetPlayerObject(player, out var avatar) || !NetworkParticipant.IsAdmitted(avatar)
-                    || !avatar.TryGetComponent<NetworkTestPlayer>(out var participant)
-                    || (participant.Team != TeamId.TeamA && participant.Team != TeamId.TeamB)) continue;
-                var counters = profileRound.For(avatar.Id);
-                RPC_ProfileResult(player, profileRound.RoundId, participant.Team == Winner,
-                    counters.Kills, counters.Deaths, counters.Camps, counters.Kings, counters.Bosses);
+                attribution.Record(victim, source, amount, lethal, this, out var killer, out var assistants);
+                if (victim.TryGetComponent<NetworkPlayerRespawn>(out var respawn) && NetworkParticipant.IsAdmitted(victim))
+                    respawn.RecordRecapHit(source, action, amount, lethal, killer, assistants);
             }
         }
+
+        internal void ForgetCombatTarget(NetworkId victim)
+        {
+            if (IsServerOwner) attribution.Forget(victim);
+        }
+
+        internal void CreditMatch(NetworkObject avatar, MatchStatistics delta)
+        {
+            if (!IsServerOwner || profileRound.RoundId == null || avatar.Runner != Runner
+                || !NetworkParticipant.IsAdmitted(avatar)
+                || (State != MatchPhase.Playing && !(pendingResults && delta.KingDamage > 0f))) return;
+            profileRound.Add(avatar, delta);
+        }
+
+        private (int A, int B) CountRankedHumans()
+        {
+            if (!bootstrap.IsRankedQueue) return default;
+            int a = 0, b = 0;
+            foreach (var owner in Runner.ActivePlayers)
+            {
+                if (!Runner.TryGetPlayerObject(owner, out var avatar) || !NetworkParticipant.IsAdmitted(avatar)
+                    || profileRound.For(avatar.Id).ParticipantNumber == 0
+                    || !avatar.TryGetComponent<NetworkTestPlayer>(out var player) || player.IsBot) continue;
+                if (player.Team == TeamId.TeamA) a++;
+                if (player.Team == TeamId.TeamB) b++;
+            }
+            return (a, b);
+        }
+
+        private void PublishDetailedResult()
+        {
+            pendingResults = false;
+            var rows = profileRound.Snapshot();
+            DetailedResultCount = rows.Length;
+            for (int i = 0; i < DetailedResultCount; i++) DetailedResultRows.Set(i, rows[i]);
+            DetailedResultRound = RoundNumber;
+            DetailedResultWinner = Winner;
+            DetailedResultDuration = PlayingSeconds;
+            var (a, b) = CountRankedHumans();
+            DetailedResultRated = balance != null && balance.RankedRating.IsValid
+                && RankedMatchRules.IsRated(bootstrap.IsRankedQueue, MatchEnded && FinishCount == 1
+                    && (Winner is TeamId.TeamA or TeamId.TeamB), rankedStartHumans, a, b);
+            DetailedResultId = profileRound.RoundId;
+
+            foreach (var player in Runner.ActivePlayers)
+            {
+                if (Runner.TryGetPlayerObject(player, out var avatar)) SendResultReceipt(avatar);
+            }
+        }
+
+        internal void SendResultReceipt(NetworkObject avatar)
+        {
+            if (!IsServerOwner || pendingResults || State != MatchPhase.Finished || !NetworkParticipant.IsAdmitted(avatar)
+                || avatar.InputAuthority == PlayerRef.None) return;
+            var row = profileRound.For(avatar.Id);
+            if (row.ParticipantNumber == 0) return;
+            var rating = DetailedResultRated ? balance.RankedRating : default;
+            RPC_ProfileResult(avatar.InputAuthority, DetailedResultId, row.Team == DetailedResultWinner, DetailedResultDuration, row.Statistics,
+                DetailedResultRated, rating.StartingRating, rating.WinPoints, rating.LossPoints, rating.ProvisionalMatches);
+        }
+
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
         private void RPC_ProfileResult([RpcTarget] PlayerRef recipient, NetworkString<_32> id, bool won,
-            int kills, int deaths, int camps, int kings, int bosses)
+            float duration, MatchStatistics statistics, bool rated, int startingRating, int winPoints, int lossPoints, int provisionalMatches)
         {
             if (recipient == PlayerRef.None || recipient != Runner.LocalPlayer || !LocalPlayerProfile.WriteMatchTotals) return;
             var profile = LocalPlayerProfile.Current;
-            if (!profile.RecordRound(id.ToString(), won, kills, deaths, camps, kings, bosses)) return;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-            if (LocalPlayerProfile.IsTestProfile) Debug.Log("[ProfileCheck] Recorded matches=" + profile.Data.Totals.Matches);
+            RankedRatingSettings? settings = rated && bootstrap.IsRankedQueue
+                ? new RankedRatingSettings(startingRating, winPoints, lossPoints, provisionalMatches) : null;
+            if (!profile.RecordRound(id.ToString(), won, duration, statistics, settings)) return;
+#if UNITY_EDITOR || DEBUG
+            if (LocalPlayerProfile.IsTestProfile)
+            {
+                Debug.Log("[ProfileCheck] Recorded matches=" + profile.Data.Totals.Matches);
+                var ranked = profile.Data.Ranked;
+                Debug.Log($"[RankedCheck] rated={rated} rating={ranked.Rating} matches={ranked.MatchesPlayed} wins={ranked.Wins} losses={ranked.Losses}");
+            }
 #endif
         }
+        private void ObserveDetailedResult()
+        {
+            string id = DetailedResultId.ToString();
+            if (id.Length == 0 || LatestResult?.Id == id) return;
+            var rows = new MatchPlayerResult[DetailedResultCount];
+            for (int i = 0; i < rows.Length; i++) rows[i] = DetailedResultRows[i];
+            LatestResult = new MatchResult(id, DetailedResultRound, DetailedResultWinner, DetailedResultDuration, rows, DetailedResultRated);
+            if (DetailedResultPublished != null)
+                foreach (Action<MatchResult> handler in DetailedResultPublished.GetInvocationList())
+                    try { handler(LatestResult); } catch (Exception exception) { Debug.LogException(exception, this); }
+        }
+
         private void NotifyObservers()
         {
+            ObserveDetailedResult();
             if (observedState != StateSequence)
             {
                 observedState = StateSequence;

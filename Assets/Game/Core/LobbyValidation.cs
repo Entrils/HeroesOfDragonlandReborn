@@ -27,7 +27,7 @@ namespace HeroesOfDragonland.Multiplayer
         public static async void Run()
         {
             checks = 0;
-            var b = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+            var b = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
             try
             {
                 var bots = b.GetComponent<DeveloperBotService>();

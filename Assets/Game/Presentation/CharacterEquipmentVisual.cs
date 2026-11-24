@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using HeroesOfDragonland.Items;
+using HeroesOfDragonland.Cosmetics;
 using HeroesOfDragonland.Multiplayer;
 using UnityEngine;
 
@@ -12,8 +13,11 @@ namespace HeroesOfDragonland.Presentation
         [SerializeField] private EquipmentVisualCatalog visualCatalog;
         [SerializeField] private Renderer hairRenderer;
         private EquipmentVisualHooks equipment;
+        private CharacterAppearanceVisual appearance;
         private NetworkTestPlayer player;
         private bool stowed;
+        private CosmeticVisualLoadout cosmetics;
+        private MaterialPropertyBlock skinProperties;
         private bool dirty, wasSuspended;
         private readonly Dictionary<EquipmentSlot, SlotView> views = new();
         private sealed class SlotView
@@ -23,6 +27,7 @@ namespace HeroesOfDragonland.Presentation
             internal GameObject WeaponPrefab;
             internal CharacterSocket Socket;
             internal bool Weapon;
+            internal CosmeticDefinition Skin;
             internal readonly List<GameObject> Parts = new();
         }
         public EquipmentVisualCatalog Catalog => visualCatalog;
@@ -39,6 +44,7 @@ namespace HeroesOfDragonland.Presentation
         {
             equipment ??= GetComponent<EquipmentVisualHooks>();
             if (visual == null) visual = GetComponentInChildren<CharacterVisual>(true);
+            appearance = visual != null ? visual.GetComponent<CharacterAppearanceVisual>() : null;
             stowed = false;
             equipment.VisualChanged += Changed;
             Refresh();
@@ -72,11 +78,18 @@ namespace HeroesOfDragonland.Presentation
                 wasSuspended = suspended;
                 if (!suspended) dirty = true;
             }
-            if (!suspended && dirty) Refresh();
+            if (suspended) return;
+            if (player != null && player.Object != null && player.Object.IsValid
+                && cosmetics.Packed != player.CosmeticState)
+            {
+                cosmetics = player.Cosmetics;
+                foreach (var view in views.Values) ApplySkin(view);
+            }
+            if (dirty) Refresh();
         }
         private void Clear(EquipmentSlot slot)
         {
-            if (slot == EquipmentSlot.Head && hairRenderer != null) hairRenderer.forceRenderingOff = false;
+            if (slot == EquipmentSlot.Head) SetHelmet(false);
             if (!views.Remove(slot, out var previous)) return;
             if (previous.Weapon && visual != null && visual.GetAttachment(previous.Socket) == previous.Parts[0])
                 visual.ClearAttachment(previous.Socket);
@@ -132,7 +145,24 @@ namespace HeroesOfDragonland.Presentation
                 }
             }
             views[slot] = next;
-            if (slot == EquipmentSlot.Head && hairRenderer != null) hairRenderer.forceRenderingOff = true;
+            if (cosmetics.Packed != 0) ApplySkin(next);
+            if (slot == EquipmentSlot.Head) SetHelmet(true);
+        }
+
+        private void ApplySkin(SlotView view)
+        {
+            var skin = cosmetics.Get(view.Weapon ? CosmeticCategory.WeaponSkin : CosmeticCategory.ArmorSkin);
+            if (view.Skin == skin) return;
+            view.Skin = skin;
+            skinProperties ??= new MaterialPropertyBlock();
+            foreach (var part in view.Parts)
+                CosmeticPresentation.Tint(part, skin?.Color ?? Color.white, skinProperties);
+        }
+
+        private void SetHelmet(bool equipped)
+        {
+            if (appearance != null) appearance.SetHelmet(equipped);
+            else if (hairRenderer != null) hairRenderer.forceRenderingOff = equipped;
         }
         // Local presentation hook only. No replicated stow action or inventory mutation is introduced.
         public void SetWeaponStowed(bool value)

@@ -27,7 +27,9 @@ namespace HeroesOfDragonland.Combat
         private void OnEnable() => stats.Died += HandleDeath;
         private void OnDisable() => stats.Died -= HandleDeath;
 
-        public float TakeDamage(float amount, GameObject source)
+        public float TakeDamage(float amount, GameObject source) => TakeDamage(amount, source, null);
+
+        internal float TakeDamage(float amount, GameObject source, string action)
         {
             if (!IsAlive || !HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject)) return 0f;
             foreach (var policy in GetComponents<IDamagePolicy>())
@@ -48,7 +50,7 @@ namespace HeroesOfDragonland.Combat
             if (TryGetComponent<NetworkInventory>(out var defenderInventory))
                 amount *= defenderInventory.IncomingPotionMultiplier;
             if (blocked) amount = defense.BlockDamage(amount);
-            float applied = stats.ApplyDamage(amount);
+            float applied = stats.ApplyDamage(amount, source, action);
             if (applied > 0 && !blocked && defense != null)
             {
                 if (impact != null) defense.ApplyPoiseDamage(impact.PoiseDamage);

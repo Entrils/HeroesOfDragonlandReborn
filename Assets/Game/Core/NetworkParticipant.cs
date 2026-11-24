@@ -15,7 +15,7 @@ namespace HeroesOfDragonland.Multiplayer
                 foreach (var player in actor.Runner.ActivePlayers) if (player == actor.InputAuthority) { active = true; break; }
                 return active && actor.Runner.TryGetPlayerObject(actor.InputAuthority, out var owner) && owner == actor;
             }
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             var bots = actor.Runner.GetComponentInParent<DeveloperBotService>();
             return bots != null && bots.Contains(actor);
 #else

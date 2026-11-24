@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using HeroesOfDragonland.Multiplayer;
@@ -14,12 +14,12 @@ namespace HeroesOfDragonland.Presentation
     // Opt-in real host/client acceptance. Ordinary sessions never install this component.
     public sealed class CharacterVisualNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
             if(!Environment.GetCommandLineArgs().Contains("-hodrHumanoidCheck"))return;
-            var bootstrap=FindFirstObjectByType<MultiplayerBootstrap>();
+            var bootstrap=FindAnyObjectByType<MultiplayerBootstrap>();
             if(bootstrap!=null)bootstrap.gameObject.AddComponent<CharacterVisualNetworkProbe>();
         }
         private MultiplayerBootstrap bootstrap;
@@ -31,7 +31,7 @@ namespace HeroesOfDragonland.Presentation
         {
             var runner=bootstrap.Runner;
             if(runner==null||!runner.IsRunning||!NetworkMatch.AllowsGameplay(runner))return;
-            var actors=FindObjectsByType<NetworkTestPlayer>(FindObjectsSortMode.None).Where(p=>p.Object!=null&&p.Object.IsValid&&p.Runner==runner).ToArray();
+            var actors=FindObjectsByType<NetworkTestPlayer>().Where(p=>p.Object!=null&&p.Object.IsValid&&p.Runner==runner).ToArray();
             if(actors.Count(p=>!p.IsBot)<2)return;
             if(began<0)began=Time.realtimeSinceStartup;
             float age=Time.realtimeSinceStartup-began;

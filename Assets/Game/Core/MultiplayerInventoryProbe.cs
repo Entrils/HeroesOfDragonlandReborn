@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using Fusion;
@@ -13,7 +13,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Enabled only by a development command-line flag; no item grant RPC exists.
     public sealed class MultiplayerInventoryProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [SerializeField] private ItemDefinition sword;
         [SerializeField] private ItemDefinition potion;
         [SerializeField] private ItemDefinition dragon;

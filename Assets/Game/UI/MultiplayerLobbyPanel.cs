@@ -3,6 +3,9 @@ using HeroesOfDragonland.Player;
 using HeroesOfDragonland.UI;
 using HeroesOfDragonland.World;
 using HeroesOfDragonland.Profiles;
+using HeroesOfDragonland.Platform;
+using HeroesOfDragonland.Presentation;
+using HeroesOfDragonland.Cosmetics;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -12,7 +15,7 @@ namespace HeroesOfDragonland.Multiplayer
     public sealed class MultiplayerLobbyPanel : MonoBehaviour
     {
         [SerializeField] private string room = "dragonland";
-        private static readonly string[] OnlineTabs = { "Quick Play", "Private Match", "Custom Lobby" };
+        private static readonly string[] OnlineTabs = { "Unranked", "Ranked", "Private Match", "Custom Lobby" };
         private int onlineTab;
         private string roomCode = "";
         private MultiplayerBootstrap bootstrap;
@@ -23,7 +26,10 @@ namespace HeroesOfDragonland.Multiplayer
         private bool settingsOpen, quitting;
         private bool profileOpen;
         private string profileName;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+        private CharacterCustomizationMenu customization;
+        private CosmeticCollectionMenu collection;
+        private readonly MatchResultsScreen results = new();
+#if UNITY_EDITOR || DEBUG
         private PlaytestDiagnostics diagnostics;
 #endif
         private void Awake()
@@ -31,7 +37,7 @@ namespace HeroesOfDragonland.Multiplayer
             bootstrap = GetComponent<MultiplayerBootstrap>();
             settings = GetComponent<PlaytestSettings>();
             inputGate = GetComponent<LocalGameplayInputGate>();
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
             diagnostics = GetComponent<PlaytestDiagnostics>();
 #endif
         }
@@ -62,7 +68,20 @@ namespace HeroesOfDragonland.Multiplayer
             }
         }
 
-        private void OnDisable() => SetSettingsOpen(false);
+        private void OnDisable()
+        {
+            SetSettingsOpen(false);
+            CloseCustomization();
+            results.Close();
+        }
+
+        private void CloseCustomization()
+        {
+            customization?.Dispose();
+            customization = null;
+            collection?.Dispose();
+            collection = null;
+        }
         private void OnGUI()
         {
             if (Application.isBatchMode) return;
@@ -70,14 +89,25 @@ namespace HeroesOfDragonland.Multiplayer
             bool valid = match != null && match.Object != null && match.Object.IsValid;
             bool inMatch = bootstrap.Running && valid && match.State != MatchPhase.Lobby
                 && bootstrap.ConnectionState == NetworkConnectionState.Connected;
+            int localParticipant = 0;
+            if (valid && match.LatestResult != null && bootstrap.Runner.TryGetPlayerObject(bootstrap.Runner.LocalPlayer, out var avatar))
+                localParticipant = avatar.GetComponent<NetworkTestPlayer>()?.ParticipantNumber ?? 0;
+            if (valid) results.Observe(match.LatestResult, match.State == MatchPhase.Finished, localParticipant);
+            if (valid && match.CanPlay) results.Close();
+            if (results.IsOpen)
+            {
+                results.Draw();
+                return;
+            }
             if (inMatch && !settingsOpen)
             {
                 var camera = Camera.main;
-                if (camera != null && camera.TryGetComponent<HeroesOfDragonland.World.BattlefieldCamera>(out var battlefield) && battlefield.IsCaptured)
+                if (match.CanPlay && camera != null && camera.TryGetComponent<HeroesOfDragonland.World.BattlefieldCamera>(out var battlefield) && battlefield.IsCaptured)
                     return;
-                GUILayout.BeginArea(new Rect(Screen.width - 224, 24, 208, 164), GUI.skin.box);
+                GUILayout.BeginArea(new Rect(Screen.width - 224, 24, 208, 194), GUI.skin.box);
                 if (match.CanPlay) GUILayout.Label("Press Enter to resume");
                 if (settings != null && GUILayout.Button("Settings")) SetSettingsOpen(true);
+                if (results.HasResult && GUILayout.Button("Match results")) results.Open();
                 if (GUILayout.Button("Leave match") && !bootstrap.Busy) _ = bootstrap.Disconnect();
                 if (GUILayout.Button("Quit game")) Quit();
                 GUILayout.EndArea();
@@ -93,7 +123,15 @@ namespace HeroesOfDragonland.Multiplayer
             scroll = GUILayout.BeginScrollView(scroll);
             if (profileOpen)
             {
-                DrawProfile();
+                if (customization != null)
+                {
+                    if (customization.Draw()) CloseCustomization();
+                }
+                else if (collection != null)
+                {
+                    if (collection.Draw()) CloseCustomization();
+                }
+                else DrawProfile();
                 GUILayout.EndScrollView();
                 GUILayout.EndArea();
                 return;
@@ -102,7 +140,7 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 GUILayout.Label("Settings");
                 settings.Draw();
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
                 if (diagnostics != null)
                     diagnostics.SetRecording(GUILayout.Toggle(diagnostics.Recording, "Record playtest diagnostics"));
 #endif
@@ -124,7 +162,7 @@ namespace HeroesOfDragonland.Multiplayer
             GUI.enabled = !bootstrap.Busy;
             if (!bootstrap.Running)
             {
-                if (GUILayout.Button("Profile · " + LocalPlayerProfile.Current.Data.DisplayName))
+                if (GUILayout.Button("Profile · " + GamePlatform.DisplayName))
                 {
                     profileName = LocalPlayerProfile.Current.Data.DisplayName;
                     profileOpen = true;
@@ -146,12 +184,17 @@ namespace HeroesOfDragonland.Multiplayer
                         if (GUILayout.Button("Find match")) _ = bootstrap.QuickPlay();
                         break;
                     case 1:
+                        DrawRankedRating(LocalPlayerProfile.Current.Data.Ranked);
+                        GUILayout.Label("Ranked requires six human players. Rating changes after an eligible completed match.");
+                        if (GUILayout.Button("Find ranked match")) _ = bootstrap.RankedPlay();
+                        break;
+                    case 2:
                         if (GUILayout.Button("Create private match")) _ = bootstrap.CreatePrivateMatch();
                         GUILayout.Label("Room code from the host");
                         roomCode = GUILayout.TextField(roomCode, 18);
                         if (GUILayout.Button("Join with code")) _ = bootstrap.JoinPrivateMatch(roomCode);
                         break;
-                    case 2:
+                    case 3:
                         GUILayout.Label("Custom lobby name");
                         room = GUILayout.TextField(room, 48);
                         if (GUILayout.Button("Create custom lobby")) _ = bootstrap.CustomLobby(room, true);
@@ -162,13 +205,16 @@ namespace HeroesOfDragonland.Multiplayer
             else
             {
                 string region = string.IsNullOrEmpty(bootstrap.Region) ? "" : " · " + bootstrap.Region.ToUpperInvariant();
-                GUILayout.Label(bootstrap.SessionKind == OnlineSessionKind.QuickPlay ? "Quick Play · 3v3" + region
+                GUILayout.Label(bootstrap.IsRankedQueue ? "Ranked | 3v3" + region
+                    : bootstrap.SessionKind == OnlineSessionKind.QuickPlay ? "Quick Play · 3v3" + region
                     : bootstrap.SessionKind == OnlineSessionKind.PrivateMatch ? "Private match" + region
                     : "Custom lobby · " + bootstrap.DisplayRoom + region);
                 if (bootstrap.SessionKind == OnlineSessionKind.PrivateMatch)
                 {
                     GUILayout.Label("Room code · " + bootstrap.DisplayRoom);
                     if (GUILayout.Button("Copy room code")) GUIUtility.systemCopyBuffer = bootstrap.DisplayRoom;
+                    if (valid && match.State == MatchPhase.Lobby && GamePlatform.Current.SupportsInvites
+                        && GUILayout.Button("Invite friends")) GamePlatform.Current.TryShowInvite(bootstrap.DisplayRoom);
                 }
                 if (valid)
                 {
@@ -183,23 +229,26 @@ namespace HeroesOfDragonland.Multiplayer
                             GUILayout.Label((slot.IsBot ? "Bot" : slot.Player.ToString())
                                 + (slot.Player == bootstrap.Runner.LocalPlayer && !slot.IsBot ? " (you)" : "")
                                 + " / " + (slot.Ready ? "Ready" : "Not Ready")
-                                + (slot.HasAvatar ? "" : " / preparing avatar"));
+                                + (slot.HasAvatar ? EmblemSuffix(slot.Player) : " / preparing avatar"));
                         }
                         for (; count < 3; count++) GUILayout.Label("Open slot");
                     }
                     if (GUILayout.Button(match.LocalReady ? "Set Not Ready" : "Set Ready")) match.RPC_SetReady(!match.LocalReady);
                     if (match.IsServerOwner)
                     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                        bool shortMatch = GUILayout.Toggle(match.AllowShortMatch, "Allow short match (ready players on both teams)");
-                        if (shortMatch != match.AllowShortMatch) match.SetShortMatch(shortMatch);
-                        var bots = GetComponent<DeveloperBotService>();
-                        if (bots != null)
+#if UNITY_EDITOR || DEBUG
+                        if (!bootstrap.IsRankedQueue)
                         {
-                            int humans = 0;
-                            foreach (var player in bootstrap.Runner.ActivePlayers) humans++;
-                            if (GUILayout.Button("Fill empty slots with bots")) bots.SetBotCount(Mathf.Clamp(6 - humans, 0, 5));
-                            if (GUILayout.Button("Remove bots")) bots.SetBotCount(0);
+                            bool shortMatch = GUILayout.Toggle(match.AllowShortMatch, "Allow short match (ready players on both teams)");
+                            if (shortMatch != match.AllowShortMatch) match.SetShortMatch(shortMatch);
+                            var bots = GetComponent<DeveloperBotService>();
+                            if (bots != null)
+                            {
+                                int humans = 0;
+                                foreach (var player in bootstrap.Runner.ActivePlayers) humans++;
+                                if (GUILayout.Button("Fill empty slots with bots")) bots.SetBotCount(Mathf.Clamp(6 - humans, 0, 5));
+                                if (GUILayout.Button("Remove bots")) bots.SetBotCount(0);
+                            }
                         }
 #endif
                         GUILayout.Label("All humans must be ready. Both teams must have an avatar.");
@@ -215,10 +264,31 @@ namespace HeroesOfDragonland.Multiplayer
                 if (GUILayout.Button("Leave lobby")) _ = bootstrap.Disconnect();
             }
             GUI.enabled = previous;
+            if (results.HasResult && GUILayout.Button("Last match results")) results.Open();
             if (settings != null && GUILayout.Button("Settings")) SetSettingsOpen(true);
             if (GUILayout.Button("Quit game")) Quit();
             GUILayout.EndScrollView();
             GUILayout.EndArea();
+        }
+
+        private string EmblemSuffix(PlayerRef slot)
+        {
+            if (!bootstrap.Runner.TryGetPlayerObject(slot, out var actor) || !actor.TryGetComponent<NetworkTestPlayer>(out var player))
+                return "";
+            var loadout = player.Cosmetics;
+            var appearance = player.Appearance;
+            var banner = loadout.Get(CosmeticCategory.Banner);
+            var emblem = loadout.Get(CosmeticCategory.Emblem);
+            string emblemLabel = emblem?.Name;
+            if (emblemLabel == null && appearance.Get(AppearanceSlot.Emblem) != 0)
+                emblemLabel = appearance.Label(AppearanceSlot.Emblem);
+            return (banner == null ? "" : " / " + banner.Name) + (emblemLabel == null ? "" : " / " + emblemLabel);
+        }
+
+        private static void DrawRankedRating(RankedPlayerData ranked)
+        {
+            GUILayout.Label($"Ranked rating {ranked.Rating}" + (ranked.Provisional ? " (provisional)" : ""));
+            GUILayout.Label($"{ranked.MatchesPlayed} matches | {ranked.Wins} wins | {ranked.Losses} losses");
         }
 
         private void DrawProfile()
@@ -226,6 +296,12 @@ namespace HeroesOfDragonland.Multiplayer
             var profile = LocalPlayerProfile.Current;
             var totals = profile.Data.Totals;
             GUILayout.Label("Player profile");
+            DrawRankedRating(profile.Data.Ranked);
+            GUILayout.Label("Achievements");
+            foreach (var achievement in AchievementRules.Catalog)
+                GUILayout.Label((profile.HasAchievement(achievement.Id) ? "Unlocked | " : "Locked | ") + achievement.Title);
+            var icon = profile.CosmeticItems.Equipped(CosmeticCategory.ProfileIcon);
+            if (icon != null) CosmeticCollectionMenu.DrawBadge(icon);
             GUILayout.Label("Display name");
             profileName = GUILayout.TextField(profileName, 28);
             if (GUILayout.Button("Save name"))
@@ -233,11 +309,32 @@ namespace HeroesOfDragonland.Multiplayer
                 profile.Rename(profileName);
                 profileName = profile.Data.DisplayName;
             }
+            if (GUILayout.Button("Customize character"))
+            {
+                var prefab = bootstrap.PlayerPrefab;
+                var model = prefab != null ? prefab.GetComponentInChildren<CharacterAppearanceVisual>(true) : null;
+                customization = new CharacterCustomizationMenu(profile, model);
+                scroll = Vector2.zero;
+            }
+            if (GUILayout.Button("Cosmetic collection"))
+            {
+                var prefab = bootstrap.PlayerPrefab;
+                collection = new CosmeticCollectionMenu(profile,
+                    prefab != null ? prefab.GetComponentInChildren<CharacterAppearanceVisual>(true) : null,
+                    prefab != null ? prefab.GetComponent<CharacterEquipmentVisual>()?.Catalog : null,
+                    prefab != null ? prefab.GetComponent<HeroesOfDragonland.InventorySystem.Inventory>()?.Catalog : null);
+                scroll = Vector2.zero;
+            }
             GUILayout.Label(profile.Data.TutorialCompleted ? "Training completed" : "Training available");
             GUILayout.Label(totals.Matches + " matches · " + totals.Wins + " wins · " + totals.Losses + " losses");
             GUILayout.Label(totals.Kills + " kills · " + totals.Deaths + " deaths");
             GUILayout.Label(totals.CampsCleared + " camps cleared · " + totals.BossesKilled + " bosses killed");
             GUILayout.Label(totals.KingsKilled + " Kings killed");
+            GUILayout.Label($"{totals.Assists} assists / {totals.GuardsKilled} guards killed");
+            GUILayout.Label($"{totals.PlayerDamage:N1} player damage / {totals.DamageTaken:N1} damage taken");
+            GUILayout.Label($"{totals.Healing:N1} healing / {totals.KingDamage:N1} King damage");
+            GUILayout.Label($"{totals.BossParticipation} boss encounters / {totals.ChestsOpened} chests / {totals.ItemsAcquired} items");
+            GUILayout.Label($"{totals.ExperienceEarned:N0} XP earned / Best level {totals.HighestLevel} / {MatchResultsScreen.FormatDuration(totals.MatchSeconds)} played");
             if (GUILayout.Button("Back")) profileOpen = false;
         }
     }

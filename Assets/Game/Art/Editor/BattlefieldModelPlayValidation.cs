@@ -22,7 +22,7 @@ namespace HeroesOfDragonland.Art.Editor
         {
             try
             {
-                var bootstrap=UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+                var bootstrap=UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
                 Check(bootstrap!=null&&bootstrap.Running&&bootstrap.Runner.IsServer,"Admitted local authority required");
                 var gates=UnityEngine.Object.FindObjectsByType<NetworkFortressGate>().Where(g=>g.Runner==bootstrap.Runner&&g.Object!=null&&g.Object.IsValid).ToArray();
                 Check(gates.Length==2,"Both gate prefab instances required");

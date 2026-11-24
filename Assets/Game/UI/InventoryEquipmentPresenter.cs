@@ -193,7 +193,8 @@ namespace HeroesOfDragonland.UI
             bool room = selected != null && inventory.CanAdd(selected.Id);
             bool canEquip = selectedIndex >= 0 && valid && selected.EquipmentSlot != EquipmentSlot.None && met && block.Length == 0;
             bool canUnequip = selectedEquipment != EquipmentSlot.None && valid && room && block.Length == 0;
-            view.SetDetails(description, canEquip, canUnequip, selected != null && selected.Category == ItemCategory.Consumable);
+            view.SetDetails(description, canEquip, canUnequip,
+                selected != null && (selected.Category == ItemCategory.Consumable || selected.Category == ItemCategory.Deployable));
             bool confirming = selected != null && block.Length == 0 && confirmDiscardUntil > Time.unscaledTime;
             view.SetDiscard(selectedIndex >= 0 && selected != null, block.Length == 0 && quantity > 0, confirming);
             string message = block.Length > 0 ? block : feedback;

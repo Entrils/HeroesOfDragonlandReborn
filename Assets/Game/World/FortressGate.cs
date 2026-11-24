@@ -11,6 +11,7 @@ namespace HeroesOfDragonland.World
     {
         [SerializeField] private TeamId team;
         [SerializeField] private Transform gateBody;
+        [SerializeField] private GameObject breachedVisual;
         private CharacterStats stats;
         private Collider[] blockers;
         private NavMeshObstacle obstacle;
@@ -39,6 +40,7 @@ namespace HeroesOfDragonland.World
             foreach (var blocker in blockers) if (blocker != null) blocker.enabled = false;
             if (obstacle != null) obstacle.enabled = false;
             if (gateBody != null) gateBody.gameObject.SetActive(false);
+            if (breachedVisual != null) breachedVisual.SetActive(true);
         }
     }
 }

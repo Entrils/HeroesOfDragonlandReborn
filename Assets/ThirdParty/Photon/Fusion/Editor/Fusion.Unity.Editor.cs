@@ -12992,7 +12992,7 @@ namespace Fusion.Editor {
           if (widget.State.IsDrawn == false) { break; }
 
           window.DrawButtonAction(widget.Icon, widget.Text, widget.Subtext, statusIcon: widget.StatusIcon, callback: () => {
-            AssetDatabase.ImportPackage(AssetDatabase.GetAssetPath(widget.Asset.asset), false);
+            UnityEditor.AssetPackage.Package.Import(AssetDatabase.GetAssetPath(widget.Asset.asset), false);
           });
 
           break;

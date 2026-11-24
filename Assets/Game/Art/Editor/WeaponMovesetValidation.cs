@@ -22,7 +22,7 @@ namespace HeroesOfDragonland.Art.Editor
         private static void Cancel(MeleeAttack melee) { melee.enabled = false; melee.enabled = true; melee.TickAttack(melee.RestartRemaining + .01f); }
         public static void ValidateAssets()
         {
-            foreach (WeaponArchetype kind in Enum.GetValues(typeof(WeaponArchetype)))
+            foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
             {
                 var weapon = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset");
                 Check(weapon != null && weapon.TryValidate(out _) && weapon.Moveset != null, kind + " weapon linkage");
@@ -38,7 +38,7 @@ namespace HeroesOfDragonland.Art.Editor
         {
             Check(Application.isPlaying, "Play Mode required");
             ValidateAssets(); Status = "RUNNING";
-            UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
+            UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
         }
         private static IEnumerator Run()
         {
@@ -53,7 +53,7 @@ namespace HeroesOfDragonland.Art.Editor
             var items = new List<ItemDefinition>();
             try
             {
-                foreach (WeaponArchetype kind in Enum.GetValues(typeof(WeaponArchetype)))
+                foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
                 {
                     var source = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset");
                     var weapon = UnityEngine.Object.Instantiate(source); temporary.Add(weapon);

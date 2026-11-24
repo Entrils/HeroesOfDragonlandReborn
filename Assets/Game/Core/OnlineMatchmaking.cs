@@ -4,7 +4,7 @@ using Fusion;
 
 namespace HeroesOfDragonland.Multiplayer
 {
-    public enum OnlineSessionKind { CustomLobby, QuickPlay, PrivateMatch }
+    public enum OnlineSessionKind { CustomLobby, QuickPlay, PrivateMatch, Ranked }
 
     // This request represents one local entrant. Party membership can be added before
     // creating a request, independently from lobby readiness or match team placement.
@@ -22,24 +22,23 @@ namespace HeroesOfDragonland.Multiplayer
         private const string Alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
         private const int CodeLength = 10;
         // Change the compatibility revision whenever builds cannot play together.
-        internal const int CompatibilityRevision = 2;
-        internal const string QuickLobby = "hodr-quickplay-3v3-v2";
-        internal static string QueueName
+        internal const int CompatibilityRevision = 3;
+        internal static bool IsQueue(OnlineSessionKind kind) => kind is OnlineSessionKind.QuickPlay or OnlineSessionKind.Ranked;
+
+        internal static string QueueName(OnlineSessionKind kind)
         {
-            get
-            {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
-                var args = System.Environment.GetCommandLineArgs();
-                int option = System.Array.IndexOf(args, "-hodrQuickQueue");
-                if (option >= 0 && option + 1 < args.Length && System.Guid.TryParse(args[option + 1], out var id))
-                    return QuickLobby + "-" + id.ToString("N");
+            string queue = (kind == OnlineSessionKind.Ranked ? "hodr-ranked" : "hodr-quickplay") + "-3v3-v" + CompatibilityRevision;
+#if UNITY_EDITOR || DEBUG
+            var args = System.Environment.GetCommandLineArgs();
+            int option = System.Array.IndexOf(args, "-hodrQuickQueue");
+            if (option >= 0 && option + 1 < args.Length && System.Guid.TryParse(args[option + 1], out var id))
+                return queue + "-" + id.ToString("N");
 #endif
-                return QuickLobby;
-            }
+            return queue;
         }
 
-        internal static Dictionary<string, SessionProperty> QuickProperties() =>
-            new() { ["v"] = CompatibilityRevision, ["m"] = "battlefield-3v3", ["q"] = 1 };
+        internal static Dictionary<string, SessionProperty> QueueProperties(OnlineSessionKind kind) =>
+            new() { ["v"] = CompatibilityRevision, ["m"] = "battlefield-3v3", ["q"] = kind == OnlineSessionKind.Ranked ? 2 : 1 };
 
         internal static string NewRoomCode()
         {

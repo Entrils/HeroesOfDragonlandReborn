@@ -1,0 +1,30 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 782dd34414473544398ceea384305e93, type: 3}
+  m_Name: Poise
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Skills.SkillDefinition
+  displayName: Steadfast
+  description: Gain 12 maximum poise per rank.
+  effect: 5
+  branch: 0
+  maxRank: 2
+  prerequisites:
+  - skill: {fileID: 11400000, guid: 4174814006c573044bf6df9859a09521, type: 2}
+    rank: 1
+  exclusiveGroup: 
+  ability: {fileID: 0}
+  requiredLevel: 1
+  requirements: []
+  pointCost: 1
+  manaCost: 0
+  cooldown: 0
+  magnitude: 12

@@ -6,7 +6,7 @@ namespace HeroesOfDragonland.Presentation
     [DefaultExecutionOrder(300), DisallowMultipleComponent]
     public sealed class VisibleEquipmentNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool run;
         private long revision = -1;
         private float settleUntil;

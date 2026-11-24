@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c259097cd1da56b4db90e1d5f3454cda, type: 3}
+  m_Name: HuntingBowProfile
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.BowProfile
+  drawSeconds: 0.65
+  releaseSeconds: 0.28
+  projectileSpeed: 34
+  assistanceDegrees: 6
+  basicArrow: {fileID: 11400000, guid: c3e62f51c6eaeab4bbc1a0ab51692010, type: 2}
+  projectileVisual: {fileID: 8692144480261761012, guid: 9d3d399ca8a01824e87a2a6242b54d9b, type: 3}

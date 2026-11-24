@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,7 +17,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Development acceptance driver. Combat uses owner input, never synthetic deaths/rewards.
     public sealed class MultiplayerCampProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private MultiplayerBootstrap bootstrap;
         private bool active, removed, complete, campGuard, chestGuard, reentryChecked;
         private string scenario;

@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using System.Reflection;
@@ -17,7 +17,7 @@ namespace HeroesOfDragonland.UI
     [DefaultExecutionOrder(200)]
     public sealed class GameplayHudAcceptanceProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active, targetChecked, sawProgress, sawResources, sawRespawn, sawResult, resourcesSeeded, sawLowStamina, sawKingWarning;
         private int boundAvatars;
         private Fusion.NetworkObject previous;
@@ -75,7 +75,8 @@ namespace HeroesOfDragonland.UI
                 sawLowStamina |= !string.IsNullOrEmpty(view.StaminaWarningText);
                 if (!string.IsNullOrEmpty(view.KingWarningText))
                 {
-                    Check(actor.GetComponent<NetworkTestPlayer>().Team == TeamId.TeamA, "enemy-king-warning-hidden");
+                    var threatenedTeam = match.RoundNumber == 1 ? TeamId.TeamA : TeamId.TeamB;
+                    Check(actor.GetComponent<NetworkTestPlayer>().Team == threatenedTeam, "enemy-king-warning-hidden");
                     sawKingWarning = true;
                 }
             }

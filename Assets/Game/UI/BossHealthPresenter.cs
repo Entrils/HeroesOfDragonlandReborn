@@ -15,7 +15,8 @@ namespace HeroesOfDragonland.UI
             var local = hud.LocalActor;
             NetworkEnemy selected = null;
             float nearest = float.PositiveInfinity;
-            if (local != null && local.IsValid && NetworkMatch.AllowsGameplay(local.Runner))
+            if (local != null && local.IsValid && local.GetComponent<NetworkCharacterStats>()?.Dead != true
+                && NetworkMatch.AllowsGameplay(local.Runner))
                 foreach (var boss in BossEncounter.Active)
                 {
                     if (boss == null) continue;

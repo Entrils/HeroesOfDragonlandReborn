@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e25f76f027638a048bbe2f85703244f6, type: 3}
+  m_Name: BearTrap
+  m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Items.ItemDefinition
+  id: 0d3b273b82b057e4c809c1848c7986e7
+  displayName: Bear Trap
+  description: Deals damage and briefly stops movement.
+  icon: {fileID: 0}
+  category: 4
+  rarity: 0
+  equipmentSlot: 0
+  maximumStackSize: 5
+  value: 35
+  equipmentRequirements: []
+  statModifiers: []
+  weight: 0
+  weapon: {fileID: 0}
+  consumable: {fileID: 0}
+  deployable: {fileID: 11400000, guid: 529b05d1ef9bb9d46bc5837ead8ae29c, type: 2}

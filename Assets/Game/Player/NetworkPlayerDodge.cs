@@ -3,6 +3,7 @@ using HeroesOfDragonland.Combat;
 using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Stats;
 using UnityEngine;
+using HeroesOfDragonland.Skills;
 using HeroesOfDragonland.EquipmentSystem;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -48,7 +49,8 @@ namespace HeroesOfDragonland.Multiplayer
             if (Busy && Elapsed >= RollDuration + RollRecovery) Busy = false;
             if (Busy || !input.Dodge || (combat.IsBusy && !combat.CanDodgeCancel) || combat.ActionsBlocked || definition == null) return;
             var rollModifiers = GetComponent<Equipment>()?.DodgeModifiers ?? WeightDodgeModifiers.Light;
-            if (!stats.TrySpendStamina(definition.StaminaCost * Mathf.Max(0.01f, rollModifiers.stamina))) return;
+            if (!stats.TrySpendStamina(definition.StaminaCost * Mathf.Max(0.01f, rollModifiers.stamina)
+                * stats.SkillCostMultiplier(SkillEffect.DodgeEfficiency))) return;
             if (combat.IsBusy && !combat.CancelAttackForDodge()) return;
             DistanceMultiplier = rollModifiers.distance;
             DurationMultiplier = rollModifiers.duration;

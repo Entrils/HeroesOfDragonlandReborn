@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using Fusion;
@@ -13,7 +13,7 @@ namespace HeroesOfDragonland.World
     // Opt-in six-process smoke test. Normal matches do not run this code.
     public sealed class BattlefieldAcceptanceProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private bool active, complete, worldChecked, arrivalChecked, dodgeChecked;
         private float playingAt;
         private bool planned;

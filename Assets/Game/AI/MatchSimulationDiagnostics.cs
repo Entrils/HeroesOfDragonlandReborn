@@ -1,4 +1,4 @@
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -132,7 +132,7 @@ namespace HeroesOfDragonland.Multiplayer
                     emit("stuck-ai", "destination=" + brain.Destination + " path=" + brain.HasNavigationPath, player);
                 }
             }
-            foreach (var receiver in UnityEngine.Object.FindObjectsByType<DamageReceiver>(FindObjectsSortMode.None))
+            foreach (var receiver in UnityEngine.Object.FindObjectsByType<DamageReceiver>())
             {
                 var actor = receiver.GetComponent<Fusion.NetworkObject>();
                 if (actor == null || !actor.IsValid || actor.Runner != bootstrap.Runner || receiver.GetComponent<NetworkTestPlayer>() != null
@@ -152,7 +152,7 @@ namespace HeroesOfDragonland.Multiplayer
                 };
                 receiver.DamageTaken += damage; release.Add(() => { if (receiver != null) receiver.DamageTaken -= damage; });
             }
-            foreach (var camp in UnityEngine.Object.FindObjectsByType<NetworkCamp>(FindObjectsSortMode.None))
+            foreach (var camp in UnityEngine.Object.FindObjectsByType<NetworkCamp>())
             {
                 if (camp.Object == null || !camp.Object.IsValid || camp.Runner != bootstrap.Runner || !observed.Add(camp.GetEntityId())) continue;
                 Action<NetworkCamp> cleared = c => { Total.campsCleared++; Round.campsCleared++; emit("camp-cleared", c.Object.Id.ToString(), null); };

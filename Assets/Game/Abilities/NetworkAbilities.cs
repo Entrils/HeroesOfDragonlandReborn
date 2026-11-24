@@ -25,7 +25,7 @@ namespace HeroesOfDragonland.Abilities
             && NetworkParticipant.IsAdmitted(Object) && NetworkMatch.AllowsGameplay(Runner) && caster.HasAuthority && caster.IsResolvingProjectile;
         private void Broadcast(AbilityDefinition definition, AbilityCue cue, Vector3 position, Vector3 direction)
         {
-            for (int i = 0; i < SessionSkills.SkillCount; i++)
+            for (int i = 0; i < skills.NodeCount; i++)
                 if (skills.GetDefinition(i)?.Ability == definition) { RPC_Cue(i, cue, position, direction); return; }
         }
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]

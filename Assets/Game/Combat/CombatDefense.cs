@@ -1,4 +1,5 @@
 using UnityEngine;
+using HeroesOfDragonland.Skills;
 using HeroesOfDragonland.Stats;
 using System;
 
@@ -69,7 +70,7 @@ namespace HeroesOfDragonland.Combat
         }
         private void SpendGuardStamina(float cost)
         {
-            stats.TrySpendStamina(Mathf.Min(stats.CurrentStamina, Mathf.Max(0, cost)));
+            stats.TrySpendStamina(Mathf.Min(stats.CurrentStamina, Mathf.Max(0, cost) * stats.SkillCostMultiplier(SkillEffect.GuardEfficiency)));
             if (IsBlocking && stats.CurrentStamina <= 0) BreakGuard();
         }
         private void BreakGuard()

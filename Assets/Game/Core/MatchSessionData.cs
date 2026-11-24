@@ -1,38 +1,51 @@
 using System.Collections.Generic;
+using System.Linq;
 using Fusion;
+using HeroesOfDragonland.Teams;
 
 namespace HeroesOfDragonland.Multiplayer
 {
-    // Authority-owned transient counters, scoped to one round and keyed by its avatar.
+    // Authority-owned transient counters keyed by the round avatar, which survives a reconnect.
     internal sealed class MatchSessionData
     {
-        internal struct Counters
-        {
-            internal int Kills, Deaths, Camps, Kings, Bosses;
-        }
-        internal enum Metric { Kill, Death, Camp, King, Boss }
-        private readonly Dictionary<NetworkId, Counters> players = new();
+        private readonly Dictionary<NetworkId, MatchPlayerResult> players = new();
         internal string RoundId { get; private set; }
         internal void Begin(string id) { players.Clear(); RoundId = id; }
-        internal Counters For(NetworkId actor) => players.TryGetValue(actor, out var counters) ? counters : default;
-        internal void Add(NetworkId actor, Metric metric)
+
+        internal void Include(NetworkObject avatar)
         {
-            var counters = For(actor);
-            switch (metric)
+            if (avatar == null || !avatar.IsValid || players.ContainsKey(avatar.Id)
+                || !avatar.TryGetComponent<NetworkTestPlayer>(out var actor)
+                || actor.ParticipantNumber <= 0 || actor.Team is not (TeamId.TeamA or TeamId.TeamB)) return;
+            players.Add(avatar.Id, new MatchPlayerResult
             {
-                case Metric.Kill: counters.Kills++; break;
-                case Metric.Death: counters.Deaths++; break;
-                case Metric.Camp: counters.Camps++; break;
-                case Metric.King: counters.Kings++; break;
-                case Metric.Boss: counters.Bosses++; break;
-            }
-            players[actor] = counters;
+                ParticipantNumber = actor.ParticipantNumber,
+                Team = actor.Team,
+                IsBot = actor.IsBot,
+                Statistics = new MatchStatistics { HighestLevel = 1 }
+            });
         }
 
-        internal static void Credit(NetworkObject avatar, Metric metric)
+        internal MatchPlayerResult For(NetworkId actor) => players.TryGetValue(actor, out var row) ? row : default;
+        internal MatchPlayerResult[] Snapshot() => players.Values.OrderBy(row => row.Team).ThenBy(row => row.ParticipantNumber).ToArray();
+
+        internal void Add(NetworkObject avatar, MatchStatistics delta)
+        {
+            Include(avatar);
+            if (!players.TryGetValue(avatar.Id, out var row)) return;
+            row.Statistics.Add(delta);
+            players[avatar.Id] = row;
+        }
+
+        internal static void Credit(NetworkObject avatar, MatchStatistics delta)
         {
             if (avatar != null && avatar.IsValid && avatar.Runner.IsServer)
-                NetworkMatchPacing.MatchFor(avatar.Runner)?.CreditProfile(avatar, metric);
+                NetworkMatchPacing.MatchFor(avatar.Runner)?.CreditMatch(avatar, delta);
+        }
+
+        internal static void Credit(UnityEngine.Component avatar, MatchStatistics delta)
+        {
+            if (avatar.TryGetComponent<NetworkObject>(out var actor)) Credit(actor, delta);
         }
     }
 }

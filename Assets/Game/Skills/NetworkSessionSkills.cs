@@ -12,10 +12,13 @@ namespace HeroesOfDragonland.Skills
         [Networked] public int SkillPoints { get; private set; }
         [Networked] public int LearnedMask { get; private set; }
         [Networked] public float GuardRemaining { get; private set; }
-        [Networked, Capacity(SessionSkills.SkillCount)] public NetworkArray<float> Cooldowns => default;
+        [Networked, Capacity(SessionSkills.Capacity)] public NetworkArray<float> Cooldowns => default;
+        [Networked, Capacity(SessionSkills.Capacity)] public NetworkArray<byte> Ranks => default;
         [Networked] public int Revision { get; private set; }
         private SessionSkills skills;
         private int appliedRevision;
+        private readonly float[] remaining = new float[SessionSkills.Capacity];
+        private readonly byte[] ranks = new byte[SessionSkills.Capacity];
         private float nextRequestTime;
         private bool IsServerOwner => isActiveAndEnabled && NetworkParticipant.IsAdmitted(Object);
         public bool CanMutateSkills => IsServerOwner && NetworkMatch.AllowsGameplay(Runner);
@@ -33,7 +36,11 @@ namespace HeroesOfDragonland.Skills
             if (Object == null || !Object.IsValid || !Runner.IsServer || !HasStateAuthority) return;
             SessionId = skills.SessionId ?? ""; SkillPoints = skills.SkillPoints; LearnedMask = skills.LearnedMask;
             GuardRemaining = skills.GuardRemaining;
-            for (int i = 0; i < SessionSkills.SkillCount; i++) Cooldowns.Set(i, skills.CooldownRemaining(i));
+            for (int i = 0; i < SessionSkills.Capacity; i++)
+            {
+                Cooldowns.Set(i, skills.CooldownRemaining(i));
+                Ranks.Set(i, (byte)skills.GetRank(i));
+            }
             Revision++;
         }
         public override void FixedUpdateNetwork() { if (CanMutateSkills) skills.Tick(Runner.DeltaTime); }
@@ -41,11 +48,11 @@ namespace HeroesOfDragonland.Skills
         public bool RequestActivate(int index) => Request(index, false);
         private bool Request(int index, bool learn)
         {
-            if (!CanRequest || index < 0 || index >= SessionSkills.SkillCount || string.IsNullOrEmpty(skills.SessionId)) return false;
-            RPC_Request(index, learn, skills.SessionId); return true;
+            if (!CanRequest || index < 0 || index >= skills.NodeCount || string.IsNullOrEmpty(skills.SessionId)) return false;
+            RPC_Request(index, learn, skills.GetRank(index), skills.SessionId); return true;
         }
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
-        private void RPC_Request(int index, bool learn, NetworkString<_32> sessionId, RpcInfo info = default)
+        private void RPC_Request(int index, bool learn, int expectedRank, NetworkString<_32> sessionId, RpcInfo info = default)
         {
             if (!IsServerOwner || info.Source != Object.InputAuthority) return;
             string reason = "Skills are unavailable outside an active match.";
@@ -55,19 +62,27 @@ namespace HeroesOfDragonland.Skills
             else
             {
                 nextRequestTime = now + .15f;
-                if (CanMutateSkills) accepted = learn ? skills.TryLearn(index, sessionId.ToString(), out reason)
-                    : skills.TryActivate(index, sessionId.ToString(), out reason);
+                if (CanMutateSkills)
+                {
+                    if (learn && skills.GetRank(index) != expectedRank) reason = "Skill rank changed. Try again.";
+                    else accepted = learn ? skills.TryLearn(index, sessionId.ToString(), out reason)
+                        : skills.TryActivate(index, sessionId.ToString(), out reason);
+                }
             }
-            RPC_Result(accepted, accepted ? (learn ? "Skill learned." : "Skill activated.") : reason);
+            RPC_Result(accepted, accepted ? (learn ? "Skill rank purchased." : "Skill activated.") : reason);
         }
         [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]
         private void RPC_Result(bool accepted, string reason) => RequestResolved?.Invoke(accepted, reason);
         public override void Render()
         {
             if (HasStateAuthority || Revision == 0 || appliedRevision == Revision) return;
-            var remaining = new float[SessionSkills.SkillCount];
-            for (int i = 0; i < remaining.Length; i++) remaining[i] = Cooldowns[i];
-            skills.ApplySnapshot(SessionId.ToString(), SkillPoints, LearnedMask, GuardRemaining, remaining); appliedRevision = Revision;
+            for (int i = 0; i < remaining.Length; i++)
+            {
+                remaining[i] = Cooldowns[i];
+                ranks[i] = Ranks[i];
+            }
+            skills.ApplySnapshot(SessionId.ToString(), SkillPoints, LearnedMask, GuardRemaining, remaining, ranks);
+            appliedRevision = Revision;
         }
         public override void Despawned(NetworkRunner runner, bool hasState) => skills.Changed -= Publish;
     }

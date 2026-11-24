@@ -14,7 +14,7 @@ namespace HeroesOfDragonland.Art.Editor
         {
             if (Application.isPlaying) throw new InvalidOperationException("Edit Mode required.");
             WeaponMovesetSetup.Build(); HumanoidAssetBuilder.Folder(Folder);
-            foreach (WeaponArchetype kind in Enum.GetValues(typeof(WeaponArchetype)))
+            foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
             {
                 var weapon = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset");
                 var moveset = weapon.Moveset;

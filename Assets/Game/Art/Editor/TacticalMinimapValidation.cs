@@ -24,7 +24,7 @@ namespace HeroesOfDragonland.Art.Editor
         {
             try
             {
-                var bootstrap = UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>(); Check(bootstrap != null, "Missing bootstrap");
+                var bootstrap = UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>(); Check(bootstrap != null, "Missing bootstrap");
                 var source = bootstrap.GetComponent<TacticalMapSource>(); var view = bootstrap.GetComponentInChildren<TacticalMinimapView>(true);
                 Check(source != null && view != null && source.isActiveAndEnabled, "Missing installed map source/view");
                 source.Refresh(); yield return null;

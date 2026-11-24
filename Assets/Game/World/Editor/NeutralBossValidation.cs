@@ -111,7 +111,7 @@ namespace HeroesOfDragonland.World.Editor
                 Check(chest.TryInteract(ia, out reason), "first team claims complete roll " + reason);
                 Check(chest.IsOpen && reentryDenied && !chest.TryInteract(ia, out _) && !chest.TryInteract(ib, out _), "repeat and competing reward claims rejected");
                 Check(ia.Revision == revA + 1 && ib.Revision == revB && chest.Revision == 1, "exactly one atomic reward transaction");
-                var view = UnityEngine.Object.FindFirstObjectByType<GameplayHudView>(); Check(view != null, "HUD exists");
+                var view = UnityEngine.Object.FindAnyObjectByType<GameplayHudView>(); Check(view != null, "HUD exists");
                 view.SetBoss(true, "Stone Warden", "PHASE 2", 900, 1800, "SHOCKWAVE"); Check(view.HasBoss && Mathf.Approximately(view.BossHealthValue, .5f), "boss health UI"); view.SetBoss(false); Check(!view.HasBoss, "boss UI hides on exit");
                 Debug.Log("[NeutralBossValidation] PASS " + checks + " asset, combat, phase, PvPvE, reset, UI and atomic chest assertions.");
             }

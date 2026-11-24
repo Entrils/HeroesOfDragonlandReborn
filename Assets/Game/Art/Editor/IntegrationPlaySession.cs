@@ -15,7 +15,7 @@ namespace HeroesOfDragonland.Art.Editor
             {
                 if(!Application.isPlaying)throw new InvalidOperationException("Use Play Mode.");
                 Status="Starting local six-actor session";
-                var bootstrap=UnityEngine.Object.FindFirstObjectByType<MultiplayerBootstrap>();
+                var bootstrap=UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>();
                 bootstrap.GetComponent<DeveloperBotService>().SetBotCount(5);
                 await bootstrap.StartSession(GameMode.Single,"m54-m62-local-validation");
                 for(int i=0;i<100;i++)

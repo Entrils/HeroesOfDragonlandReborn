@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +15,7 @@ namespace HeroesOfDragonland.Multiplayer
     // Development-only scenario driver. Movement and attacks use the owning input path.
     public sealed class MultiplayerPveProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         private MultiplayerBootstrap bootstrap;
         private string scenario;
         private float nextReport;

@@ -15,6 +15,10 @@ MonoBehaviour:
   displayName: Defensive Magic Shield
   description: Absorb up to 40 damage for 6 seconds. Recasting replaces the shield.
   effect: 3
+  branch: 2
+  maxRank: 1
+  prerequisites: []
+  exclusiveGroup: 
   ability: {fileID: 11400000, guid: b6ee0d8cc6b57bc42a04ab0287636ccf, type: 2}
   requiredLevel: 1
   requirements: []

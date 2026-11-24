@@ -13,8 +13,13 @@ MonoBehaviour:
   m_Name: MeleeTraining
   m_EditorClassIdentifier: Assembly-CSharp::HeroesOfDragonland.Skills.SkillDefinition
   displayName: Melee Training
-  description: Passively add 5 damage to melee hits while requirements are met.
+  description: Adds 5 damage to melee hits per rank.
   effect: 2
+  branch: 0
+  maxRank: 3
+  prerequisites: []
+  exclusiveGroup: 
+  ability: {fileID: 0}
   requiredLevel: 2
   requirements:
   - stat: 9

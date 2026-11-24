@@ -1,5 +1,5 @@
 using UnityEngine;
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
 using System;
 using System.Linq;
 using Fusion;
@@ -20,7 +20,7 @@ namespace HeroesOfDragonland.AI
     // Only installed with -hodrBossCheck. Uses normal owning-player spell and chest requests.
     public sealed class BossNetworkProbe : MonoBehaviour
     {
-#if UNITY_EDITOR || DEVELOPMENT_BUILD
+#if UNITY_EDITOR || DEBUG
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
         private static void Install()
         {
@@ -33,7 +33,7 @@ namespace HeroesOfDragonland.AI
         private NetworkEnemy boss;
         private float began = -1, nextCast, nextClaim, nextReport;
         private bool initialized, phaseOne, transition, phaseTwo, hitA, hitB, seededKill, looted, denied, pvpPlaced, complete, uiSeen;
-        private long baselineA, baselineB, progressionA, progressionB;
+        private long baselineA, baselineB, bossKillAwards;
         private NetworkId chestId;
         private void Awake() => bootstrap = GetComponent<MultiplayerBootstrap>();
         private static void Check(bool condition, string label)
@@ -50,7 +50,7 @@ namespace HeroesOfDragonland.AI
             if (camp == null) return;
             if (runner.IsServer && !initialized)
             {
-                if (camp.State == NetworkCampState.Pending) camp.TryStartDevelopmentBossEncounter();
+                if (camp.State == NetworkCampState.Pending) camp.TryStartDevelopmentEncounter("-hodrBossCheck");
                 boss = FindObjectsByType<NetworkEnemy>().FirstOrDefault(e => e.Object != null && e.Object.IsValid && e.Runner == runner && e.Definition.Boss != null);
                 if (boss == null) return;
                 initialized = true;
@@ -61,8 +61,10 @@ namespace HeroesOfDragonland.AI
                     var skills = human.GetComponent<SessionSkills>(); Check(skills.TryLearn(3, skills.SessionId, out _), "fire learned");
                     human.GetComponent<CharacterStats>().ResetToFull();
                     bool a = human.Team == TeamId.TeamA;
-                    long revision = human.GetComponent<NetworkSessionProgression>().Revision;
-                    if (a) progressionA = revision; else progressionB = revision;
+                    human.GetComponent<HeroesOfDragonland.Progression.SessionProgression>().ExperienceGained += xp =>
+                    {
+                        if (xp == NetworkMatchPacing.BalanceFor(runner).BossKillExperience) bossKillAwards++;
+                    };
                     human.GetComponent<NetworkTransform>().Teleport(new Vector3(0, 1, a ? 3 : -3), Quaternion.LookRotation(a ? Vector3.back : Vector3.forward));
                 }
                 // Fast-forward the health budget, not death/reward state. Real owner projectiles cross the threshold and kill.
@@ -76,7 +78,7 @@ namespace HeroesOfDragonland.AI
             boss ??= FindObjectsByType<NetworkEnemy>().FirstOrDefault(e => e.Object != null && e.Object.IsValid && e.Runner == runner && e.Definition.Boss != null);
             if (boss == null) return;
             phaseOne |= boss.BossPhase == BossPhase.PhaseOne; transition |= boss.BossPhase == BossPhase.Transition; phaseTwo |= boss.BossPhase == BossPhase.PhaseTwo;
-            var hud = FindFirstObjectByType<GameplayHudView>(); uiSeen |= hud != null && hud.HasBoss;
+            var hud = FindAnyObjectByType<GameplayHudView>(); uiSeen |= hud != null && hud.HasBoss;
             if (runner.IsServer && !seededKill && phaseTwo && hitA && hitB && age > 10)
             { var hp = boss.GetComponent<CharacterStats>(); hp.ApplyDamage(Mathf.Max(0, hp.CurrentHealth - 20)); seededKill = true; }
             if (runner.IsServer && camp.State != NetworkCampState.Cleared)
@@ -108,13 +110,15 @@ namespace HeroesOfDragonland.AI
                         var inventory = human.GetComponent<Inventory>(); changes += inventory.Revision - (human.Team == TeamId.TeamA ? baselineA : baselineB);
                         Check(!chest.TryOpenFor(human.Object.InputAuthority, out _), "duplicate/competing claim rejected");
                         var progression = human.GetComponent<NetworkSessionProgression>();
-                        if (progression.Revision > (human.Team == TeamId.TeamA ? progressionA : progressionB))
+                        if (human.GetComponent<HeroesOfDragonland.Progression.SessionProgression>()
+                            .HasExperienceReward("camp:" + camp.Object.Id + ":" + camp.CompletionCount))
                         {
                             recipients++;
                             Check(!progression.TryGrantExperience(camp.AwardedExperience, "camp:" + camp.Object.Id + ":" + camp.CompletionCount), "duplicate XP rejected for rewarded actor");
                         }
                     }
-                    Check(recipients == camp.RewardedPlayers && recipients <= 1, "XP restricted to the winning contribution team");
+                    Check(recipients == camp.RewardedPlayers && recipients <= 1, "camp XP restricted to the winning contribution team");
+                    Check(bossKillAwards == 1, "boss kill XP awarded once separately from camp XP");
                     Check(changes == 1 && chest.GetComponent<LootChest>().Revision == 1, "one atomic inventory transfer");
                     pvpPlaced = true;
                 }

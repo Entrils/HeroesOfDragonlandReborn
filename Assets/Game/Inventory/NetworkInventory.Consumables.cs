@@ -3,6 +3,7 @@ using HeroesOfDragonland.InventorySystem;
 using HeroesOfDragonland.Items;
 using HeroesOfDragonland.Player;
 using UnityEngine;
+using HeroesOfDragonland.Skills;
 using UnityEngine.InputSystem;
 
 namespace HeroesOfDragonland.Multiplayer
@@ -22,8 +23,11 @@ namespace HeroesOfDragonland.Multiplayer
             : null;
 
         public bool RequestUseSelectedQuickItem()
-            => QuickSlots is { } slots && slots.TryFindSelectedInventoryIndex(out int index)
-                && RequestUseConsumable(index);
+        {
+            if (QuickSlots is not { } slots || !slots.TryFindSelectedInventoryIndex(out int index)) return false;
+            var item = slots.Selected.Item;
+            return item?.Deployable != null ? RequestPlaceSelectedDeployable(index, item) : RequestUseConsumable(index);
+        }
 
         internal float IncomingPotionMultiplier => PotionActive(defensePotion) ? 1f - defenseAmount : 1f;
         internal float OutgoingPotionMultiplier => PotionActive(damagePotion) ? 1f + damageAmount : 1f;
@@ -108,11 +112,15 @@ namespace HeroesOfDragonland.Multiplayer
         {
             potionCooldowns[(int)potion.Effect] = PotionTimer(potion.Cooldown);
             globalPotionCooldown = PotionTimer(inventory.Catalog.GlobalPotionCooldown);
+            float restoration = potion.Amount * (1f + stats.SkillBonus(SkillEffect.PotionEfficiency));
             switch (potion.Effect)
             {
-                case ConsumableEffect.Health: stats.Heal(potion.Amount); break;
-                case ConsumableEffect.Stamina: stats.RestoreStamina(potion.Amount); break;
-                case ConsumableEffect.Mana: stats.RestoreMana(potion.Amount); break;
+                case ConsumableEffect.Health:
+                    float healed = stats.Heal(restoration);
+                    if (healed > 0f) MatchSessionData.Credit(Object, new MatchStatistics { Healing = healed });
+                    break;
+                case ConsumableEffect.Stamina: stats.RestoreStamina(restoration); break;
+                case ConsumableEffect.Mana: stats.RestoreMana(restoration); break;
                 case ConsumableEffect.Defense:
                     defenseAmount = potion.Amount;
                     defensePotion = PotionTimer(potion.Duration);
