@@ -90,14 +90,22 @@ namespace HeroesOfDragonland.Multiplayer
         public void RPC_SetReady(bool ready, RpcInfo info = default)
         {
             if (!IsServerOwner || State != MatchPhase.Lobby) return;
-            foreach (var player in Runner.ActivePlayers)
-                if (player == info.Source)
-                { lobby.SetReady(player, ready); break; }
+            if (!NetworkParticipant.TryResolveSender(Runner, info.Source, out _))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.Sender);
+                return;
+            }
+            lobby.SetReady(info.Source, ready);
         }
         [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         public void RPC_LeaveSession(RpcInfo info = default)
         {
-            if (!IsServerOwner || info.Source == PlayerRef.None) return;
+            if (!IsServerOwner) return;
+            if (!NetworkParticipant.TryResolveSender(Runner, info.Source, out _))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.Sender);
+                return;
+            }
             bootstrap.ForfeitReconnect(info.Source);
             RPC_LeaveAcknowledged(info.Source);
         }

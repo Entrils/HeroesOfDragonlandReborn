@@ -1,4 +1,4 @@
-﻿using Fusion;
+using Fusion;
 using HeroesOfDragonland.Multiplayer;
 using HeroesOfDragonland.Player;
 using UnityEngine;
@@ -7,7 +7,7 @@ using UnityEngine.InputSystem;
 namespace HeroesOfDragonland.World
 {
     // Binds the existing Souls-style camera to the local connection's avatar only.
-    [DisallowMultipleComponent, RequireComponent(typeof(Camera), typeof(ThirdPersonCamera))]
+    [DefaultExecutionOrder(180), DisallowMultipleComponent, RequireComponent(typeof(Camera), typeof(ThirdPersonCamera))]
     public sealed class BattlefieldCamera : MonoBehaviour
     {
         [SerializeField] private MultiplayerBootstrap bootstrap;
@@ -71,12 +71,12 @@ namespace HeroesOfDragonland.World
             else if (captured && Application.isFocused) { Cursor.lockState = CursorLockMode.Locked; Cursor.visible = false; }
             if (localTarget == null || spectating) return;
             var targeting = localTarget.GetComponent<TargetLock>();
-            follow.SetFocusPoint(targeting != null && targeting.CurrentTarget != null ? targeting.CurrentTarget.AimPosition : (Vector3?)null);
+            follow.SetFocusTarget(targeting != null ? targeting.CurrentTarget : null);
             follow.ApplyLook(acceptLook && Mouse.current != null ? Mouse.current.delta.ReadValue() : Vector2.zero, true, Time.deltaTime);
         }
         public Vector2 ToWorldMovement(Vector2 input)
         {
-            var world = Quaternion.Euler(0, transform.eulerAngles.y, 0) * new Vector3(input.x, 0, input.y);
+            var world = Quaternion.Euler(0, follow != null ? follow.InputYaw : transform.eulerAngles.y, 0) * new Vector3(input.x, 0, input.y);
             return new Vector2(world.x, world.z);
         }
         private void Capture(bool value)

@@ -1,6 +1,7 @@
 param(
-    [Parameter(Mandatory)] [ValidateSet('Defense','Magic','Boss','Fortress','TeamPing','Bow','Traps','Pacing')] [string]$Feature,
-    [string]$Executable = 'Builds/PlaytestAlpha/Dragonland.exe'
+    [Parameter(Mandatory)] [ValidateSet('Defense','Magic','Boss','Fortress','TeamPing','Bow','Traps','Pacing','Latency')] [string]$Feature,
+    [string]$Executable = 'Builds/PlaytestAlpha/Dragonland.exe',
+    [ValidateSet('30','80','150','jitter','burst')] [string]$Latency
 )
 $ErrorActionPreference = 'Stop'
 $profiles = @{
@@ -11,6 +12,7 @@ $profiles = @{
     TeamPing = @('-hodrPingCheck', 'TeamPing')
     Bow = @('-hodrBowCheck', 'BowNetwork')
     Traps = @('-hodrTrapsCheck', 'TrapsNetwork')
+    Latency = @('-hodrLatencyCheck', 'LatencyNetwork')
     Pacing = @('-hodrPacingCheck', 'PacingNetwork')
 }
 $flag, $tag = $profiles[$Feature]
@@ -27,6 +29,7 @@ function Start-FeaturePeer([string]$role, [string]$label = $role) {
     $readyCount = if ($Feature -eq 'Pacing') { 6 } else { $peerCount }
     $arguments = @('-batchmode', '-nographics', '-hodrMode', $role, '-hodrRoom', $room,
         '-hodrPlaytestReady', "$readyCount", $flag, '-logFile', ('"' + $log + '"'))
+    if ($Latency) { $arguments += @('-hodrLatency', $Latency) }
     if ($Feature -eq 'Pacing' -and $role -eq 'host') { $arguments += @('-hodrBots', '4') }
     $processes.Add((Start-Process -FilePath $player -WindowStyle Hidden -PassThru -ArgumentList $arguments))
 }

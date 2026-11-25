@@ -35,7 +35,7 @@ namespace HeroesOfDragonland.Player
             equipment = GetComponent<Equipment>();
             LocalBow = new BowShot(gameObject);
             if (GetComponent<BowPresentation>() == null) gameObject.AddComponent<BowPresentation>();
-            LocalBow.Impact += point => GetComponent<BowPresentation>()?.PresentImpact(point, null, Teams.TeamId.Unassigned);
+            LocalBow.Impact += (point, confirmed) => GetComponent<BowPresentation>()?.PresentImpact(point, null, Teams.TeamId.Unassigned, confirmed);
             dodge = GetComponent<PlayerDodge>();
             interactor = GetComponent<HeroesOfDragonland.Interaction.PlayerInteractor>();
             if (inputActions == null || followCamera == null)
@@ -75,12 +75,11 @@ namespace HeroesOfDragonland.Player
             bool captured = Application.isFocused && Cursor.lockState == CursorLockMode.Locked;
             if (!captured || !wasCaptured) meleeAttack?.DiscardBufferedAttack();
             if (targetLock != null) targetLock.Tick(captured);
-            followCamera.SetFocusPoint(targetLock != null && targetLock.CurrentTarget != null
-                ? targetLock.CurrentTarget.AimPosition : (Vector3?)null);
+            followCamera.SetFocusTarget(targetLock != null ? targetLock.CurrentTarget : null);
             Vector2 look = captured ? lookAction.ReadValue<Vector2>() : Vector2.zero;
             followCamera.ApplyLook(look, lookAction.activeControl?.device is Pointer, Time.deltaTime);
             Vector2 input = captured ? moveAction.ReadValue<Vector2>() : Vector2.zero;
-            Quaternion yaw = Quaternion.Euler(0f, followCamera.transform.eulerAngles.y, 0f);
+            Quaternion yaw = Quaternion.Euler(0f, followCamera.InputYaw, 0f);
             Vector3 direction = yaw * new Vector3(input.x, 0f, input.y);
             Vector3? facing = targetLock != null ? targetLock.FacingDirection : null;
             var defense = GetComponent<CombatDefense>();
@@ -142,7 +141,7 @@ namespace HeroesOfDragonland.Player
             dodgeAction?.Disable();
             if (dodge != null) dodge.Cancel();
             if (targetLock != null) targetLock.Unlock();
-            if (followCamera != null) followCamera.SetFocusPoint(null);
+            if (followCamera != null) followCamera.SetFocusTarget(null);
             SetCursorCaptured(false);
         }
 

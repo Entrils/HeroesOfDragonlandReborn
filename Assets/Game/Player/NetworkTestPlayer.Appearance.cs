@@ -41,8 +41,12 @@ namespace HeroesOfDragonland.Multiplayer
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         private void RPC_SubmitAppearance(ushort code, uint cosmetics, RpcInfo info = default)
         {
-            if (HasSubmittedAppearance || IsBot || info.Source != Object.InputAuthority || !NetworkParticipant.IsAdmitted(Object)
-                || !CharacterAppearance.TryDecode(code, out _) || !CosmeticVisualLoadout.TryDecode(cosmetics, out _)) return;
+            if (HasSubmittedAppearance || IsBot || !NetworkParticipant.OwnsRequest(Object, info.Source)) return;
+            if (!CharacterAppearance.TryDecode(code, out _) || !CosmeticVisualLoadout.TryDecode(cosmetics, out _))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.AppearanceCode);
+                return;
+            }
             // The local collection enforces ownership. The session validates catalog indices and carries visual state only.
             CosmeticState = cosmetics;
             AppearanceState = AppearanceSubmittedFlag | code;

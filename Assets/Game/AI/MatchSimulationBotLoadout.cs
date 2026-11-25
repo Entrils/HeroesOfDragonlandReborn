@@ -6,9 +6,12 @@ using HeroesOfDragonland.Progression;
 
 namespace HeroesOfDragonland.Multiplayer
 {
-    // Soak-only decisions through existing authority/requirements/atomic transfers.
+    // Server bot loadout improvements through existing requirements and atomic transfers.
     internal static class MatchSimulationBotLoadout
     {
+        private static readonly ItemStat[] Attributes =
+            { ItemStat.Strength, ItemStat.Vitality, ItemStat.Endurance, ItemStat.Mind, ItemStat.Dexterity };
+
         internal static void Improve(NetworkTestPlayer player)
         {
             var inventory = player.GetComponent<Inventory>();
@@ -24,8 +27,7 @@ namespace HeroesOfDragonland.Multiplayer
             var progression = player.GetComponent<SessionProgression>();
             if (progression != null && progression.ProgressionPoints > 0)
             {
-                var attributes = new[] { ItemStat.Strength, ItemStat.Vitality, ItemStat.Endurance };
-                progression.TryIncreaseAttribute(attributes[(int)(progression.Revision % attributes.Length)], progression.SessionId, out _);
+                progression.TryIncreaseAttribute(Attributes[(int)(progression.Revision % Attributes.Length)], progression.SessionId, out _);
             }
         }
     }

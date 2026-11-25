@@ -73,10 +73,17 @@ namespace HeroesOfDragonland.Multiplayer
         // Shared per-avatar request budget for inventory and equipment RPCs.
         internal bool AdmitRequest(PlayerRef sender)
         {
-            if (!IsAdmitted || sender == PlayerRef.None || sender != Object.InputAuthority || Runner.Tick.Raw < nextRequestTick) return false;
+            if (!NetworkParticipant.OwnsRequest(Object, sender))
+            {
+                ServerActionAudit.Record(Runner, sender, ServerRejection.Sender);
+                return false;
+            }
+            if (Runner.Tick.Raw < nextRequestTick) return false;
             nextRequestTick = Runner.Tick.Raw + Mathf.Max(1, Mathf.CeilToInt(0.1f / Runner.DeltaTime));
             return true;
         }
+        private bool ValidInventoryIndex(int index) => index >= 0 && index < inventory.SlotCount;
+
         public bool RequestRemove(int index, int amount)
         {
             if (!CanRequest) return false;
@@ -87,7 +94,9 @@ namespace HeroesOfDragonland.Multiplayer
         private void RPC_Remove(int index, int amount, long expectedRevision, RpcInfo info = default)
         {
             if (!AdmitRequest(info.Source)) return;
-            bool accepted = CanMutateInventory && expectedRevision == SnapshotRevision && inventory.TryRemoveAt(index, amount);
+            bool valid = ValidInventoryIndex(index) && amount > 0;
+            if (!valid) ServerActionAudit.Record(Runner, info.Source, ServerRejection.InventorySlot);
+            bool accepted = valid && CanMutateInventory && expectedRevision == SnapshotRevision && inventory.TryRemoveAt(index, amount);
             RPC_RemoveResult(accepted, accepted ? "Removed" : "Invalid or stale remove request");
         }
         [Rpc(RpcSources.StateAuthority, RpcTargets.InputAuthority)]

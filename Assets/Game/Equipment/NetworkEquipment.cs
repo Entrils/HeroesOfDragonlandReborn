@@ -73,7 +73,10 @@ namespace HeroesOfDragonland.Multiplayer
             if (!inventory.AdmitRequest(info.Source)) return;
             string reason = "Invalid or stale equipment request";
             bool accepted = false;
-            if (CanChangeEquipment && inventoryRevision == inventory.SnapshotRevision && equipmentRevision == SnapshotRevision)
+            bool validSlot = slot >= (int)EquipmentSlot.MainHand && slot < (int)EquipmentSlot.MainHand + EquippedIds.Length
+                && (unequip ? index == -1 : index >= 0 && index < inventory.SlotCount);
+            if (!validSlot) ServerActionAudit.Record(Runner, info.Source, ServerRejection.EquipmentSlot);
+            if (validSlot && CanChangeEquipment && inventoryRevision == inventory.SnapshotRevision && equipmentRevision == SnapshotRevision)
                 accepted = unequip ? equipment.TryUnequip((EquipmentSlot)slot, out reason)
                     : equipment.TryEquip(index, (EquipmentSlot)slot, out reason);
             RPC_Result(accepted, accepted ? "Equipment changed" : reason);

@@ -121,6 +121,22 @@ namespace HeroesOfDragonland.Combat
             Check(false, "open shot corridor");
         }
 
+#if UNITY_EDITOR
+        public static Vector3 OfflineCheckOrigin(GameObject actor) => BowShot.Origin(actor.transform);
+
+        public static void ValidateOfflineContact(GameObject actor)
+        {
+            var shot = new BowShot(actor);
+            int confirmed = 0;
+            shot.Impact += (_, contact) => { if (contact) confirmed++; };
+            Check(shot.TryStart(actor.transform.forward, null), "offline draw accepted");
+            shot.Tick(shot.DrawDuration + .01f, false);
+            Check(shot.InFlight, "offline arrow released");
+            shot.Tick(1, false);
+            Check(confirmed == 1 && !shot.InFlight, "offline arrow resolved exactly one actor contact");
+        }
+#endif
+
         private static void Check(bool condition, string message)
         {
             if (!condition) throw new InvalidOperationException("[BowNetwork] FAIL " + message);

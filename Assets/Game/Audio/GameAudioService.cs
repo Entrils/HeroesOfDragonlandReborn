@@ -55,6 +55,9 @@ namespace HeroesOfDragonland.Audio
             source.priority = 256 - Mathf.Clamp(sound.priority * 2, 1, 255); source.loop = sound.loop;
         }
         public bool Play(AudioCue cue, Vector3 point, Object owner = null)
+            => PlayImpact(cue, point, owner, 1);
+
+        internal bool PlayImpact(AudioCue cue, Vector3 point, Object owner, float pitch)
         {
             if (!isActiveAndEnabled || budget == null) return false;
             var sound = catalog.Find(cue);
@@ -65,14 +68,19 @@ namespace HeroesOfDragonland.Audio
             int index = budget.Acquire((int)cue, owner != null ? unchecked((long)EntityId.ToULong(owner.GetEntityId())) : 0, sound.priority,
                 sound.maximumConcurrent, Time.unscaledTimeAsDouble, sound.cooldown, out int generation);
             if (index < 0) return false;
-            generations[index] = generation; Configure(voices[index], sound, point); voices[index].Play();
+            var source = voices[index];
+            if (source == null) { budget.Release(index, generation); return false; }
+            generations[index] = generation;
+            Configure(source, sound, point);
+            source.pitch *= Mathf.Clamp(pitch, .65f, 1.4f);
+            source.Play();
             try { CuePlayed?.Invoke(cue); } catch (System.Exception error) { Debug.LogException(error, this); }
             return true;
         }
         private void Reclaim()
         {
             if (voices == null) return;
-            for (int i = 0; i < voices.Length; i++) if (!voices[i].isPlaying) budget.Release(i, generations[i]);
+            for (int i = 0; i < voices.Length; i++) if (voices[i] == null || !voices[i].isPlaying) budget.Release(i, generations[i]);
         }
         private void Update()
         {
@@ -125,7 +133,7 @@ namespace HeroesOfDragonland.Audio
         public void SetAmbienceGain(float gain) { if (ambience != null) ambience.volume = catalog.Find(ambienceCue).volume * Mathf.Clamp01(gain); }
         private void OnDisable()
         {
-            if (voices != null) for (int i = 0; i < voices.Length; i++) { voices[i].Stop(); budget.Release(i, generations[i]); }
+            if (voices != null) for (int i = 0; i < voices.Length; i++) { if (voices[i] != null) voices[i].Stop(); budget.Release(i, generations[i]); }
             musicDecks.Reset(); PlaybackGeneration++;
             if (music != null) { music.Stop(); music.clip = null; }
             if (musicB != null) { musicB.Stop(); musicB.clip = null; }

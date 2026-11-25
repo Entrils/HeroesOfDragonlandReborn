@@ -28,8 +28,12 @@ namespace HeroesOfDragonland.Multiplayer
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         private void RPC_RequestTeamPing(int round, TeamPingKind intent, Vector3 point, NetworkId target, RpcInfo info = default)
         {
-            if (info.Source == PlayerRef.None || info.Source != Object.InputAuthority || !NetworkParticipant.IsAdmitted(Object)
-                || networkStats == null || networkStats.Dead || !TeamPings.PlayableTeam(Team)) return;
+            if (!NetworkParticipant.OwnsRequest(Object, info.Source))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.Sender);
+                return;
+            }
+            if (networkStats == null || networkStats.Dead || !TeamPings.PlayableTeam(Team)) return;
             var match = NetworkMatchPacing.MatchFor(Runner);
             if (match == null || !match.CanPlay || round != match.RoundNumber) return;
             int now = Runner.Tick.Raw;
@@ -37,6 +41,11 @@ namespace HeroesOfDragonland.Multiplayer
             if (now < nextPingTick) return;
             // Charge the request before any physics work, including rejected requests.
             nextPingTick = now + Mathf.CeilToInt(Mathf.Clamp(pingCooldown, .5f, 5) / Runner.DeltaTime);
+            if (!float.IsFinite(point.sqrMagnitude) || intent is not (TeamPingKind.Location or TeamPingKind.Danger or TeamPingKind.Retreat))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.PingPayload);
+                return;
+            }
             while (pingExpirations.Count != 0 && pingExpirations.Peek() <= now) pingExpirations.Dequeue();
             if (pingExpirations.Count >= Mathf.Clamp(maxActivePings, 1, 4)
                 || !TeamPings.TryResolve(this, intent, point, target, out var kind, out var position)) return;

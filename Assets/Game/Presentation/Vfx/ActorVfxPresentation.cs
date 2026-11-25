@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Presentation.Vfx
         private NetworkSessionProgression progression;
         private AbilityCaster caster;
         private CharacterVisual visual;
-        private readonly VfxSequence attacks = new(), guardBreaks = new(), levels = new();
+        private readonly VfxSequence attacks = new(), levels = new();
         private bool seededDeath, dead;
         private int round = -1;
         private string session;
@@ -44,7 +44,7 @@ namespace HeroesOfDragonland.Presentation.Vfx
         private void OnEnable() { if (caster != null) caster.Presentation += Ability; Reset(); }
         private void Reset()
         {
-            attacks.Reset(); guardBreaks.Reset(); levels.Reset(); seededDeath = false; round = -1; session = null;
+            attacks.Reset(); levels.Reset(); seededDeath = false; round = -1; session = null;
             StopPersistent();
         }
         private void StopPersistent()
@@ -60,12 +60,12 @@ namespace HeroesOfDragonland.Presentation.Vfx
             var match = NetworkMatchPacing.MatchFor(actor.Runner);
             if (match != null && match.Object != null && match.Object.IsValid && match.RoundNumber != round)
             {
-                attacks.Reset(); guardBreaks.Reset(); levels.Reset(); seededDeath = false;
+                attacks.Reset(); levels.Reset(); seededDeath = false;
                 StopPersistent(); round = match.RoundNumber;
             }
             if (player != null && player.IsSuspended)
             {
-                StopPersistent(); attacks.Reset(); guardBreaks.Reset(); levels.Reset(); seededDeath = false;
+                StopPersistent(); attacks.Reset(); levels.Reset(); seededDeath = false;
                 return;
             }
             if (!seededDeath) { seededDeath = true; dead = stats.Dead; }
@@ -85,7 +85,6 @@ namespace HeroesOfDragonland.Presentation.Vfx
                     double age = now - combat.AttackStartTick * (double)actor.Runner.DeltaTime;
                     if (age >= 0 && age < combat.AttackSwingDuration) Pool?.Play(VfxKind.HeavyAttack, Point + transform.forward * .35f, Relation(true));
                 }
-                if (guardBreaks.Observe(combat.GuardBreakSequence)) Pool?.Play(VfxKind.GuardBreak, Point, Relation());
             }
             if (progression != null && progression.Revision > 0 && progression.Level > 0)
             {
@@ -135,7 +134,7 @@ namespace HeroesOfDragonland.Presentation.Vfx
                     if (lease.IsAlive) flights.Add(new Flight { Definition = definition, Lease = lease, Origin = position, Direction = direction.normalized });
                 }
             }
-            if (cue != AbilityCue.Impact) return;
+            if (cue is not (AbilityCue.Impact or AbilityCue.ConfirmedImpact)) return;
             if (definition.Effect == AbilityEffect.Heal) Pool.Play(VfxKind.Healing, position, Relation());
             else if (definition.Effect == AbilityEffect.FireProjectile)
             {
@@ -148,7 +147,7 @@ namespace HeroesOfDragonland.Presentation.Vfx
                     if (delta < distance) { distance = delta; nearest = i; }
                 }
                 if (nearest >= 0) { flights[nearest].Lease.Stop(); flights.RemoveAt(nearest); }
-                Pool.Play(VfxKind.MeleeHit, position, Relation(true));
+                if (cue == AbilityCue.Impact) Pool.Play(VfxKind.MeleeHit, position, Relation(true));
             }
         }
     }

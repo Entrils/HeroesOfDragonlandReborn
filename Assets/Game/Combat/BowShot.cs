@@ -41,7 +41,7 @@ namespace HeroesOfDragonland.Combat
         public float ReleaseRemaining { get; private set; }
         public float ReleaseDuration { get; private set; }
         public BowProfile Profile { get; private set; }
-        public event Action<Vector3> Impact;
+        public event Action<Vector3, bool> Impact;
 
         public BowShot(GameObject owner)
         {
@@ -106,13 +106,15 @@ namespace HeroesOfDragonland.Combat
             {
                 inFlight = false;
                 var target = hit.collider.GetComponentInParent<DamageReceiver>();
+                bool confirmed = false;
                 if (target != null)
                 {
                     ResolvingHit = true;
-                    try { target.TakeDamage(damage, owner, releasedFrom); }
+                    try { target.TakeDamage(damage, owner, releasedFrom, new DamageImpact(ImpactWeapon.Bow, hit.point, Direction), out confirmed); }
                     finally { ResolvingHit = false; }
                 }
-                Impact?.Invoke(hit.point);
+                Impact?.Invoke(hit.point, confirmed && (!owner.TryGetComponent<Fusion.NetworkObject>(out var net)
+                    || !net.IsValid || target.GetComponent<HeroesOfDragonland.Presentation.Vfx.NetworkImpactVfx>() != null));
                 return;
             }
             Position += Direction * step;
@@ -132,7 +134,7 @@ namespace HeroesOfDragonland.Combat
             if (MuzzleBlocked())
             {
                 CancelDraw();
-                Impact?.Invoke(Position);
+                Impact?.Invoke(Position, false);
                 return;
             }
             releasedFrom = item?.DisplayName ?? "Bow shot";

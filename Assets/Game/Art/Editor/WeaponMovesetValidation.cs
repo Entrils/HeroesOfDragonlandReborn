@@ -36,8 +36,14 @@ namespace HeroesOfDragonland.Art.Editor
         }
         public static void Start()
         {
+            ValidateAssets();
+            StartFeedback();
+        }
+
+        public static void StartFeedback()
+        {
             Check(Application.isPlaying, "Play Mode required");
-            ValidateAssets(); Status = "RUNNING";
+            Status = "RUNNING";
             UnityEngine.Object.FindAnyObjectByType<MultiplayerBootstrap>().StartCoroutine(Run());
         }
         private static IEnumerator Run()
@@ -53,9 +59,10 @@ namespace HeroesOfDragonland.Art.Editor
             var items = new List<ItemDefinition>();
             try
             {
-                foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff })
+                foreach (WeaponArchetype kind in new[] { WeaponArchetype.Sword, WeaponArchetype.Greatsword, WeaponArchetype.Spear, WeaponArchetype.Staff, WeaponArchetype.Bow })
                 {
-                    var source = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + kind + ".asset");
+                    var name = kind == WeaponArchetype.Bow ? "HuntingBow" : kind.ToString();
+                    var source = AssetDatabase.LoadAssetAtPath<WeaponDefinition>("Assets/Game/Data/Weapons/" + name + ".asset");
                     var weapon = UnityEngine.Object.Instantiate(source); temporary.Add(weapon);
                     var w = new SerializedObject(weapon); w.FindProperty("statRequirements").arraySize = 0; w.ApplyModifiedPropertiesWithoutUndo();
                     var item = ScriptableObject.CreateInstance<ItemDefinition>(); temporary.Add(item);
@@ -78,7 +85,19 @@ namespace HeroesOfDragonland.Art.Editor
                 target.transform.position = actor.transform.position + new Vector3(0, 1, .8f);
                 target.AddComponent<BoxCollider>(); var receiver = target.AddComponent<DamageReceiver>();
                 var targetStats = target.GetComponent<CharacterStats>();
-                for (int kind = 0; kind < items.Count; kind++)
+                var feedback = CombatFeedbackProfiles.Current;
+                Check(feedback != null && feedback.TrailMaterial != null, "combat feedback asset and trail material");
+                DamageImpact lastImpact = default;
+                DamageImpactCue lastCue = default;
+                int contacts = 0;
+                receiver.ContactResolved += (cue, source, impact) =>
+                {
+                    if (source != actor) return;
+                    contacts++;
+                    lastImpact = impact;
+                    lastCue = cue;
+                };
+                for (int kind = 0; kind < items.Count - 1; kind++)
                 {
                     Check(equipment.TryEquip(kind, EquipmentSlot.MainHand, out _), "equip " + items[kind].DisplayName);
                     var weapon = equipment.EquippedWeapon; var moveset = weapon.Moveset;
@@ -95,15 +114,43 @@ namespace HeroesOfDragonland.Art.Editor
                             && Mathf.Approximately(melee.MovementMultiplier, move.MovementMultiplier)
                             && Mathf.Approximately(melee.StaggerPower, move.StaggerPower), "committed timing, movement, stagger");
                         Check(!melee.TryHeavyAttack(), "busy cannot replace committed attack");
+                        contacts = 0;
                         Physics.SyncTransforms();
                         melee.TickAttack(move.Profile.ActiveStartTime / move.AttackSpeed * .5f);
                         Check(targetStats.CurrentHealth == targetStats.MaxHealth, "no hit before server window");
                         melee.TickAttack((move.Profile.ActiveEndTime - move.Profile.ActiveStartTime * .5f) / move.AttackSpeed + .001f);
                         Check(targetStats.CurrentHealth < targetStats.MaxHealth, "server hit during/crossing window");
+                        var expectedWeapon = weapon.Archetype switch
+                        {
+                            WeaponArchetype.Greatsword => ImpactWeapon.Greatsword,
+                            WeaponArchetype.Spear => ImpactWeapon.Spear,
+                            WeaponArchetype.Staff => ImpactWeapon.Staff,
+                            _ => ImpactWeapon.Sword
+                        };
+                        Check(contacts == 1 && lastCue == DamageImpactCue.MeleeHit && lastImpact.Weapon == expectedWeapon
+                            && Vector3.Dot(lastImpact.Direction, actor.transform.forward) > .99f, "classified and directional contact");
                         float hitHealth = targetStats.CurrentHealth; melee.TickAttack(.001f);
                         Check(targetStats.CurrentHealth == hitHealth, "one hit per target per move");
                         visual.SetWeaponPresentation(weapon, false, index);
-                        visual.Apply(new CharacterVisualState { Attacking = true, ActionSequence = i + 1, ActionDuration = melee.SwingDuration }, .1f);
+                        var snapshot = new CharacterVisualState { Attacking = true, ActionSequence = kind + 1, ActionDuration = melee.SwingDuration };
+                        if (weapon.Archetype != WeaponArchetype.Staff)
+                        {
+                            var model = AssetDatabase.LoadAssetAtPath<GameObject>("Assets/Art/Models/Weapons/" + weapon.Archetype + ".prefab");
+                            Check(visual.Attach(model, CharacterSocket.RightHand) != null, "visible weapon fixture");
+                        }
+                        visual.Apply(snapshot, .1f);
+                        var trail = visual.GetComponentInChildren<TrailRenderer>();
+                        Check(trail == null || !trail.emitting, "no trail during anticipation");
+                        if (weapon.Archetype != WeaponArchetype.Staff)
+                        {
+                            snapshot.ActionAge = (move.Profile.ActiveStartTime + move.Profile.ActiveEndTime) * .5f / move.AttackSpeed;
+                            visual.Apply(snapshot, .1f);
+                            trail = visual.GetComponentInChildren<TrailRenderer>();
+                            Check(trail != null && trail.emitting, "trail emits in accepted active window");
+                            snapshot.ActionAge = melee.SwingDuration;
+                            visual.Apply(snapshot, .1f);
+                            Check(!trail.emitting, "trail stops in follow-through");
+                        }
                         yield return null;
                         var controller = visual.Animator.runtimeAnimatorController as AnimatorOverrideController;
                         var baseClip = visual.AnimationLibrary.Get(CharacterMotion.LightAttack);
@@ -134,10 +181,20 @@ namespace HeroesOfDragonland.Art.Editor
                     Check(targetStats.CurrentHealth == targetStats.MaxHealth, "range enforced by server geometry"); Cancel(melee);
                     target.transform.position = actor.transform.position + new Vector3(0, 1, .8f);
                 }
+                Check(feedback.Resolve(DamageImpactCue.MeleeHit, ImpactWeapon.Greatsword).hitStop
+                    > feedback.Resolve(DamageImpactCue.MeleeHit, ImpactWeapon.Sword).hitStop, "greatsword feedback carries more weight");
+                Check(equipment.TryEquip(items.Count - 1, EquipmentSlot.MainHand, out _), "equip bow");
+                stats.ResetToFull(); targetStats.ResetToFull();
+                target.transform.position = BowNetworkProbe.OfflineCheckOrigin(actor) + actor.transform.forward * 6;
+                Physics.SyncTransforms();
+                contacts = 0;
+                BowNetworkProbe.ValidateOfflineContact(actor);
+                Check(contacts == 1 && lastCue == DamageImpactCue.MeleeHit && lastImpact.Weapon == ImpactWeapon.Bow
+                    && targetStats.CurrentHealth < targetStats.MaxHealth, "bow publishes one confirmed swept contact");
                 Check(equipment.TryUnequip(EquipmentSlot.MainHand, out _), "unequip");
                 visual.SetWeaponPresentation(null, false, 0);
                 Check(((AnimatorOverrideController)visual.Animator.runtimeAnimatorController)[visual.AnimationLibrary.Get(CharacterMotion.LightAttack)] == visual.AnimationLibrary.Get(CharacterMotion.LightAttack), "unequip restores default clip");
-                Status = "PASS four equips, standalone light/reset, rejected costs, heavy profiles, hit windows/dedup/range and actual clip overrides; chained transitions covered by M43.";
+                Status = "PASS sword/greatsword/spear/staff/bow contact, standalone light/reset, rejected costs, heavy profiles, hit windows/dedup/range and actual clip overrides; chained transitions covered by M43.";
                 Debug.Log("[WeaponMovesetValidation] " + Status);
             }
             finally

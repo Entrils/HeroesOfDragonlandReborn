@@ -41,17 +41,25 @@ namespace HeroesOfDragonland.Multiplayer
         [Rpc(RpcSources.All, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         private void RPC_Open(RpcInfo info = default)
         {
-            if (!CanMutateChest || !Runner.TryGetPlayerObject(info.Source, out var player) || player == null) return;
+            if (!CanMutateChest) return;
+            if (!NetworkParticipant.TryResolveSender(Runner, info.Source, out var player))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.Sender);
+                return;
+            }
             var inventory = player.GetComponent<NetworkInventory>();
             if (inventory == null || !inventory.AdmitRequest(info.Source)) return;
             bool accepted = TryOpenFor(info.Source, out string message);
+            // Allow for a normal late reach rejection before logging markedly distant requests.
+            float auditRange = chest.InteractionRange + 1.5f;
+            if (!accepted && (chest.InteractionPoint - player.transform.position).sqrMagnitude > auditRange * auditRange)
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.ChestReach);
             RPC_OpenResult(info.Source, accepted, message);
         }
         internal bool TryOpenFor(PlayerRef sender, out string message)
         {
             message = "Chest is unavailable.";
-            if (!CanMutateChest || sender == PlayerRef.None
-                || !Runner.TryGetPlayerObject(sender, out var player) || player == null) return false;
+            if (!CanMutateChest || !NetworkParticipant.TryResolveSender(Runner, sender, out var player)) return false;
             if (IsOpen || chest.IsOpen) { message = "Chest has already been looted."; return false; }
             // No team ownership restriction: first accepted server request wins.
             bool accepted = chest.TryInteract(player.GetComponent<Inventory>(), out message);

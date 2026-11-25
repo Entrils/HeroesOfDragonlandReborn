@@ -34,7 +34,7 @@ namespace HeroesOfDragonland.Presentation.Vfx
             stack.Push(effect);
         }
         public VfxLease Play(VfxKind kind, Vector3 position, VfxRelation relation = VfxRelation.Neutral,
-            Vector3 direction = default, Transform follow = null, float lifetime = 0)
+            Vector3 direction = default, Transform follow = null, float lifetime = 0, float scale = 1)
         {
             if (!isActiveAndEnabled || catalog == null || budget == null || (Application.isBatchMode && !renderInBatchMode)) return default;
             var entry = catalog.Find(kind);
@@ -72,7 +72,7 @@ namespace HeroesOfDragonland.Presentation.Vfx
             instance.gameObject.SetActive(false);
             instance.transform.SetPositionAndRotation(follow != null ? follow.position : position,
                 direction.sqrMagnitude > .0001f ? Quaternion.LookRotation(direction) : Quaternion.identity);
-            instance.transform.localScale = Vector3.one;
+            instance.transform.localScale = Vector3.one * Mathf.Clamp(scale, .5f, 1.6f);
             instance.gameObject.SetActive(true);
             instance.Begin(this, ticket, kind, relation, Mathf.Clamp(lifetime > 0 ? lifetime : entry.Duration, .05f, 30), follow);
             return new VfxLease(instance, ticket);

@@ -101,11 +101,12 @@ namespace HeroesOfDragonland.Multiplayer
             => NetworkParticipant.IsAdmitted(Object);
 
         // Read each press once, including rejected presses; missing/repeated packets cannot replay it.
-        internal void TickIntent(NetworkPlayerInput input, Vector3 facing, bool dodgeBusy)
+        internal void TickIntent(NetworkPlayerInput input, Vector3 facing, bool dodgeBusy, bool sampled = true)
         {
             if (!IsAdmitted()) return;
-            bool pressed = presses.TryRead(input.LightAttackPress, input.HeavyAttackPress, out var attack);
-            bool parryPressed = parryPresses.TryRead(input.ParryPress, 0, out _);
+            AttackInputKind attack = AttackInputKind.Light;
+            bool pressed = sampled && presses.TryRead(input.LightAttackPress, input.HeavyAttackPress, out attack);
+            bool parryPressed = sampled && parryPresses.TryRead(input.ParryPress, 0, out _);
             if (!NetworkMatch.AllowsGameplay(Runner) || input.SuppressAttacks || stats.IsDead)
             {
                 bow.CancelDraw();
@@ -124,7 +125,13 @@ namespace HeroesOfDragonland.Multiplayer
                 Targetable target = null;
                 if (input.LockedOn && input.BowTarget != default && Runner.TryFindObject(input.BowTarget, out var candidate))
                     target = candidate.GetComponentInChildren<Targetable>();
+                if (!sampled) return; // A missing tick may preserve a draw, but never retarget or release it.
                 Vector3 aim = input.BowAim;
+                if (!ValidBowIntent(aim))
+                {
+                    ServerActionAudit.Record(Runner, Object.InputAuthority, ServerRejection.BowAim);
+                    return;
+                }
                 if (aim == Vector3.zero) aim = facing;
                 bow.UpdateAim(aim, target);
                 if (pressed && attack == AttackInputKind.Light && !melee.IsBusy && bow.TryStart(aim, target))
@@ -184,18 +191,24 @@ namespace HeroesOfDragonland.Multiplayer
 
         private void ResetBow() { bow.Cancel(); PublishBow(); }
 
+        internal static bool ValidBowIntent(Vector3 aim)
+            => float.IsFinite(aim.x) && float.IsFinite(aim.y) && float.IsFinite(aim.z) && aim.sqrMagnitude <= 1.001f;
+
+        internal bool AllowsMeleeDamage(NetworkRunner runner) => Runner == runner && IsAdmitted()
+            && NetworkMatch.AllowsGameplay(Runner) && ResolvingAttack && melee.IsResolvingMeleeHit && !stats.IsDead;
+
         public bool AllowsArrowDamage(NetworkRunner runner) => runner == Runner && Runner.IsServer && HasStateAuthority
             && IsAdmitted() && NetworkMatch.AllowsGameplay(Runner) && !stats.IsDead && bow.ResolvingHit;
 
-        private void BroadcastArrowImpact(Vector3 point)
+        private void BroadcastArrowImpact(Vector3 point, bool confirmed)
         {
-            if (Runner.IsForward) RPC_ArrowImpact(point);
+            if (Runner.IsForward) RPC_ArrowImpact(point, confirmed);
         }
 
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_ArrowImpact(Vector3 point)
+        private void RPC_ArrowImpact(Vector3 point, bool confirmed)
         {
-            GetComponent<BowPresentation>()?.PresentImpact(point, Runner, player.Team);
+            GetComponent<BowPresentation>()?.PresentImpact(point, Runner, player.Team, confirmed);
         }
 
         private void PublishMoveset()
@@ -254,8 +267,7 @@ namespace HeroesOfDragonland.Multiplayer
             var attacker = source.GetComponent<NetworkPlayerCombat>();
             if (attacker != null && attacker.AllowsArrowDamage(Runner))
                 return TeamIdentity.AreEnemies(TeamIdentity.Find(source), GetComponent<TeamIdentity>());
-            return attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
-                && attacker.ResolvingAttack && attacker.melee.IsResolvingMeleeHit && !attacker.stats.IsDead
+            return attacker != null && attacker.AllowsMeleeDamage(Runner)
                 && player.Team != TeamId.Unassigned && attacker.player.Team != TeamId.Unassigned
                 && player.Team != attacker.player.Team;
         }

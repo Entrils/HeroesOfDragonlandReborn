@@ -18,7 +18,7 @@ namespace HeroesOfDragonland.Presentation
 
     // Owns presentation only. This component never moves the gameplay root or applies damage.
     [DisallowMultipleComponent]
-    public sealed class CharacterVisual : MonoBehaviour
+    public sealed partial class CharacterVisual : MonoBehaviour
     {
         [SerializeField] private Animator animator;
         [SerializeField] private CharacterAnimationLibrary animationLibrary;
@@ -42,6 +42,7 @@ namespace HeroesOfDragonland.Presentation
         public void SetWeaponPresentation(HeroesOfDragonland.Items.WeaponDefinition weapon, bool heavy, int index)
         {
             if (animator == null || animationLibrary == null) return;
+            SetFeedbackMove(weapon, heavy, index);
             var light = weapon != null ? weapon.Moveset != null ? weapon.Moveset.GetAnimation(false, heavy ? 0 : index)
                 : weapon.AttackAnimationSet?.LightAttack : null;
             var strong = weapon != null ? weapon.Moveset != null ? weapon.Moveset.GetAnimation(true, 0)
@@ -99,7 +100,14 @@ namespace HeroesOfDragonland.Presentation
             float clipLength=animationLibrary!=null?animationLibrary.Duration(CharacterAnimationModel.Motion(next)):1;
             var attackClip = next == CharacterAction.LightAttack ? shownLight : next == CharacterAction.HeavyAttack ? shownHeavy : null;
             if (attackClip != null) clipLength = Mathf.Max(.05f, attackClip.length);
-            animator.SetFloat("ActionSpeed",state.ActionDuration>0?Mathf.Clamp(clipLength/state.ActionDuration,.1f,8):1);
+            bool attacking = next is CharacterAction.LightAttack or CharacterAction.HeavyAttack;
+            float rate = 1;
+            int attackPhase = -1;
+            float sample = attacking ? AttackSample(state, out rate, out attackPhase) : -1;
+            bool resync = sample >= 0 && !frozen && (attackPhase != lastAttackPhase || resampleAttack);
+            if (!frozen) { resampleAttack = false; lastAttackPhase = attackPhase; }
+            animator.SetFloat("ActionSpeed", state.ActionDuration > 0 ? Mathf.Clamp(rate * clipLength / state.ActionDuration, .1f, 8) : 1);
+            UpdateTrail(state, attacking);
             if(animator.layerCount>CharacterAnimationModel.ActionLayer)
             {
                 for(int layer=1;layer<=CharacterAnimationModel.ActionLayer;layer++)
@@ -108,9 +116,10 @@ namespace HeroesOfDragonland.Presentation
                     float desired=next!=CharacterAction.None&&CharacterAnimationModel.Layer(next)==layer?1:0;
                     animator.SetLayerWeight(layer,Mathf.MoveTowards(weight,desired,Mathf.Max(0,deltaTime)*15));
                 }
-                if(next!=CharacterAction.None&&(next!=Action||state.ActionSequence!=lastSequence))
+                if(next!=CharacterAction.None&&(next!=Action||state.ActionSequence!=lastSequence||resync))
                 {
                     float normalized=state.ActionAge/Mathf.Max(.05f,state.ActionDuration>0?state.ActionDuration:clipLength);
+                    if (sample >= 0) normalized = sample;
                     var clip=animationLibrary!=null?animationLibrary.Get(CharacterAnimationModel.Motion(next)):null;
                     if (attackClip != null) clip = attackClip;
                     normalized=clip!=null&&clip.isLooping?Mathf.Repeat(normalized,1):Mathf.Clamp01(normalized);

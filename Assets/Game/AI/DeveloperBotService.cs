@@ -16,6 +16,16 @@ namespace HeroesOfDragonland.Multiplayer
             internal NetworkObject Avatar;
         }
         [SerializeField, Range(0, 5)] private int requestedBots;
+        [SerializeField] private DeveloperBotDifficulty difficulty = DeveloperBotDifficulty.Standard;
+        [SerializeField] private DeveloperBotTuning recruit = DeveloperBotTuning.Recruit();
+        [SerializeField] private DeveloperBotTuning standard = new();
+        [SerializeField] private DeveloperBotTuning veteran = DeveloperBotTuning.Veteran();
+        internal DeveloperBotTuning Tuning => difficulty switch
+        {
+            DeveloperBotDifficulty.Recruit => recruit,
+            DeveloperBotDifficulty.Veteran => veteran,
+            _ => standard
+        };
         private readonly List<Slot> slots = new List<Slot>();
         private MultiplayerBootstrap bootstrap;
         private float retryAt;
@@ -36,7 +46,11 @@ namespace HeroesOfDragonland.Multiplayer
             bootstrap = GetComponent<MultiplayerBootstrap>();
             var args = System.Environment.GetCommandLineArgs();
             for (int i = 0; i + 1 < args.Length; i++)
+            {
                 if (args[i] == "-hodrBots" && int.TryParse(args[i + 1], out int count)) requestedBots = Mathf.Clamp(count, 0, 5);
+                if (args[i] == "-hodrBotDifficulty" && System.Enum.TryParse(args[i + 1], true, out DeveloperBotDifficulty value)
+                    && System.Enum.IsDefined(typeof(DeveloperBotDifficulty), value)) difficulty = value;
+            }
         }
         private void OnEnable() => GetComponent<MultiplayerBootstrap>().SessionStarted += OnSessionStarted;
         private void OnDisable()
@@ -134,7 +148,7 @@ namespace HeroesOfDragonland.Multiplayer
         {
             if (Application.isBatchMode || !HeroesOfDragonland.UI.DeveloperUiLayout.Visible) return;
             var matrix = HeroesOfDragonland.UI.DeveloperUiLayout.Begin();
-            GUILayout.BeginArea(new Rect(HeroesOfDragonland.UI.DeveloperUiLayout.Width - 376, 240, 360, 180), GUI.skin.box);
+            GUILayout.BeginArea(new Rect(HeroesOfDragonland.UI.DeveloperUiLayout.Width - 376, 240, 360, 206), GUI.skin.box);
             GUILayout.Label("Developer bots (server controlled)");
             bool previous = GUI.enabled;
             GUI.enabled = !bootstrap.Busy && (!bootstrap.Running || bootstrap.Runner.IsServer);
@@ -144,6 +158,7 @@ namespace HeroesOfDragonland.Multiplayer
             if (GUILayout.Button("+", GUILayout.Width(35))) SetBotCount(Mathf.Min(5, requestedBots + 1));
             if (GUILayout.Button("Fill 3v3")) SetBotCount(5);
             GUILayout.EndHorizontal();
+            difficulty = (DeveloperBotDifficulty)GUILayout.Toolbar((int)difficulty, new[] { "Recruit", "Standard", "Veteran" });
             if (!bootstrap.Running && GUILayout.Button("Start local match (no server connection)"))
                 StartLocalMatch();
             GUI.enabled = previous;

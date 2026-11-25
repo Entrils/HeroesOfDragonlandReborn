@@ -6,7 +6,7 @@ namespace HeroesOfDragonland.Abilities
     public enum AbilityEffect { FireProjectile, Heal, Shield }
     public enum AbilityTarget { Forward, SelfOrAlly, Self }
     [Flags] public enum CastInterruption { None = 0, Movement = 1, Damage = 2, Defense = 4, Dodge = 8 }
-    public enum AbilityCue { CastStarted, Released, Interrupted, Impact, ShieldEnded }
+    public enum AbilityCue { CastStarted, Released, Interrupted, Impact, ShieldEnded, ConfirmedImpact }
 
     [CreateAssetMenu(menuName = "Heroes of Dragonland/Ability")]
     public sealed class AbilityDefinition : ScriptableObject

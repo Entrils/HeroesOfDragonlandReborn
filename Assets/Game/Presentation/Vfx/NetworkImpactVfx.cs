@@ -1,69 +1,98 @@
+using System.Collections.Generic;
 using Fusion;
 using HeroesOfDragonland.Combat;
-using HeroesOfDragonland.Multiplayer;
 using HeroesOfDragonland.Teams;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Presentation.Vfx
 {
-    // A compact confirmed outcome, not a networked particle, client hit report or damage request.
+    // Carries accepted contact metadata only. Replicas consume it after simulation.
     [DisallowMultipleComponent, RequireComponent(typeof(DamageReceiver))]
     public sealed class NetworkImpactVfx : NetworkBehaviour, IAfterTick
     {
-        // Local subscribers reuse this confirmed outcome; this adds no network payload.
-        public event System.Action<VfxKind, Vector3> Presented;
         private DamageReceiver receiver;
         private CombatDefense defense;
         private int sequence;
         private int guardBreak;
-        private bool playerDefense;
-        private readonly VfxSequence received = new();
-        private void Awake() { receiver = GetComponent<DamageReceiver>(); defense = GetComponent<CombatDefense>(); playerDefense = GetComponent<NetworkPlayerCombat>() != null; }
+        private int received;
+        private readonly Queue<Contact> pending = new();
+
+        private readonly struct Contact
+        {
+            public readonly DamageImpactCue Cue;
+            public readonly DamageImpact Impact;
+            public readonly NetworkId Source;
+            public readonly TeamId Team;
+            public readonly bool FriendlyFire;
+            public readonly int Tick;
+            public readonly double Expires;
+            public Contact(DamageImpactCue cue, DamageImpact impact, NetworkId source, TeamId team, bool friendlyFire, int tick)
+            { Tick = tick; Expires = Time.unscaledTimeAsDouble + .12; Cue = cue; Impact = impact; Source = source; Team = team; FriendlyFire = friendlyFire; }
+        }
+
+        private void Awake()
+        {
+            receiver = GetComponent<DamageReceiver>();
+            defense = GetComponent<CombatDefense>();
+        }
+
         public override void Spawned()
         {
-            received.Reset();
+            sequence = received = 0;
+            pending.Clear();
             if (!Runner.IsServer || !HasStateAuthority) return;
-            receiver.ImpactResolved += Impact;
-            // Players already replicate guard-break counters; NPCs do not.
+            receiver.ContactResolved += Impact;
             guardBreak = defense != null ? defense.GuardBreakSequence : 0;
         }
-        private void Impact(DamageImpactCue cue, GameObject source)
+
+        private void Impact(DamageImpactCue cue, GameObject source, DamageImpact impact)
         {
             if (Object == null || !Object.IsValid || !Runner.IsServer || !HasStateAuthority || !Runner.IsForward) return;
-            var kind = cue == DamageImpactCue.Parried ? VfxKind.Parry : cue == DamageImpactCue.Blocked ? VfxKind.BlockedHit : VfxKind.MeleeHit;
-            Send(kind, VfxAudience.Team(source), TeamIdentity.Find(source)?.AllowFriendlyFire == true);
+            if (cue == DamageImpactCue.GuardBreak) guardBreak = defense.GuardBreakSequence;
+            var origin = source != null ? source.GetComponent<NetworkObject>() : null;
+            RPC_Impact(++sequence, Runner.Tick.Raw, cue, impact.Weapon, impact.Point, impact.Direction, impact.Heavy,
+                origin != null && origin.IsValid ? origin.Id : default, VfxAudience.Team(source),
+                TeamIdentity.Find(source)?.AllowFriendlyFire == true);
         }
+
         public void AfterTick()
         {
-            if (playerDefense || defense == null || Object == null || !Object.IsValid || !Runner.IsServer || !HasStateAuthority || !Runner.IsForward) return;
-            if (defense.GuardBreakSequence > guardBreak) Send(VfxKind.GuardBreak, VfxAudience.Team(gameObject), false);
+            if (defense == null || Object == null || !Object.IsValid || !Runner.IsServer || !HasStateAuthority || !Runner.IsForward) return;
+            if (defense.GuardBreakSequence > guardBreak)
+                Impact(DamageImpactCue.GuardBreak, null, new DamageImpact(ImpactWeapon.Unarmed,
+                    transform.position + Vector3.up * .8f, Vector3.zero));
             guardBreak = defense.GuardBreakSequence;
         }
-        private void Send(VfxKind kind, TeamId sourceTeam, bool friendlyFire)
-        {
-            var visual = GetComponentInChildren<CharacterVisual>();
-            Vector3 point = visual != null && visual.GetSocket(CharacterSocket.Chest) != null
-                ? visual.GetSocket(CharacterSocket.Chest).position : transform.position + Vector3.up * .8f;
-            RPC_Impact(++sequence, kind, point, sourceTeam, friendlyFire);
-        }
+
         [Rpc(RpcSources.StateAuthority, RpcTargets.All)]
-        private void RPC_Impact(int number, VfxKind kind, Vector3 point, TeamId sourceTeam, bool friendlyFire)
+        private void RPC_Impact(int number, int tick, DamageImpactCue cue, ImpactWeapon weapon, Vector3 point, Vector3 direction,
+            bool heavy, NetworkId source, TeamId team, bool friendlyFire)
         {
-            // RPCs are transient and ordered: seed at zero so the first live cue plays.
-            if (number <= 0) return;
-            if (!started) { received.Observe(0); started = true; }
-            if (!received.Observe(number)) return;
-            if (Presented != null) foreach (System.Action<VfxKind, Vector3> handler in Presented.GetInvocationList())
-            {
-                try { handler(kind, point); } catch (System.Exception exception) { Debug.LogException(exception, this); }
-            }
-            VfxAudience.Pool(Runner)?.Play(kind, point, VfxAudience.Relation(Runner, sourceTeam, true, friendlyFire));
+            if (number <= received) return;
+            received = number;
+            if (pending.Count >= 16) pending.Dequeue();
+            pending.Enqueue(new Contact(cue, new DamageImpact(weapon, point, direction, heavy), source, team, friendlyFire, tick));
         }
-        private bool started;
+
+        public override void Render()
+        {
+            while (pending.TryPeek(out var contact))
+            {
+                NetworkObject source = null;
+                if (contact.Source != default) Runner.TryFindObject(contact.Source, out source);
+                bool remote = source != null ? !source.HasStateAuthority : !HasStateAuthority;
+                double renderTime = remote ? Runner.RemoteRenderTime : Runner.LocalRenderTime;
+                if (renderTime < contact.Tick * (double)Runner.DeltaTime && Time.unscaledTimeAsDouble < contact.Expires) break;
+                pending.Dequeue();
+                CombatFeedback.Present(Runner, gameObject, source != null ? source.gameObject : null,
+                    contact.Cue, contact.Impact, contact.Team, contact.FriendlyFire);
+            }
+        }
+
         public override void Despawned(NetworkRunner runner, bool hasState)
         {
-            if (receiver != null) receiver.ImpactResolved -= Impact;
-            started = false;
+            if (receiver != null) receiver.ContactResolved -= Impact;
+            pending.Clear();
         }
     }
 }

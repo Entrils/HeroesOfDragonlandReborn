@@ -214,7 +214,19 @@ namespace HeroesOfDragonland.Combat
                 if (blocked) continue;
                 hitTargets.Add(receiver);
                 float damage = committedDamage * damageMultiplier;
-                if (receiver is DamageReceiver combatReceiver) combatReceiver.TakeDamage(damage, gameObject, committedRecapAction);
+                if (receiver is DamageReceiver combatReceiver)
+                {
+                    var weapon = committedWeapon?.Archetype switch
+                    {
+                        WeaponArchetype.Sword => ImpactWeapon.Sword,
+                        WeaponArchetype.Greatsword => ImpactWeapon.Greatsword,
+                        WeaponArchetype.Spear => ImpactWeapon.Spear,
+                        WeaponArchetype.Staff => ImpactWeapon.Staff,
+                        _ => ImpactWeapon.Unarmed
+                    };
+                    combatReceiver.TakeDamage(damage, gameObject, committedRecapAction,
+                        new DamageImpact(weapon, point, committedFacing, IsHeavy));
+                }
                 else receiver.TakeDamage(damage, gameObject);
             }
         }

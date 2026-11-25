@@ -1,208 +1,189 @@
 #if UNITY_EDITOR || DEBUG
 using Fusion;
-using HeroesOfDragonland.AI;
+using HeroesOfDragonland.Abilities;
 using HeroesOfDragonland.Combat;
+using HeroesOfDragonland.EquipmentSystem;
+using HeroesOfDragonland.Items;
+using HeroesOfDragonland.Progression;
+using HeroesOfDragonland.Skills;
 using HeroesOfDragonland.Stats;
-using HeroesOfDragonland.Teams;
 using HeroesOfDragonland.World;
 using UnityEngine;
 
 namespace HeroesOfDragonland.Multiplayer
 {
-    public enum DeveloperBotGoal { Roam, EnemyPlayer, NeutralCamp, Chest, FortressGuard, King, FortressGate, NeutralBoss }
+    public enum DeveloperBotGoal
+    {
+        Roam, EnemyPlayer, NeutralCamp, Chest, FortressGuard, King, FortressGate, NeutralBoss,
+        Retreat, AssistAlly, ContestChest, DefendFortress, PushFortress, ScoutCamp, Search
+    }
 
-    // Simple server decision loop. No transforms, health or inventory bypasses.
-    public sealed class DeveloperBotBrain
+    public sealed partial class DeveloperBotBrain
     {
         private static readonly Unity.Profiling.ProfilerMarker TickMarker = new("Dragonland.BotTick");
+        private static readonly DeveloperBotTuning Defaults = new();
         private readonly NetworkTestPlayer player;
-        private readonly DeveloperBotNavigation navigation = new DeveloperBotNavigation();
+        private readonly DeveloperBotNavigation navigation = new();
+        private readonly DeveloperBotSenses senses;
+        private readonly DeveloperBotService service;
+        private readonly TeamSpawnService spawnService;
         private readonly CharacterStats stats;
         private readonly NetworkPlayerCombat combat;
         private readonly NetworkPlayerDodge roll;
-        private readonly EnemyThreatTarget threatTarget;
-        private float age, think, dodgeAt, chestAt;
+        private readonly ParryDefense parry;
+        private readonly Equipment equipment;
+        private readonly NetworkInventory inventory;
+        private readonly SessionProgression progression;
+        private readonly SessionSkills skills;
+        private readonly AbilityCaster caster;
+        private readonly System.Random random;
+        private readonly Vector3 home;
+        private float age, think, dodgeAt, chestAt, inspectAt, nextAttackPress, nextLoadout, nextItem, nextAbility;
+        private bool targetVisible;
+        private uint lightPress, heavyPress, parryPress;
         private NetworkObject target;
-        private Vector3 destination;
+        private Vector3 destination, previousPosition;
+        private DeveloperBotTuning Tuning => service != null ? service.Tuning ?? Defaults : Defaults;
+
         public DeveloperBotGoal Goal { get; private set; }
         public int ChestOpens { get; private set; }
+        public int ConsumablesUsed { get; private set; }
+        public int AbilitiesUsed { get; private set; }
         public string LastChestResult { get; private set; }
         public float DistanceTravelled { get; private set; }
         public Vector3 Destination => destination;
         public bool WantsTravel { get; private set; }
         public bool HasNavigationPath => navigation.HasPath;
-        private Vector3 previousPosition;
-        private uint attackPress;
-        private float nextAttackPress;
+
         public DeveloperBotBrain(NetworkTestPlayer owner)
         {
-            player = owner; stats = owner.GetComponent<CharacterStats>(); combat = owner.GetComponent<NetworkPlayerCombat>();
+            player = owner;
+            stats = owner.GetComponent<CharacterStats>();
+            combat = owner.GetComponent<NetworkPlayerCombat>();
             roll = owner.GetComponent<NetworkPlayerDodge>();
-            threatTarget = owner.GetComponent<EnemyThreatTarget>();
-            previousPosition = owner.transform.position;
-            dodgeAt = 3 + owner.SpawnLane;
+            parry = owner.GetComponent<ParryDefense>();
+            equipment = owner.GetComponent<Equipment>();
+            inventory = owner.GetComponent<NetworkInventory>();
+            progression = owner.GetComponent<SessionProgression>();
+            skills = owner.GetComponent<SessionSkills>();
+            caster = owner.GetComponent<AbilityCaster>();
+            service = owner.Runner.GetComponentInParent<DeveloperBotService>();
+            spawnService = owner.Runner.GetComponentInParent<TeamSpawnService>();
+            senses = new DeveloperBotSenses(owner);
+            home = previousPosition = destination = owner.transform.position;
+            random = new System.Random(owner.ParticipantNumber * 7919 + owner.SpawnLane * 127);
+            think = owner.SpawnLane * .06f;
         }
+
         public NetworkPlayerInput Tick(float deltaTime)
         {
             using var marker = TickMarker.Auto();
             WantsTravel = false;
-            if (!NetworkParticipant.IsAdmitted(player.Object) || !NetworkMatch.AllowsGameplay(player.Runner) || stats.IsDead) return default;
-            DistanceTravelled += Vector3.Distance(previousPosition, player.transform.position); previousPosition = player.transform.position;
-            age += deltaTime; think -= deltaTime;
-            if (think <= 0 || !ValidTarget()) { SelectGoal(); think = .5f; }
-            if (target != null && target.IsValid) destination = target.transform.position;
-            var gateCollider = Goal == DeveloperBotGoal.FortressGate && target != null ? target.GetComponent<Collider>() : null;
-            bool gate = gateCollider != null;
-            var approach = gate ? gateCollider.ClosestPoint(player.transform.position) : destination;
-            Vector3 facing = approach - player.transform.position; facing.y = 0;
-            float distance = facing.magnitude;
-            float stop = gate ? .9f : Goal == DeveloperBotGoal.Chest ? 1.3f : AttackDistance();
-            WantsTravel = distance > stop + .5f;
-            bool canAttack = Goal == DeveloperBotGoal.EnemyPlayer || Goal == DeveloperBotGoal.NeutralCamp
-                || Goal == DeveloperBotGoal.FortressGuard || Goal == DeveloperBotGoal.King || Goal == DeveloperBotGoal.FortressGate
-                || Goal == DeveloperBotGoal.NeutralBoss;
-            bool bossThreat = BossWindupThreat(out var timeToImpact);
-            bool preparingDefense = bossThreat && timeToImpact < .75f;
-            bool readyToRoll = preparingDefense && roll != null && roll.Definition != null && !roll.Busy
-                && !combat.IsBusy && !combat.ActionsBlocked
-                && stats.CurrentStamina >= roll.Definition.StaminaCost;
-            bool bossDodge = preparingDefense && readyToRoll
-                && timeToImpact <= roll.Definition.InvulnerabilityStartTime + .08f;
-            bool block = preparingDefense && !readyToRoll && timeToImpact < .45f;
-            if (canAttack && !preparingDefense && distance <= stop + .25f && age >= nextAttackPress)
-            { attackPress = unchecked(attackPress + 1); nextAttackPress = age + .22f; }
-            Vector3 move = distance > stop && !preparingDefense ? navigation.Steer(player, approach, deltaTime) : Vector3.zero;
-            bool dodge = canAttack && !gate && Goal != DeveloperBotGoal.NeutralBoss && distance < 6 && age >= dodgeAt;
-            if (dodge) { dodgeAt = age + 5 + player.SpawnLane; move = Vector3.Cross(Vector3.up, facing.normalized); }
-            if (bossDodge) move = -facing.normalized;
-            if (preparingDefense) WantsTravel = false;
-            if (Goal == DeveloperBotGoal.Chest && distance < 2.5f && age >= chestAt)
+            if (!NetworkParticipant.IsAdmitted(player.Object) || !NetworkMatch.AllowsGameplay(player.Runner)) return default;
+            if (stats.IsDead)
             {
-                chestAt = age + 3;
-                var chest = target != null ? target.GetComponent<NetworkLootChest>() : null;
-                if (chest != null)
+                target = null; seenTarget = default; goalUntil = 0; think = 0;
+                previousPosition = player.transform.position;
+                return default;
+            }
+            float travelled = Vector3.Distance(previousPosition, player.transform.position);
+            if (travelled < 2) DistanceTravelled += travelled;
+            previousPosition = player.transform.position;
+            age += deltaTime;
+            think -= deltaTime;
+            if (think <= 0)
+            {
+                if (age >= nextLoadout)
+                {
+                    nextLoadout = age + 2;
+                    ImproveLoadout();
+                }
+                SelectGoal();
+                think = Mathf.Max(.1f, Tuning.decisionInterval);
+                inspectAt = age;
+            }
+            if (age >= inspectAt)
+            {
+                inspectAt = age + .10f;
+                targetVisible = Visible(target);
+                if (targetVisible) Observe(target);
+                else if (target != null) think = 0;
+            }
+
+            bool chestGoal = Goal is DeveloperBotGoal.Chest or DeveloperBotGoal.ContestChest;
+            bool targetAttackable = targetVisible && !chestGoal && VisibleLiving(target);
+            var gate = targetVisible && Goal == DeveloperBotGoal.FortressGate ? target.GetComponent<Collider>() : null;
+            Vector3 approach = gate != null ? gate.ClosestPoint(player.transform.position) : destination;
+            Vector3 offset = Planar(approach - player.transform.position);
+            float distance = offset.magnitude;
+            Vector3 facing = distance > .05f ? offset / distance : player.transform.forward;
+            bool usingBow = equipment?.EquippedWeapon?.Archetype == WeaponArchetype.Bow;
+            float stop = chestGoal ? 1.35f : gate != null ? .85f : !targetAttackable ? 1.25f : AttackDistance(usingBow);
+            Vector3 move = distance > stop ? navigation.Steer(player, approach, deltaTime) : Vector3.zero;
+            WantsTravel = distance > stop + .4f;
+            if (move.sqrMagnitude > .01f && !targetAttackable) facing = move;
+
+            bool defending = TryDefend(targetAttackable ? target : null, ref facing, ref move, out bool block, out bool dodge);
+            if (age >= nextItem && !defending)
+            {
+                nextItem = age + .65f;
+                TryConsumable(targetAttackable);
+            }
+            bool activated = !defending && TryAbility(targetAttackable, distance, facing);
+            if (defending || activated || caster != null && caster.IsCasting)
+            {
+                WantsTravel = false;
+                if (!dodge) move = Vector3.zero;
+            }
+            else if (targetAttackable && distance <= stop + .18f && age >= nextAttackPress && Stamina > .12f && !combat.ActionsBlocked)
+            {
+                nextAttackPress = age + Mathf.Max(.12f, Tuning.attackInterval);
+                if (!usingBow && Stamina > .53f && Chance(Tuning.heavyChance + (gate != null ? .12f : 0)))
+                    heavyPress = unchecked(heavyPress + 1);
+                else lightPress = unchecked(lightPress + 1);
+            }
+
+            if (chestGoal && targetVisible && !defending && distance < 2.5f && age >= chestAt)
+            {
+                chestAt = age + 2;
+                if (target.TryGetComponent<NetworkLootChest>(out var chest))
                 {
                     bool opened = chest.TryOpenForBot(player.Object, out var reason);
                     LastChestResult = reason;
-                    if (opened) { ChestOpens++; think = 0; }
+                    if (opened) { ChestOpens++; think = 0; nextLoadout = 0; }
                 }
             }
-            return new NetworkPlayerInput {
+
+            Vector3 bowAim = Vector3.zero;
+            if (usingBow && targetAttackable)
+            {
+                var aim = target.GetComponentInChildren<HeroesOfDragonland.Targeting.Targetable>();
+                Vector3 point = aim != null ? aim.AimPosition : target.transform.position + Vector3.up * .5f;
+                bowAim = (point - BowShot.Origin(player.transform)).normalized;
+            }
+            return new NetworkPlayerInput
+            {
                 Move = new Vector2(move.x, move.z), Facing = new Vector2(facing.x, facing.z).normalized,
-                Attack = canAttack && !preparingDefense && distance <= stop + .25f && !dodge,
-                LightAttackPress = attackPress,
-                Dodge = dodge || bossDodge,
-                Block = block
+                LightAttackPress = lightPress, HeavyAttackPress = heavyPress, ParryPress = parryPress,
+                Dodge = dodge, Block = block, BowAim = bowAim
             };
         }
 
-        private bool BossWindupThreat(out float timeToImpact)
+        private float AttackDistance(bool usingBow)
         {
-            timeToImpact = 0;
-            if (Goal != DeveloperBotGoal.NeutralBoss || target == null || threatTarget == null
-                || !target.TryGetComponent<NetworkEnemy>(out var boss) || !boss.AttackBusy) return false;
-            var attackSet = boss.PresentedAttackSet;
-            if (attackSet == null || attackSet.Count == 0) return false;
-            var move = attackSet.Get(boss.AttackIndex);
-            timeToImpact = move.Windup - (player.Runner.Tick.Raw - boss.AttackStartTick) * player.Runner.DeltaTime;
-            return timeToImpact >= 0 && move.Contains(boss.AttackOrigin, boss.AttackForward, threatTarget.NavigationPosition);
-        }
-        private float AttackDistance()
-        {
+            var weapon = equipment?.EquippedWeapon;
+            if (usingBow) return Mathf.Clamp(weapon.Range * .7f, 3f, Tuning.sightRange * .8f);
             float radius = 0;
-            var collider = target != null ? target.GetComponent<Collider>() : null;
-            if (collider != null) radius = Mathf.Min(collider.bounds.extents.x, collider.bounds.extents.z);
-            return Mathf.Max(1.25f, radius + .85f);
-        }
-        private bool ValidTarget()
-        {
-            if (target == null || !target.IsValid || target.Runner != player.Runner) return Goal == DeveloperBotGoal.Roam;
-            var health = target.GetComponent<CharacterStats>();
-            if (health != null && health.IsDead) return false;
-            var chest = target.GetComponent<NetworkLootChest>();
-            return chest == null || !chest.IsOpen;
-        }
-        private float Distance(Vector3 point)
-        {
-            var delta = point - player.transform.position; delta.y = 0; return delta.magnitude;
-        }
-        private bool Eligible(NetworkObject actor)
-        {
-            if (actor == null || actor == player.Object || !actor.IsValid || actor.Runner != player.Runner) return false;
-            var spawn = player.Runner.GetComponentInParent<TeamSpawnService>();
-            if (actor.GetComponent<NetworkTestPlayer>() != null && spawn != null && !spawn.AllowsSpawn(player.Team, actor.transform.position)) return false;
-            var health = actor.GetComponent<CharacterStats>();
-            return health != null && !health.IsDead && !TeamIdentity.AreAllies(TeamIdentity.Find(player.gameObject), TeamIdentity.Find(actor.gameObject));
-        }
-        private void SelectGoal()
-        {
-            target = null;
-            float playing = NetworkMatchPacing.MatchFor(player.Runner)?.PlayingSeconds ?? 0;
-            if (playing < 300 && player.SpawnLane != 0 && TrySelectBoss()) return;
-            // One bot per side keeps pressure on the objective once the opening farm is over.
-            // Its teammates still clear guards and engage the enemy ahead of it.
-            bool siegeLead = AutomatedMatchSimulation.Active != null && player.SpawnLane == 0 && playing > 120;
-            float nearest = siegeLead ? 4 : 9;
-            foreach (var enemy in Object.FindObjectsByType<NetworkTestPlayer>())
-                if (Eligible(enemy.Object) && enemy.Team != player.Team && Distance(enemy.transform.position) < nearest)
-                { nearest = Distance(enemy.transform.position); target = enemy.Object; }
-            if (target != null) { Goal = DeveloperBotGoal.EnemyPlayer; return; }
-            nearest = siegeLead ? 4 : 14;
-            if (age >= chestAt) foreach (var chest in Object.FindObjectsByType<NetworkLootChest>())
-                if (chest.Object != null && chest.Object.IsValid && chest.Runner == player.Runner && !chest.IsOpen && Distance(chest.transform.position) < nearest)
-                { nearest = Distance(chest.transform.position); target = chest.Object; }
-            if (target != null) { Goal = DeveloperBotGoal.Chest; return; }
-            bool farm = !siegeLead && (age + player.SpawnLane * 13) % 100 < 45;
-            nearest = float.PositiveInfinity;
-            if (farm) foreach (var enemy in Object.FindObjectsByType<NetworkEnemy>())
-                if (Eligible(enemy.Object) && enemy.GetComponent<NetworkFortressGuard>() == null && Distance(enemy.transform.position) < nearest)
-                { nearest = Distance(enemy.transform.position); target = enemy.Object; }
-            if (target != null) { Goal = DeveloperBotGoal.NeutralCamp; return; }
-            // Siege needs to remove the real closed gate, rather than path indefinitely
-            // toward an objective behind it. Damage still uses the ordinary melee policy.
-            nearest = float.PositiveInfinity;
-            foreach (var gate in Object.FindObjectsByType<NetworkFortressGate>())
-                if (gate.Team != player.Team && !gate.IsOpen && Eligible(gate.Object) && Distance(gate.transform.position) < nearest)
-                { nearest = Distance(gate.transform.position); target = gate.Object; }
-            if (target != null) { Goal = DeveloperBotGoal.FortressGate; return; }
-            if (siegeLead && TrySelectKing()) return;
-            nearest = float.PositiveInfinity;
-            foreach (var guard in Object.FindObjectsByType<NetworkFortressGuard>())
-            {
-                var enemy = guard.GetComponent<NetworkEnemy>();
-                if (guard.IsEnemy(player) && Eligible(enemy.Object) && Distance(guard.transform.position) < nearest)
-                { nearest = Distance(guard.transform.position); target = enemy.Object; }
-            }
-            if (target != null) { Goal = DeveloperBotGoal.FortressGuard; return; }
-            if (TrySelectKing()) return;
-            Goal = DeveloperBotGoal.Roam;
-            float angle = age * .05f + player.SpawnLane + (player.Team == TeamId.TeamB ? Mathf.PI : 0);
-            destination = new Vector3(Mathf.Sin(angle) * 25, 1, Mathf.Cos(angle) * 25);
+            if (target != null && target.TryGetComponent<Collider>(out var collider))
+                radius = Mathf.Min(collider.bounds.extents.x, collider.bounds.extents.z);
+            var profile = combat.Definition;
+            float range = weapon != null ? weapon.Range * .8f : profile != null ? profile.HitCenter.z + profile.HitHalfExtents.z - .35f : 1;
+            return Mathf.Max(1.15f, radius + range);
         }
 
-        private bool TrySelectBoss()
-        {
-            foreach (var enemy in Object.FindObjectsByType<NetworkEnemy>())
-            {
-                if (enemy.Definition.Boss == null || !Eligible(enemy.Object)) continue;
-                target = enemy.Object;
-                Goal = DeveloperBotGoal.NeutralBoss;
-                return true;
-            }
-            return false;
-        }
+        internal bool CanObserve(Transform actor) => senses.CanSee(actor, Tuning);
 
-        private bool TrySelectKing()
-        {
-            foreach (var king in Object.FindObjectsByType<NetworkKingObjective>())
-            {
-                if (king.Team == player.Team || !Eligible(king.Object)) continue;
-                target = king.Object;
-                Goal = DeveloperBotGoal.King;
-                return true;
-            }
-            return false;
-        }
+        private bool Chance(float chance) => random.NextDouble() < Mathf.Clamp01(chance);
     }
 }
 #endif

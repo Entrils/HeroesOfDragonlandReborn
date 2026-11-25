@@ -38,6 +38,18 @@ namespace HeroesOfDragonland.Multiplayer
         private void RPC_PlaceDeployable(int index, long revision, Vector3 point, RpcInfo info = default)
         {
             if (!AdmitRequest(info.Source)) return;
+            if (!ValidInventoryIndex(index))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.InventorySlot);
+                RPC_DeployableResult(info.Source, false, "Invalid trap inventory slot.");
+                return;
+            }
+            if (!float.IsFinite(point.sqrMagnitude))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.TrapPoint);
+                RPC_DeployableResult(info.Source, false, "Invalid trap placement point.");
+                return;
+            }
             bool placed = TryPlaceDeployable(index, revision, point, out var reason);
             RPC_DeployableResult(info.Source, placed, placed ? "Trap placed." : reason);
         }

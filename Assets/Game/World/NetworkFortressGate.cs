@@ -36,7 +36,7 @@ namespace HeroesOfDragonland.Multiplayer
             return player != null && player.Runner == Runner && player.Team != Team
                 && (player.Team == TeamId.TeamA || player.Team == TeamId.TeamB)
                 && health != null && !health.IsDead && combat != null && combat.IsAdmitted()
-                && (combat.ResolvingAttack || combat.AllowsArrowDamage(Runner) || source.GetComponent<NetworkAbilities>()?.AllowsProjectileDamage(Runner) == true);
+                && (combat.AllowsMeleeDamage(Runner) || combat.AllowsArrowDamage(Runner) || source.GetComponent<NetworkAbilities>()?.AllowsProjectileDamage(Runner) == true);
         }
         private void OnDeath()
         {

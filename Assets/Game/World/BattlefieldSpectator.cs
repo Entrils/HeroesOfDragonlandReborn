@@ -1,11 +1,13 @@
 using System.Collections.Generic;
 using Fusion;
 using HeroesOfDragonland.Multiplayer;
+using HeroesOfDragonland.Player;
 using HeroesOfDragonland.Presentation;
 using HeroesOfDragonland.Teams;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Rendering;
+using UnityEngine.SceneManagement;
 
 namespace HeroesOfDragonland.World
 {
@@ -26,6 +28,10 @@ namespace HeroesOfDragonland.World
         private NetworkTestPlayer viewed;
         private int lastParticipant, layer;
         private bool savedCamera, savedAudio;
+        private CameraClearance clearance;
+        private NetworkTestPlayer cameraSubject;
+        private Vector3 cameraPivot, pivotVelocity, previousAnchor;
+        private float cameraYaw, yawVelocity, cameraDistance, distanceVelocity;
 
         public bool Active { get; private set; }
         public NetworkTestPlayer Viewed => viewed;
@@ -115,6 +121,7 @@ namespace HeroesOfDragonland.World
             stage.transform.position = new Vector3(0f, -400f, 0f);
             spectator = stage.AddComponent<Camera>();
             spectator.enabled = false;
+            clearance = new CameraClearance(stage, BlocksSpectator);
             spectator.clearFlags = CameraClearFlags.SolidColor;
             spectator.backgroundColor = new Color(.038f, .057f, .075f);
             spectator.cullingMask = layer >= 0 ? 1 << layer : 0;
@@ -162,14 +169,8 @@ namespace HeroesOfDragonland.World
                 model.gameObject.SetActive(false);
                 return;
             }
-            var rotation = Quaternion.Euler(20f, viewed.transform.eulerAngles.y, 0f);
             Vector3 pivot = viewed.transform.position + Vector3.up * .95f;
-            Vector3 offset = rotation * Vector3.back;
-            float distance = 4.2f;
-            foreach (var hit in Physics.SphereCastAll(pivot, .2f, offset, distance, ~0, QueryTriggerInteraction.Ignore))
-                if (scenery != null && hit.transform.IsChildOf(scenery) && hit.transform.GetComponentInParent<NetworkObject>() == null)
-                    distance = Mathf.Min(distance, Mathf.Max(.35f, hit.distance - .08f));
-            spectator.transform.SetPositionAndRotation(pivot + offset * distance, rotation);
+            UpdateCamera(pivot);
             var visual = viewed.GetComponent<NetworkCharacterVisual>()?.Visual;
             if (visual == null) { model.gameObject.SetActive(false); return; }
             model.transform.SetPositionAndRotation(visual.transform.position, visual.transform.rotation);
@@ -187,6 +188,38 @@ namespace HeroesOfDragonland.World
             model.SetTint(viewed.Team == TeamId.TeamA ? new Color(.15f, .45f, 1f) : new Color(1f, .25f, .2f));
             // Only the chosen ally's animation is sampled. No world target or position enters the camera.
             model.Apply(visual.State, Time.deltaTime);
+        }
+
+        private bool BlocksSpectator(Collider collider) => collider != null && scenery != null
+            && collider.transform.IsChildOf(scenery) && collider.GetComponentInParent<NetworkObject>() == null;
+
+        private void UpdateCamera(Vector3 anchor)
+        {
+            const float distance = 4.2f, radius = .2f, padding = .08f;
+            bool reset = cameraSubject != viewed || (anchor - previousAnchor).sqrMagnitude > 16;
+            cameraSubject = viewed;
+            previousAnchor = anchor;
+            float dt = Mathf.Min(Time.deltaTime, .05f);
+            float yaw = viewed.transform.eulerAngles.y;
+            if (reset)
+            {
+                cameraPivot = anchor;
+                cameraYaw = yaw;
+                pivotVelocity = Vector3.zero;
+                yawVelocity = distanceVelocity = 0;
+            }
+            cameraYaw = Mathf.SmoothDampAngle(cameraYaw, yaw, ref yawVelocity, .13f, Mathf.Infinity, dt);
+            cameraPivot = Vector3.SmoothDamp(cameraPivot, anchor, ref pivotVelocity, .10f, Mathf.Infinity, dt);
+            var scene = viewed.gameObject.scene.GetPhysicsScene();
+            Vector3 safe = clearance.ClearOrigin(scene, anchor, radius, ~0);
+            Vector3 drift = cameraPivot - safe;
+            safe += drift.normalized * clearance.Distance(scene, safe, drift, radius, padding, ~0);
+            var rotation = Quaternion.Euler(20f, cameraYaw, 0);
+            var back = rotation * Vector3.back;
+            float allowed = clearance.Distance(scene, safe, back * distance, radius, padding, ~0);
+            if (reset || allowed < cameraDistance) { cameraDistance = allowed; distanceVelocity = 0; }
+            else cameraDistance = Mathf.SmoothDamp(cameraDistance, allowed, ref distanceVelocity, .24f, Mathf.Infinity, dt);
+            spectator.transform.SetPositionAndRotation(safe + back * cameraDistance, rotation);
         }
 
         private void OnGUI()
@@ -209,7 +242,7 @@ namespace HeroesOfDragonland.World
         {
             if (!Active) return;
             Active = false;
-            viewed = null;
+            viewed = cameraSubject = null;
             lastParticipant = 0;
             allies.Clear();
             if (spectator != null) spectator.enabled = false;

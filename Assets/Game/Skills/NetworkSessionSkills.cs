@@ -54,7 +54,11 @@ namespace HeroesOfDragonland.Skills
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         private void RPC_Request(int index, bool learn, int expectedRank, NetworkString<_32> sessionId, RpcInfo info = default)
         {
-            if (!IsServerOwner || info.Source != Object.InputAuthority) return;
+            if (!NetworkParticipant.OwnsRequest(Object, info.Source))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.Sender);
+                return;
+            }
             string reason = "Skills are unavailable outside an active match.";
             bool accepted = false;
             float now = (float)Runner.SimulationTime;
@@ -64,7 +68,12 @@ namespace HeroesOfDragonland.Skills
                 nextRequestTime = now + .15f;
                 if (CanMutateSkills)
                 {
-                    if (learn && skills.GetRank(index) != expectedRank) reason = "Skill rank changed. Try again.";
+                    if (index < 0 || index >= skills.NodeCount || expectedRank < 0)
+                    {
+                        ServerActionAudit.Record(Runner, info.Source, ServerRejection.SkillIndex);
+                        reason = "Invalid skill request.";
+                    }
+                    else if (learn && skills.GetRank(index) != expectedRank) reason = "Skill rank changed. Try again.";
                     else accepted = learn ? skills.TryLearn(index, sessionId.ToString(), out reason)
                         : skills.TryActivate(index, sessionId.ToString(), out reason);
                 }

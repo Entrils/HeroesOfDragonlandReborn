@@ -103,6 +103,33 @@ namespace HeroesOfDragonland.Abilities.Editor
             }
             finally { foreach (var go in temporary) if (go != null) UnityEngine.Object.DestroyImmediate(go); }
         }
+        public static void ValidateFeedback()
+        {
+            Check(Application.isPlaying, "Play Mode required");
+            var actor = Actor("M84 caster", new Vector3(1000, 100, 1000), TeamId.TeamA);
+            var enemy = Actor("M84 impact target", actor.transform.position + Vector3.forward * 6, TeamId.TeamB);
+            try
+            {
+                var fire = AssetDatabase.LoadAssetAtPath<AbilityDefinition>("Assets/Game/Data/Abilities/FireProjectile.asset");
+                var caster = actor.GetComponent<AbilityCaster>();
+                var target = enemy.GetComponent<CharacterStats>();
+                int contacts = 0;
+                enemy.GetComponent<DamageReceiver>().ContactResolved += (cue, source, impact) =>
+                {
+                    if (cue == DamageImpactCue.MeleeHit && impact.Weapon == ImpactWeapon.Magic && source == actor
+                        && Vector3.Dot(impact.Direction, Vector3.forward) > .99f) contacts++;
+                };
+                Physics.SyncTransforms();
+                Check(caster.TryStart(fire, null, out var reason), "start real fire spell " + reason);
+                caster.Tick(fire.CastTime + .01f);
+                caster.Tick(1);
+                Near(target.CurrentHealth, target.MaxHealth - fire.Magnitude, "fire damage remains unchanged");
+                Check(contacts == 1, "fire emits one confirmed directional magic contact");
+                Debug.Log("[MagicValidation] PASS confirmed fire projectile feedback.");
+            }
+            finally { UnityEngine.Object.Destroy(actor); UnityEngine.Object.Destroy(enemy); }
+        }
+
         private static GameObject Actor(string name, Vector3 position, TeamId team)
         {
             var go = new GameObject(name); go.transform.position = position;

@@ -44,11 +44,13 @@ namespace HeroesOfDragonland.World.Editor
                 Vector3 initialForward = camera.transform.forward; initialForward.y = 0;
                 Check(Vector3.Dot(initialForward.normalized, avatar.transform.forward) > .99f, "Camera starts behind character facing");
                 Check(camera.transform.position.y < avatar.transform.position.y + 6 && Vector3.Distance(camera.transform.position, avatar.transform.position) < 7, "Third-person distance and height");
-                follow.ApplyLook(new Vector2(750, 0), true, .016f); yield return null;
+                follow.ApplyLook(new Vector2(.75f, 0), false, 1f);
                 Vector2 move = binder.ToWorldMovement(Vector2.up);
-                Vector3 forward = camera.transform.forward; forward.y = 0;
-                Check(Vector3.Dot(new Vector3(move.x, 0, move.y).normalized, forward.normalized) > .99f, "W follows camera yaw");
-                follow.ApplyLook(new Vector2(-750, 0), true, .016f); yield return null;
+                Vector3 forward = Quaternion.Euler(0, follow.InputYaw, 0) * Vector3.forward;
+                Check(Vector3.Dot(new Vector3(move.x, 0, move.y).normalized, forward) > .99f, "W follows undamped input yaw");
+                yield return WaitForOrbit(follow);
+                follow.ApplyLook(new Vector2(-.75f, 0), false, 1f);
+                yield return WaitForOrbit(follow);
                 Vector3 pivot = avatar.transform.position + Vector3.up * .6f;
                 wall = GameObject.CreatePrimitive(PrimitiveType.Cube); wall.name = "Temporary camera obstruction check";
                 wall.transform.position = pivot - camera.transform.forward * 2;
@@ -72,6 +74,14 @@ namespace HeroesOfDragonland.World.Editor
                 if (Status == "RUNNING") Status = "FAILED; see Console";
             }
         }
+        private static IEnumerator WaitForOrbit(ThirdPersonCamera follow)
+        {
+            double deadline = Time.realtimeSinceStartupAsDouble + 5;
+            while (Mathf.Abs(Mathf.DeltaAngle(follow.InputYaw, follow.transform.eulerAngles.y)) > 1
+                && Time.realtimeSinceStartupAsDouble < deadline) yield return null;
+            Check(Mathf.Abs(Mathf.DeltaAngle(follow.InputYaw, follow.transform.eulerAngles.y)) <= 1, "rendered orbit settles");
+        }
+
         public static void Capture()
         {
             var camera = Camera.main; var texture = new RenderTexture(1280, 720, 24); var previous = camera.targetTexture; var active = RenderTexture.active;

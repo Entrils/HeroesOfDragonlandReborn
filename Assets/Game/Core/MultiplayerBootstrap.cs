@@ -28,6 +28,7 @@ namespace HeroesOfDragonland.Multiplayer
         private TaskCompletionSource<bool> leaveAcknowledged;
         private System.Threading.CancellationTokenSource joinCancellation;
         internal void ConfirmLeave() => leaveAcknowledged?.TrySetResult(true);
+        internal readonly ServerActionAudit ActionAudit = new();
         internal void ForfeitReconnect(PlayerRef player) => reconnects.Forget(player);
         public NetworkConnectionState ConnectionState { get; private set; } = NetworkConnectionState.Offline;
         public string NetworkMessage { get; private set; } = "Create or join a lobby.";
@@ -44,7 +45,8 @@ namespace HeroesOfDragonland.Multiplayer
                 try { handler(state); } catch (Exception e) { Debug.LogException(e, this); }
         }
         private int nextParticipant;
-        private uint lightAttackPress, heavyAttackPress, parryPress;
+        private uint lightAttackPress, heavyAttackPress, parryPress, dodgePress;
+        private bool dodgeHeld;
         private bool lightAttackHeld, heavyAttackHeld, parryHeld, suppressAttacks;
         private int lastAttackCaptureFrame = -1;
         public bool Busy => busy || reconnectLoop;
@@ -136,12 +138,15 @@ namespace HeroesOfDragonland.Multiplayer
             bool heavyTap = keys != null && keys.rKey.wasPressedThisFrame;
             bool parry = keys != null && keys.cKey.isPressed;
             bool parryTap = keys != null && keys.cKey.wasPressedThisFrame;
+            bool dodge = keys != null && keys.leftShiftKey.isPressed;
+            bool dodgeTap = keys != null && keys.leftShiftKey.wasPressedThisFrame;
             bool testing = false;
 #if UNITY_EDITOR || DEBUG
             testing = TestAttack.HasValue || TestHeavyAttack.HasValue || TestParry.HasValue;
             if (TestAttack.HasValue) { light = TestAttack.Value; lightTap = false; }
             if (TestHeavyAttack.HasValue) { heavy = TestHeavyAttack.Value; heavyTap = false; }
             if (TestParry.HasValue) { parry = TestParry.Value; parryTap = false; }
+            if (TestDodge.HasValue) { dodge = dodgeTap = false; }
 #endif
             suppressAttacks = !Running || (!Application.isFocused && !testing)
                 || GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>() is { IsBlocked: true };
@@ -150,8 +155,9 @@ namespace HeroesOfDragonland.Multiplayer
                 if (lightTap || (light && !lightAttackHeld)) lightAttackPress = unchecked(lightAttackPress + 1);
                 if (heavyTap || (heavy && !heavyAttackHeld)) heavyAttackPress = unchecked(heavyAttackPress + 1);
                 if (parryTap || (parry && !parryHeld)) parryPress = unchecked(parryPress + 1);
+                if (dodgeTap || (dodge && !dodgeHeld)) dodgePress = unchecked(dodgePress + 1);
             }
-            lightAttackHeld = light; heavyAttackHeld = heavy; parryHeld = parry;
+            lightAttackHeld = light; heavyAttackHeld = heavy; parryHeld = parry; dodgeHeld = dodge;
         }
 
         private void SetStatus(string value)
@@ -220,7 +226,8 @@ namespace HeroesOfDragonland.Multiplayer
             {
                 Application.runInBackground = true;
                 roster.Clear(); players.Clear(); pendingSpawns.Clear(); nextParticipant = 0;
-                lightAttackPress = heavyAttackPress = parryPress = 0; lastAttackCaptureFrame = -1;
+                ActionAudit.Reset();
+                lightAttackPress = heavyAttackPress = parryPress = dodgePress = 0; lastAttackCaptureFrame = -1;
                 RoomName = sessionName?.Trim();
                 SessionId = mode == GameMode.Client ? null : Guid.NewGuid().ToString("N");
                 var runnerObject = new GameObject("Multiplayer Runner");
@@ -233,6 +240,9 @@ namespace HeroesOfDragonland.Multiplayer
                 var started = await runner.StartGame(new StartGameArgs
                 {
                     GameMode = mode,
+#if UNITY_EDITOR || DEBUG
+                    Config = NetworkLatencyProfiles.FromCommandLine(),
+#endif
                     SessionName = RoomName,
                     PlayerCount = NetworkTeamRoster.PlayerCapacity,
                     EnableClientSessionCreation = searching,
@@ -461,7 +471,7 @@ namespace HeroesOfDragonland.Multiplayer
                 source.SetPlayerObject(player, resumed);
                 resumed.GetComponent<NetworkInventory>()?.ReplicateTo(player, true);
                 resumed.GetComponent<NetworkPlayerResources>()?.ReplicateTo(player, true);
-                resumed.GetComponent<NetworkPlayerCombat>()?.ResetConnectionInput();
+                resumed.GetComponent<NetworkTestPlayer>()?.ResetConnectionInput();
                 resumed.GetComponent<NetworkTestPlayer>().SetSuspended(false);
                 NetworkMatchPacing.MatchFor(source)?.SendResultReceipt(resumed);
                 pendingSpawns.Remove(player);
@@ -557,7 +567,7 @@ namespace HeroesOfDragonland.Multiplayer
             CaptureAttackPresses();
             if (GetComponent<HeroesOfDragonland.Player.LocalGameplayInputGate>() is { IsBlocked: true })
             {
-                input.Set(new NetworkPlayerInput { LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, ParryPress = parryPress, SuppressAttacks = true });
+                input.Set(new NetworkPlayerInput { HasSample = true, LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, ParryPress = parryPress, DodgePress = dodgePress, SuppressAttacks = true });
                 return;
             }
             Vector2 move = Vector2.zero;
@@ -574,7 +584,6 @@ namespace HeroesOfDragonland.Multiplayer
                 move.x = (keys.dKey.isPressed ? 1 : 0) - (keys.aKey.isPressed ? 1 : 0);
                 move.y = (keys.wKey.isPressed ? 1 : 0) - (keys.sKey.isPressed ? 1 : 0);
                 attack = keys.spaceKey.isPressed || (Mouse.current != null && Mouse.current.leftButton.isPressed);
-                dodge = keys.leftShiftKey.isPressed;
                 heavy = keys.rKey.isPressed;
                 block = Mouse.current != null && Mouse.current.rightButton.isPressed;
             }
@@ -606,7 +615,7 @@ namespace HeroesOfDragonland.Multiplayer
             if(TestLockedOn.HasValue)lockedOn=TestLockedOn.Value;
             if (TestBowTarget != default) bowTarget = TestBowTarget;
 #endif
-            input.Set(new NetworkPlayerInput { Move = Vector2.ClampMagnitude(move, 1), Attack = attack, HeavyAttack = heavy,
+            input.Set(new NetworkPlayerInput { HasSample = true, DodgePress = dodgePress, Move = Vector2.ClampMagnitude(move, 1), Attack = attack, HeavyAttack = heavy,
                 LightAttackPress = lightAttackPress, HeavyAttackPress = heavyAttackPress, ParryPress = parryPress, SuppressAttacks = suppressAttacks,
                 Block = block, Dodge = dodge, Facing = facing, LockedOn=lockedOn, BowAim = bowAim, BowTarget = bowTarget });
         }

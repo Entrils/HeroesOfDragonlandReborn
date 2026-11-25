@@ -191,7 +191,7 @@ namespace HeroesOfDragonland.Multiplayer
                 if (balance != null) RewardContributors(balance, rewardId);
                 // Snapshot recipients at completion. No late-join replay or distance/client claims.
                 else foreach (var avatar in Runner.GetComponentInParent<MultiplayerBootstrap>().Avatars)
-                    if (avatar != null)
+                    if (NetworkParticipant.IsAdmitted(avatar) && avatar.Runner == Runner)
                     {
                         if (experienceRadius > 0)
                         {
@@ -217,7 +217,8 @@ namespace HeroesOfDragonland.Multiplayer
             foreach (var member in members)
                 foreach (var entry in member.Contributions.Recent(now, balance.CampContributionWindowSeconds, balance.MinimumContributionDamage))
                 {
-                    if (entry.Actor.GetComponent<NetworkTestPlayer>() is not { } player) continue;
+                    if (!NetworkParticipant.IsAdmitted(entry.Actor) || entry.Actor.Runner != Runner
+                        || entry.Actor.GetComponent<NetworkTestPlayer>() is not { } player) continue;
                     if (player.Team == TeamId.TeamA) a += entry.Damage;
                     else if (player.Team == TeamId.TeamB) b += entry.Damage;
                     else continue;
@@ -229,7 +230,8 @@ namespace HeroesOfDragonland.Multiplayer
             foreach (var entry in contributors.Values)
             {
                 var actor = entry.Actor;
-                if (actor.GetComponent<NetworkTestPlayer>().Team != winner || actor.GetComponent<CharacterStats>().IsDead) continue;
+                if (!NetworkParticipant.IsAdmitted(actor) || actor.Runner != Runner
+                    || actor.GetComponent<NetworkTestPlayer>().Team != winner || actor.GetComponent<CharacterStats>().IsDead) continue;
                 Vector3 offset = actor.transform.position - transform.position; offset.y = 0;
                 if (offset.sqrMagnitude > ConfiguredRadius * ConfiguredRadius) continue;
                 MatchSessionData.Credit(actor, new MatchStatistics { CampsCleared = 1 });

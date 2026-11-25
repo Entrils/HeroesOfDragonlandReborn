@@ -99,11 +99,11 @@ namespace HeroesOfDragonland.Abilities
                 if (definition.Effect == AbilityEffect.FireProjectile && !Application.isBatchMode) StartCoroutine(FireVisual(definition, position, direction));
             }
             else if (cue == AbilityCue.Interrupted) StopCasting();
-            else if (cue == AbilityCue.Impact)
+            else if (cue is AbilityCue.Impact or AbilityCue.ConfirmedImpact)
             {
                 if (definition.Effect == AbilityEffect.FireProjectile)
                 { foreach (var fire in fireVisuals) if (fire != null) Destroy(fire); fireVisuals.Clear(); }
-                Spawn(definition.ImpactVfx, position, direction, 2);
+                if (cue == AbilityCue.Impact) Spawn(definition.ImpactVfx, position, direction, 2);
             }
         }
     }

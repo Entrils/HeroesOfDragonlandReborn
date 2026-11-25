@@ -144,9 +144,10 @@ namespace HeroesOfDragonland.Presentation
             GUI.DrawTexture(new Rect(center.x - 1, center.y - 6, 2, 12), Texture2D.whiteTexture);
         }
 
-        internal void PresentImpact(Vector3 point, NetworkRunner runner, TeamId team)
+        internal void PresentImpact(Vector3 point, NetworkRunner runner, TeamId team, bool confirmed)
         {
             ImpactsPresented++;
+            if (confirmed) return;
             var pool = runner != null ? VfxAudience.Pool(runner) : FindAnyObjectByType<VfxPool>();
             pool?.Play(VfxKind.MeleeHit, point, VfxAudience.Relation(runner, team, true));
         }

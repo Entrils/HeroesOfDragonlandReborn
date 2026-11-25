@@ -188,8 +188,8 @@ namespace HeroesOfDragonland.Multiplayer
             var player = source.GetComponent<NetworkPlayerCombat>();
             if (player != null && player.AllowsArrowDamage(Runner))
                 return HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject);
-            return player != null && player.Runner == Runner && player.IsAdmitted()
-                && player.ResolvingAttack && !source.GetComponent<CharacterStats>().IsDead;
+            return player != null && player.AllowsMeleeDamage(Runner)
+                && HeroesOfDragonland.Teams.TeamIdentity.CanDamage(source, gameObject);
         }
         public override void Render()
         {

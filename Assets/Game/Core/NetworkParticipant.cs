@@ -5,6 +5,20 @@ namespace HeroesOfDragonland.Multiplayer
     // Server admission for real connections and explicitly registered developer avatars.
     public static class NetworkParticipant
     {
+        internal static bool TryResolveSender(NetworkRunner runner, PlayerRef sender, out NetworkObject actor)
+        {
+            actor = null;
+            if (runner == null || !runner.IsServer || sender == PlayerRef.None
+                || !runner.TryGetPlayerObject(sender, out var candidate) || candidate == null
+                || candidate.Runner != runner || candidate.InputAuthority != sender || !IsAdmitted(candidate))
+                return false;
+            actor = candidate;
+            return true;
+        }
+
+        internal static bool OwnsRequest(NetworkObject actor, PlayerRef sender)
+            => actor != null && actor.IsValid && sender != PlayerRef.None && sender == actor.InputAuthority && IsAdmitted(actor);
+
         public static bool IsAdmitted(NetworkObject actor)
         {
             if (actor == null || !actor.IsValid || !actor.Runner.IsServer || !actor.HasStateAuthority) return false;

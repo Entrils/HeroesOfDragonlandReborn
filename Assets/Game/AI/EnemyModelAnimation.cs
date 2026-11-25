@@ -43,6 +43,28 @@ namespace HeroesOfDragonland.AI
         private Vector3 restPosition;
         private Quaternion restRotation;
         private bool presentedDeath;
+        private bool canRecoil;
+        private Vector3 recoil, appliedRecoil;
+        private double recoilUntil, freezeUntil, nextFreeze;
+
+        internal void PresentContact(Vector3 direction, float distance, float pause)
+        {
+            if (!isActiveAndEnabled || !canRecoil || presentedDeath) return;
+            double now = Time.unscaledTimeAsDouble;
+            recoil = animator.transform.parent.InverseTransformDirection(direction.normalized) * Mathf.Min(distance, .08f);
+            recoilUntil = now + .14;
+            if (pause <= 0 || now < nextFreeze) return;
+            freezeUntil = now + Mathf.Min(pause, .085f);
+            nextFreeze = now + .13;
+        }
+
+        private void ApplyRecoil()
+        {
+            if (!canRecoil) return;
+            float weight = Mathf.Clamp01((float)(recoilUntil - Time.unscaledTimeAsDouble) / .14f);
+            appliedRecoil = recoil * (weight * weight);
+            animator.transform.localPosition += appliedRecoil;
+        }
 
         private void Awake()
         {
@@ -55,6 +77,8 @@ namespace HeroesOfDragonland.AI
                 enabled = false;
                 return;
             }
+            canRecoil = animator.transform != transform && animator.transform.IsChildOf(transform)
+                && animator.GetComponentInChildren<Collider>(true) == null;
             restPosition = animator.transform.localPosition;
             restRotation = animator.transform.localRotation;
             foreach (var renderer in animator.GetComponentsInChildren<SkinnedMeshRenderer>())
@@ -71,6 +95,8 @@ namespace HeroesOfDragonland.AI
         {
             previousPosition = transform.position;
             animator.applyRootMotion = false;
+            // The manually sampled clips can contain humanoid cues. Enemy presentation uses confirmed combat events.
+            animator.fireEvents = false;
             graph = PlayableGraph.Create(name + " visual animation");
             graph.SetTimeUpdateMode(DirectorUpdateMode.Manual);
             output = AnimationPlayableOutput.Create(graph, "Model visual", animator);
@@ -79,6 +105,9 @@ namespace HeroesOfDragonland.AI
 
         private void OnDisable()
         {
+            if (canRecoil && animator != null) animator.transform.localPosition -= appliedRecoil;
+            appliedRecoil = Vector3.zero;
+            recoilUntil = freezeUntil = nextFreeze = 0;
             if (graph.IsValid()) graph.Destroy();
             currentClip = null;
             wasWindingUp = false;
@@ -89,6 +118,8 @@ namespace HeroesOfDragonland.AI
 
         private void LateUpdate()
         {
+            if (canRecoil) animator.transform.localPosition -= appliedRecoil;
+            appliedRecoil = Vector3.zero;
             if (stats != null && stats.IsDead)
             {
                 if (!presentedDeath)
@@ -109,6 +140,7 @@ namespace HeroesOfDragonland.AI
                 wasWindingUp = wasInFlight = false;
                 recoveryTime = castPoseRemaining = 0;
             }
+            if (Time.unscaledTimeAsDouble < freezeUntil) { ApplyRecoil(); return; }
             bool replicated = network != null && network.Object != null && network.Object.IsValid;
             bool inFlight = replicated ? network.ProjectileInFlight : attack != null && attack.ProjectileInFlight;
             float age = 0;
@@ -182,6 +214,7 @@ namespace HeroesOfDragonland.AI
             wasWindingUp = windingUp;
             wasInFlight = inFlight;
             lastAge = age;
+            ApplyRecoil();
         }
 
         private void Sample(AnimationClip clip, float time)

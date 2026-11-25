@@ -81,13 +81,34 @@ namespace HeroesOfDragonland.Multiplayer
         [Rpc(RpcSources.InputAuthority, RpcTargets.StateAuthority, HostMode = RpcHostMode.SourceIsHostPlayer)]
         private void RPC_UseConsumable(int index, long expectedRevision, RpcInfo info = default)
         {
-            if (!AdmitRequest(info.Source) || !CanMutateInventory || !stats.CanMutate || usingConsumable
-                || expectedRevision != SnapshotRevision || index < 0 || index >= inventory.SlotCount) return;
+            if (!AdmitRequest(info.Source)) return;
+            if (!ValidInventoryIndex(index))
+            {
+                ServerActionAudit.Record(Runner, info.Source, ServerRejection.InventorySlot);
+                return;
+            }
+            TryUseConsumableAt(index, expectedRevision);
+        }
 
+#if UNITY_EDITOR || DEBUG
+        internal bool TryUseBotConsumable(ConsumableEffect effect)
+        {
+            if (GetComponent<NetworkTestPlayer>() is not { } bot || !bot.IsBot || !CanMutateInventory) return false;
+            for (int i = 0; i < inventory.SlotCount; i++)
+                if (inventory.TryResolveItem(inventory.GetSlot(i).ItemId, out var item) && item.Consumable?.Effect == effect)
+                    return TryUseConsumableAt(i, SnapshotRevision);
+            return false;
+        }
+#endif
+
+        private bool TryUseConsumableAt(int index, long expectedRevision)
+        {
+            if (!CanMutateInventory || !stats.CanMutate || usingConsumable || expectedRevision != SnapshotRevision
+                || !ValidInventoryIndex(index)) return false;
             if (!inventory.TryResolveItem(inventory.GetSlot(index).ItemId, out var item)
                 || item.Category != ItemCategory.Consumable || item.Consumable is not { IsValid: true } potion
                 || !globalPotionCooldown.ExpiredOrNotRunning(Runner)
-                || !potionCooldowns[(int)potion.Effect].ExpiredOrNotRunning(Runner)) return;
+                || !potionCooldowns[(int)potion.Effect].ExpiredOrNotRunning(Runner)) return false;
 
             bool canApply = potion.Effect switch
             {
@@ -98,13 +119,10 @@ namespace HeroesOfDragonland.Multiplayer
                 ConsumableEffect.Damage => damagePotion.ExpiredOrNotRunning(Runner),
                 _ => false
             };
-            if (!canApply) return;
+            if (!canApply) return false;
 
             usingConsumable = true;
-            try
-            {
-                inventory.TryConsumeAt(index, () => ApplyPotion(potion));
-            }
+            try { return inventory.TryConsumeAt(index, () => ApplyPotion(potion)); }
             finally { usingConsumable = false; }
         }
 

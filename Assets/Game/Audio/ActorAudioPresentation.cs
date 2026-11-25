@@ -37,12 +37,10 @@ namespace HeroesOfDragonland.Audio
         {
             ResetBaseline();
             if (visual != null) visual.PresentationCue += Animation;
-            if (impacts != null) impacts.Presented += Impact;
         }
         private void OnDisable()
         {
             if (visual != null) visual.PresentationCue -= Animation;
-            if (impacts != null) impacts.Presented -= Impact;
             ResetBaseline();
         }
         private void ResetBaseline() { seeded = false; round = -1; attacks.Reset(); dodges.Reset(); }
@@ -51,13 +49,7 @@ namespace HeroesOfDragonland.Audio
         {
             if (!Ready || !seeded || stats.Dead) return;
             if (cue == CharacterAnimationCue.Footstep) Play(AudioCue.Footstep);
-            // Dodge/attack use accepted replicated sequences, not predicted animation requests.
-        }
-        private void Impact(VfxKind kind, Vector3 point)
-        {
-            if (!Ready || stats.Dead) return;
-            if (kind == VfxKind.BlockedHit) Service?.Play(AudioCue.Block, point, this);
-            else if (kind == VfxKind.Parry) Service?.Play(AudioCue.Parry, point, this);
+            if (cue == CharacterAnimationCue.Swing) Play(AudioCue.Attack);
         }
         private void LateUpdate()
         {
@@ -71,7 +63,7 @@ namespace HeroesOfDragonland.Audio
                 if (!dead && stats.Dead) Play(king != null ? AudioCue.KingDeath : enemy != null ? AudioCue.EnemyDeath : AudioCue.Death);
                 else if (!dead && !stats.Dead && stats.Health < health - .001f)
                 {
-                    Play(enemy != null ? AudioCue.EnemyDamage : AudioCue.Hit);
+                    if (impacts == null) Play(enemy != null ? AudioCue.EnemyDamage : AudioCue.Hit);
                     if (king != null && king.Team == AudioAudience.LocalTeam(actor.Runner) && king.Team != TeamId.Unassigned)
                         Service?.Play(AudioCue.KingUnderAttack, transform.position, this);
                 }
@@ -81,7 +73,7 @@ namespace HeroesOfDragonland.Audio
             }
             health = stats.Health; dead = stats.Dead; airborne = inAir; enemyState = enemy != null ? enemy.State : EnemyState.Idle; seeded = true;
             if (dead) { attacks.Reset(); dodges.Reset(); return; }
-            if (combat != null && AudioAudience.Action(attacks, actor, combat.AttackSequence, combat.AttackStartTick,
+            if (combat != null && visual == null && AudioAudience.Action(attacks, actor, combat.AttackSequence, combat.AttackStartTick,
                 combat.AttackBusy, combat.AttackSwingDuration)) Play(AudioCue.Attack);
             else if (combat == null && enemy != null && enemy.Definition != null
                 && AudioAudience.Action(attacks, actor, enemy.AttackSequence, enemy.AttackStartTick, enemy.AttackBusy, enemy.AttackWindup)) Play(AudioCue.EnemyAttack);

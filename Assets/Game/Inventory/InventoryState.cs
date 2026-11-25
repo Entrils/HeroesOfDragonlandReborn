@@ -129,8 +129,8 @@ namespace HeroesOfDragonland.InventorySystem
             }
             if (!changed || (requireAll && remaining.Count != 0)) return false;
             slots = staged.slots;
-            commitRemainder(remaining.ToArray());
-            Publish(Revision + 1);
+            try { commitRemainder(remaining.ToArray()); }
+            finally { Publish(Revision + 1); }
             return true;
         }
 

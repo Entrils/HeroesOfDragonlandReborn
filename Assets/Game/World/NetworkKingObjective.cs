@@ -34,7 +34,7 @@ namespace HeroesOfDragonland.Multiplayer
             var player = source.GetComponent<NetworkTestPlayer>();
             return match != null && match.Owns(this) && match.CanPlay
                 && attacker != null && attacker.Runner == Runner && attacker.IsAdmitted()
-                && (attacker.ResolvingAttack || attacker.AllowsArrowDamage(Runner) || source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>()?.AllowsProjectileDamage(Runner) == true)
+                && (attacker.AllowsMeleeDamage(Runner) || attacker.AllowsArrowDamage(Runner) || source.GetComponent<HeroesOfDragonland.Abilities.NetworkAbilities>()?.AllowsProjectileDamage(Runner) == true)
                 && !source.GetComponent<CharacterStats>().IsDead && player != null
                 && (player.Team == TeamId.TeamA || player.Team == TeamId.TeamB) && player.Team != team;
         }

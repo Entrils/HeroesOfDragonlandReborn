@@ -158,14 +158,18 @@ namespace HeroesOfDragonland.Abilities
             {
                 if (hit.transform.IsChildOf(transform)) continue;
                 var receiver = hit.collider.GetComponentInParent<DamageReceiver>();
+                bool confirmed = false;
                 if (receiver != null)
                 {
                     if (TeamIdentity.AreAllies(TeamIdentity.Find(gameObject), TeamIdentity.Find(receiver.gameObject))) continue;
                     IsResolvingProjectile = true;
-                    try { receiver.TakeDamage(projectile.Definition.Magnitude, gameObject, "Fire Projectile"); }
+                    try { receiver.TakeDamage(projectile.Definition.Magnitude, gameObject, "Fire Projectile",
+                        new DamageImpact(ImpactWeapon.Magic, hit.point, projectile.Direction), out confirmed); }
                     finally { IsResolvingProjectile = false; }
                 }
-                Cue(projectile.Definition, AbilityCue.Impact, projectile.Position + projectile.Direction * hit.distance, projectile.Direction);
+                bool networkContact = confirmed && receiver.GetComponent<HeroesOfDragonland.Presentation.Vfx.NetworkImpactVfx>() != null;
+                Cue(projectile.Definition, networkContact ? AbilityCue.ConfirmedImpact : AbilityCue.Impact,
+                    projectile.Position + projectile.Direction * hit.distance, projectile.Direction);
                 return true;
             }
             projectile.Position += projectile.Direction * step; projectile.Remaining -= step;

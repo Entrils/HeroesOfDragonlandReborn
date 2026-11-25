@@ -26,6 +26,7 @@ namespace HeroesOfDragonland.Multiplayer
         [Networked] public Vector3 Facing { get; private set; }
         private CharacterStats stats;
         private NetworkPlayerCombat combat;
+        private readonly AttackPressSequence presses = new();
         public DodgeDefinition Definition => definition;
         public float ActiveDuration => RollDuration;
         public float InvulnerabilityStartTime => definition.InvulnerabilityStartTime / definition.Duration * RollDuration;
@@ -41,13 +42,14 @@ namespace HeroesOfDragonland.Multiplayer
             combat = GetComponent<NetworkPlayerCombat>();
         }
 
-        internal void TickIntent(NetworkPlayerInput input, Vector3 move, Vector3 facing)
+        internal void TickIntent(NetworkPlayerInput input, Vector3 move, Vector3 facing, bool sampled = true)
         {
             if (combat == null || !combat.IsAdmitted()) return;
+            bool pressed = sampled && presses.TryRead(input.DodgePress, 0, out _);
             if (!NetworkMatch.AllowsGameplay(Runner)) { Busy = false; return; }
             if (!isActiveAndEnabled || stats.IsDead) { Busy = false; return; }
             if (Busy && Elapsed >= RollDuration + RollRecovery) Busy = false;
-            if (Busy || !input.Dodge || (combat.IsBusy && !combat.CanDodgeCancel) || combat.ActionsBlocked || definition == null) return;
+            if (Busy || input.SuppressAttacks || (!pressed && !input.Dodge) || (combat.IsBusy && !combat.CanDodgeCancel) || combat.ActionsBlocked || definition == null) return;
             var rollModifiers = GetComponent<Equipment>()?.DodgeModifiers ?? WeightDodgeModifiers.Light;
             if (!stats.TrySpendStamina(definition.StaminaCost * Mathf.Max(0.01f, rollModifiers.stamina)
                 * stats.SkillCostMultiplier(SkillEffect.DodgeEfficiency))) return;
@@ -62,6 +64,8 @@ namespace HeroesOfDragonland.Multiplayer
             DodgeSequence++;
             Busy = true;
         }
+
+        internal void ResetConnectionInput() => presses.Reset();
 
         internal void SuspendConnection() { if (Runner.IsServer && HasStateAuthority) Busy = false; }
         internal void CancelForRespawn()

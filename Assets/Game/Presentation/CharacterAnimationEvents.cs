@@ -2,7 +2,7 @@ using UnityEngine;
 
 namespace HeroesOfDragonland.Presentation
 {
-    public enum CharacterAnimationCue { Footstep, WeaponTrailOn, WeaponTrailOff, Impact, DodgeWhoosh }
+    public enum CharacterAnimationCue { Footstep, WeaponTrailOn, WeaponTrailOff, Impact, DodgeWhoosh, Swing }
     // AnimationEvent receiver on the Animator object. Deliberately has no gameplay/physics authority.
     public sealed class CharacterAnimationEvents : MonoBehaviour
     {

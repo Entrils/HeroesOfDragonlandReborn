@@ -27,6 +27,7 @@ namespace HeroesOfDragonland.Multiplayer
         private NetworkCharacterStats networkStats;
         private NetworkPlayerCombat combat;
         private NetworkPlayerDodge dodge;
+        private readonly ServerInputContinuity inputContinuity = new();
         private void Awake()
         {
             networkStats = GetComponent<NetworkCharacterStats>();
@@ -60,11 +61,29 @@ namespace HeroesOfDragonland.Multiplayer
         {
             // Foundation only: server motion, interpolated clients. Prediction is a later milestone.
             if (!Runner.IsServer || !HasStateAuthority || combat == null || !combat.IsAdmitted()) return;
-            // Missing input stops locomotion/new requests, but existing actions keep ticking.
-            GetInput(out NetworkPlayerInput input);
+            if (!GetInput(out NetworkPlayerInput input)) input = default;
 #if UNITY_EDITOR || DEBUG
-            if (IsBot) input = botBrain != null ? botBrain.Tick(Runner.DeltaTime) : default;
+            if (IsBot)
+            {
+                input = botBrain != null ? botBrain.Tick(Runner.DeltaTime) : default;
+                input.HasSample = true;
+            }
+            else
 #endif
+            {
+                if (input.HasSample && (!ValidDirection(input.Move) || !ValidDirection(input.Facing)))
+                {
+                    ServerActionAudit.Record(Runner, Object.InputAuthority, ServerRejection.MovementVector);
+                    // Consume the counters without starting an action from malformed movement.
+                    input.SuppressAttacks = true;
+                }
+                input = inputContinuity.Resolve(input, Runner.DeltaTime, out bool rebaseline);
+                if (rebaseline)
+                {
+                    combat.ResetConnectionInput();
+                    dodge?.ResetConnectionInput();
+                }
+            }
             Vector2 move = Sanitize(input.Move);
             input.Facing = Sanitize(input.Facing);
             Vector3 direction = new Vector3(move.x, 0, move.y);
@@ -72,9 +91,9 @@ namespace HeroesOfDragonland.Multiplayer
                 ? new Vector3(input.Facing.x, 0, input.Facing.y).normalized
                 : direction.sqrMagnitude > 0.0001f ? direction.normalized : transform.forward;
             // Dodge wins simultaneous idle requests; neither action interrupts the other.
-            if (dodge != null) dodge.TickIntent(input, direction, facing);
+            if (dodge != null) dodge.TickIntent(input, direction, facing, input.HasSample);
             // Consume attack press counters even while dead/paused, so rejected input cannot replay after revival.
-            combat.TickIntent(input, facing, dodge != null && dodge.Busy);
+            combat.TickIntent(input, facing, dodge != null && dodge.Busy, input.HasSample);
             if (!NetworkMatch.AllowsGameplay(Runner)) return;
             if (networkStats != null && networkStats.Dead) return;
             Vector3 offset = dodge != null && dodge.Busy ? dodge.StepDisplacement()
@@ -90,9 +109,17 @@ namespace HeroesOfDragonland.Multiplayer
             transform.rotation = Quaternion.LookRotation(facing);
         }
 
+        internal void ResetConnectionInput()
+        {
+            inputContinuity.Reset();
+            combat?.ResetConnectionInput();
+            dodge?.ResetConnectionInput();
+        }
+
         internal void SetSuspended(bool value)
         {
             if (!Runner.IsServer || !HasStateAuthority) return;
+            ResetConnectionInput();
             Suspended = value;
             ApplySuspension();
         }
@@ -120,12 +147,11 @@ namespace HeroesOfDragonland.Multiplayer
             SubmitLocalAppearance();
         }
 
+        internal static bool ValidDirection(Vector2 value) => float.IsFinite(value.x) && float.IsFinite(value.y)
+            && value.sqrMagnitude <= 1.001f;
+
         private static Vector2 Sanitize(Vector2 value)
-        {
-            if (float.IsNaN(value.x) || float.IsInfinity(value.x)
-                || float.IsNaN(value.y) || float.IsInfinity(value.y)) return Vector2.zero;
-            return Vector2.ClampMagnitude(value, 1f);
-        }
+            => ValidDirection(value) ? Vector2.ClampMagnitude(value, 1f) : Vector2.zero;
 
         // Matches the test capsule. Sweep prevents a roll tunnelling through a wall
         // or another avatar; no client transform or collision report is accepted.

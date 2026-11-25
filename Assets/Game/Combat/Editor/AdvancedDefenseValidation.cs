@@ -54,12 +54,16 @@ namespace HeroesOfDragonland.Combat.Editor
                 var poise = defender.GetComponent<CharacterPoise>(); var parry = defender.GetComponent<ParryDefense>();
                 Action reset = () => { Reset(attacker); Reset(defender); };
                 Action strike = () => { Physics.SyncTransforms(); Check(a.TryAttack(), "real swing accepted"); a.TickAttack(profile.ActiveStartTime + .001f); };
+                DamageImpactCue lastCue = default;
+                int contacts = 0;
+                defender.GetComponent<DamageReceiver>().ContactResolved += (cue, source, impact) => { lastCue = cue; contacts++; };
                 // Success is a real overlap/hit-window callback, never a fabricated parry RPC.
                 reset(); Check(parry.TryStart(Vector3.back), "parry accepted");
                 Near(hp.CurrentStamina, hp.MaxStamina - timing.StaminaCost, "parry pays once");
                 Check(!parry.TryStart(Vector3.back), "held/repeated parry cannot restart"); dp.Tick(timing.Startup + .001f);
                 int successes = parry.SuccessSequence; strike();
                 Check(parry.SuccessSequence == successes + 1 && !a.IsBusy && ap.IsStaggered && ap.LastInterrupt == DefenseInterrupt.Parried, "parry interrupts and staggers attacker");
+                Check(contacts == 1 && lastCue == DamageImpactCue.Parried, "parry emits one defense contact");
                 Near(hp.CurrentHealth, hp.MaxHealth, "parry prevents HP damage"); Near(poise.Current, poise.Maximum, "parry prevents poise damage");
                 Check(!parry.IsActive && parry.IsBusy, "successful window consumed; recovery retained");
                 Reset(attacker); strike(); Check(parry.SuccessSequence == successes + 1 && hp.CurrentHealth < hp.MaxHealth, "one success per attempt");
@@ -76,7 +80,8 @@ namespace HeroesOfDragonland.Combat.Editor
                 Check(!parry.IsBusy && !parry.TryStart(Vector3.back), "recovery end does not bypass cooldown"); dp.Tick(parry.CooldownRemaining + .001f);
                 Check(parry.TryStart(Vector3.back), "new attempt after full cooldown");
                 // Existing block chip/upkeep and event-driven exhaustion integrate with guard break.
-                reset(); dp.SetBlockIntent(true, false); strike();
+                reset(); contacts = 0; dp.SetBlockIntent(true, false); strike();
+                Check(contacts == 1 && lastCue == DamageImpactCue.Blocked, "block emits one defense contact");
                 Near(hp.CurrentHealth, hp.MaxHealth - profile.Damage * dp.BlockedDamageMultiplier, "block chip damage");
                 Near(hp.CurrentStamina, hp.MaxStamina - profile.Damage * dp.BlockStaminaPerDamage, "block impact cost");
                 Near(poise.Current, poise.Maximum, "blocked hit does not consume poise");
@@ -85,6 +90,11 @@ namespace HeroesOfDragonland.Combat.Editor
                 Near(dp.StaggerRemaining, dp.GuardBreakDuration, "configurable guard-break duration");
                 hp.ResetToFull(); dp.Tick(dp.GuardBreakDuration + dp.RecoveryImmunity + .01f); dp.SetBlockIntent(true, false);
                 Check(!dp.IsBlocking, "guard must be released after break"); dp.SetBlockIntent(false, false); dp.SetBlockIntent(true, false); Check(dp.IsBlocking, "released guard can recover");
+                reset(); contacts = 0; dp.SetBlockIntent(true, false);
+                hp.TrySpendStamina(hp.CurrentStamina - 1);
+                strike();
+                Check(contacts == 1 && lastCue == DamageImpactCue.GuardBreak && !dp.IsBlocking,
+                    "impact guard break replaces the block contact");
                 reset(); dp.SetBlockIntent(true, false); guard = dp.GuardBreakSequence;
                 dp.Tick(hp.CurrentStamina / dp.BlockStaminaPerSecond + .001f);
                 Check(dp.GuardBreakSequence == guard + 1 && dp.IsStaggered, "upkeep exhaustion breaks guard");
