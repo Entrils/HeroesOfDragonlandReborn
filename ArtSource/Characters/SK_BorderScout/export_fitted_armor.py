@@ -17,6 +17,8 @@ batch = bpy.data.collections.new("Rigid export staging")
 bpy.context.scene.collection.children.link(batch)
 
 for fitting in bpy.data.collections["Fitted rigid equipment"].objects:
+    if "--" in sys.argv and fitting.name not in sys.argv[sys.argv.index("--")+1:]:
+        continue
     data = fitting.data.copy()
     pivot = Vector(fitting["rest_pivot_m"])
     data.transform(Matrix.Translation(-pivot))

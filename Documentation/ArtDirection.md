@@ -5,6 +5,30 @@
 
 See [the live validation record](HomeIntegrationValidation.md) for actual outcomes, failures, evidence and remaining checks. Earlier offline-only status below is historical.
 
+## Battlefield environment art update
+
+The approach to the two strongholds uses weathered ashlar, blackened timber and subdued foliage under a starry night sky. Look east to see a cratered moon at 24° elevation and a banded red planet spanning almost 18° of sky. The brightest stars have compact HDR cores and a faint surrounding glow baked into the panorama. Cold moonlight picks out stone edges, and blue-grey fog fades from 24 m to 112 m. Both teams retain their established gate heraldry. The lighting and sky are saved on DragonlandBattlefield itself.
+
+The sky material samples the 4096 × 2048 scene-linear panorama at `Assets/Art/Textures/Environment/T_BorderwoodNight.exr`. Run Blender with `--background --python Tools/ArtPipeline/create_borderwood_night.py -- PROJECT_ROOT` to regenerate it. The Blender review and Unity share this texture.
+
+| Existing environment kit | FBX files | Previous LOD0 triangles across unique modules | Revised LOD0 triangles across unique modules |
+| --- | ---: | ---: | ---: |
+| Fortress and ruins | 21 | 6,288 | 72,220 |
+| Ancient forest | 19 | 11,344 | 40,678 |
+| Biome extensions | 5 | 2,118 | 9,704 |
+
+These counts describe one copy of each module. The tower uses 9,116 triangles close up and 204 at distance. Forest trunks have flared roots and forked branches, bushes use folded leaf silhouettes, and the distant treeline uses tiered crowns. Terrain keeps its tile edges, with detail concentrated in the stone, broken paving, gravel and ash. The shattered standard has folds and a torn trailing edge.
+
+The other eight exports cover both working gate variants and their breached state, the camp chest, reliquary, crate, training dummy and lever. Weathering and metalwork are part of those meshes and their existing atlases. The 45 modular exports retain their imported node names, parents, transforms, material-slot ordering and collision triangles compared with the previous FBXs. The eight props retain their node hierarchy, material slots and pivots.
+
+**Changed assets.** Editable sources, manifests and round-trip reports live under `ArtSource/Environment`. Unity exports are under `Assets/Art/Environment/Models`. Materials and maps are under `Assets/Art/Materials/Environment` and `Assets/Art/Textures/Environment`. The fortress adds three 1024² tileable surface sets for stone, timber and iron. Each contains base colour, tangent normal and a linear mask with metallic in red, occlusion in green and smoothness in alpha. The existing fortress material builder can recreate those bindings. The sky shader is `Assets/Art/Environment/AshenBorderwoodSky.shader`, its material is `Assets/Art/Materials/Environment/AshenBorderwoodSky.mat`, and the map settings are in `Assets/Scenes/DragonlandBattlefield.unity`. Existing prefab and FBX import metadata are retained.
+
+**Rebuild.** In `Tools/ArtPipeline`, run the Blender scripts `create_fortress_kit.py`, `create_ancient_forest.py`, then `create_biome_set.py` with the project root after `--`. Each kit has a matching `validate_*.py` command. The specific prop generators are `create_fortress_gates.py`, `create_camp_chest.py`, `create_warden_reliquary.py`, `create_training_dummy.py`, `create_training_lever.py` and `create_test_crate.py`. Only the crate takes the project root after `--` among these six. The fortress surface generator is `fortress_surfaces.py`. The three kit generators preserve the published Unity subasset names listed in `environment_mesh_names.py`. Run `review_borderwood.py` with the project root after building the kits and gate to reproduce the first image below.
+
+**Visual review.** The first image is a staged Blender render of the exported designs. The other views show the modular kits. [Forest road and gate](ArtDirection/BorderwoodApproach.png) · [Fortress module assembly](FortressRuins/TestSection.png) · [Forest at walking height](AncientForest/PathView.png) · [Biome transitions](Biomes/Transitions.png)
+
+**Engine acceptance pending.** Check the URP sky, fog and shadows from the player camera after Unity reimports the assets. Review gate colours and distant player silhouettes from both approaches, check the forest LOD transitions while moving, and measure GPU cost in the densest grove and at a fortress entrance.
+
 ## Scope and status
 
 Chosen direction: **Weathered Dragonland** — grounded, selectively stylized medieval fantasy. Ancient stone, worn iron, pale woodland and restrained dragon heraldry frame clearly visible combatants. Darkness comes from subject matter, architecture and weathering, not crushed blacks or obscuring fog. This document is the M54 authoring baseline; in-engine acceptance remains pending.

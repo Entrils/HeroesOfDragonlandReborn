@@ -16,6 +16,7 @@ from mathutils import noise
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from export_fbx import export_collection
+from environment_mesh_names import preserve_mesh_names
 
 ROOT = Path(sys.argv[sys.argv.index('--')+1]).resolve()
 SOURCE = ROOT/'ArtSource/Environment/AncientForest'
@@ -25,9 +26,9 @@ PREVIEW = ROOT/'Documentation/AncientForest'
 for folder in (SOURCE, MODELS, TEXTURES, PREVIEW):
     folder.mkdir(parents=True, exist_ok=True)
 PALETTE = {
-    'Bark': ('A19C87',.87), 'Leaves': ('657354',.9), 'LeavesLight': ('89936D',.9),
-    'Rock': ('8C9187',.9), 'ForestFloor': ('6C7058',.93), 'DirtPath': ('8E8165',.93),
-    'Heartwood': ('9A8464',.85), 'Moss': ('67774E',.95),
+    'Bark': ('726E65',.86), 'Leaves': ('475449',.9), 'LeavesLight': ('7A805E',.9),
+    'Rock': ('747974',.87), 'ForestFloor': ('555749',.90), 'DirtPath': ('807364',.89),
+    'Heartwood': ('826448',.85), 'Moss': ('586348',.93),
 }
 
 
@@ -67,12 +68,13 @@ def textures():
                 broad=noise.noise(torus*2)+.35*noise.noise(torus*5)
                 fine=noise.noise(torus*27)
                 if kind == 'Bark':
-                    grooves = abs(math.sin(math.tau*(u*11+.09*math.sin(math.tau*v))))**12
-                    h = .55-.32*grooves+.08*broad+.02*fine
-                    tone = 1-.24*grooves+.08*broad
+                    grooves = abs(math.sin(math.tau*(u*12+.21*broad+.09*math.sin(math.tau*v))))**8
+                    h = .55-.34*grooves+.11*broad+.055*fine
+                    tone = 1-.32*grooves+.17*broad+.06*fine
                 elif kind == 'Rock':
-                    h = .5+.12*broad+.025*fine
-                    tone = 1+.1*broad+.025*fine
+                    fissure=max(0,1-abs(math.sin(math.tau*(u+2*v+.35*broad)))/.14)
+                    h = .5+.14*broad+.055*fine-.13*fissure
+                    tone = 1+.19*broad+.065*fine-.22*fissure
                 else:
                     h = .5+.07*broad+.018*fine
                     tone = 1+.09*broad+.02*fine
@@ -88,7 +90,7 @@ def textures():
                 n = Vector((-dx*5,-dy*5,1)).normalized()
                 normal.extend((n.x*.5+.5,n.y*.5+.5,n.z*.5+.5,1))
                 # R metallic, G AO (unoccluded), B reserved, A smoothness.
-                mask.extend((0,1,0,1-PALETTE[kind][1]))
+                mask.extend((0,1,0,max(.058,min(.19,1-PALETTE[kind][1]+.075*(heights[y*size+x]-.5)))))
         save_image('T_AF_'+kind+'_BaseColor',colors)
         save_image('T_AF_'+kind+'_Normal',normal,data=True)
         save_image('T_AF_'+kind+'_Mask',mask,data=True)
@@ -177,7 +179,10 @@ def stone(center, size, seed, subdivisions=2, kind='Rock'):
     bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=subdivisions,radius=1,location=center)
     obj=bpy.context.object
     for vertex in obj.data.vertices:
-        factor=1+rng.uniform(-.12,.12)
+        original=vertex.co.copy()
+        factor=1+rng.uniform(-.12,.12) if subdivisions<=2 else (
+            1+.18*noise.noise(original*2.7+Vector((seed,0,0)))+
+            .038*noise.noise(original*9)+.025*math.sin(original.z*17+seed))
         vertex.co *= factor
         vertex.co.x *= size[0]/2
         vertex.co.y *= size[1]/2
@@ -195,8 +200,10 @@ def leaf(center, direction, width, length, kind='Leaves'):
     if side.length < .001:
         side=Vector((width,0,0))
     # Opaque folded leaf blade: geometry defines silhouette, no alpha-card overdraw.
-    vertices=[p-long*.5,p+side,p+long*.5,p-side,p+Vector((0,0,.025))]
-    return mesh_object('FoldedLeaf',vertices,[(0,1,4),(1,2,4),(2,3,4),(3,0,4)],kind)
+    ridge=Vector((0,0,.025))
+    vertices=[p-long*.5,p-long*.23+side*.72,p+long*.12+side,
+              p+long*.55-ridge*.8,p+long*.14-side*.82,p-long*.23-side*.65,p+ridge]
+    return mesh_object('FoldedLeaf',vertices,[(i,(i+1)%6,6) for i in range(6)],kind)
 
 
 def moss_top(obj):
@@ -208,23 +215,57 @@ def moss_top(obj):
 
 def tree(seed, lod, dead=False):
     rng=random.Random(seed)
-    sides=(14,8,5)[lod]
+    sides=(24,12,5)[lod]
     height=(5.5 if seed==1 else 5.8) if not dead else 6.8
-    points=[(.07*math.sin(i*.7),.045*math.sin(i),i*height/8) for i in range(9)]
+    points=[(.13*math.sin(i*.7+seed)-.13*math.sin(seed),.085*math.sin(i),i*height/8) for i in range(9)]
+    if lod==2:
+        points=[(.07*math.sin(i*.7),.045*math.sin(i),i*height/8) for i in range(9)]
     radii=[.405*(1-i/10)**1.3 for i in range(9)]
     tube(points,radii,sides)
+    if lod<2:
+        for j in range(7 if lod==0 else 4):
+            a=j*2.399+seed
+            radial=Vector((math.cos(a),math.sin(a),0))
+            tube([radial*.20+Vector((0,0,.62)),radial*.39+Vector((0,0,.21)),
+                  radial*.60+Vector((0,0,.075)),radial*.81+Vector((0,0,.021))],
+                 [.108,.111,.060,.014],8)
     for i in range((8,6,4)[lod]):
         angle=i*2.399+seed*.4
-        base=3.65+(i%3)*.6
-        end=Vector((math.cos(angle)*1.2,math.sin(angle)*1.2,base+.7))
-        tube([(0,0,base),end*.5+Vector((0,0,base*.5+.15)),end],
-             [.13,.075,.018],max(4,sides-3))
+        base=3.58+(i%4)*.39
+        reach=1.16-.108*(i%4)
+        end=Vector((math.cos(angle)*reach,math.sin(angle)*reach,base+.61+.16*(i%3)))
+        origin=Vector(points[min(8,round(base/height*8))])
+        origin.z=base
+        elbow=origin.lerp(end,.44)+Vector((.09*math.sin(angle),-.09*math.cos(angle),-.18))
+        if lod==2:
+            base=3.65+(i%3)*.6
+            end=Vector((math.cos(angle)*1.2,math.sin(angle)*1.2,base+.7))
+            tube([(0,0,base),end*.5+Vector((0,0,base*.5+.15)),end],[.13,.075,.018],4)
+        else:
+            tube([origin,elbow,elbow.lerp(end,.62)+Vector((0,0,.10)),end],
+                 [.123,.082,.047,.013],max(4,sides-3))
+        if lod<2:
+            radial=Vector((math.cos(angle),math.sin(angle),0))
+            lateral=Vector((-radial.y,radial.x,0))
+            for j in range(6 if lod==0 else 3):
+                t=.43+.083*j
+                origin=elbow.lerp(end,(t-.4)/.6)
+                side=1 if j%2 else -1
+                fork=origin+lateral*(.23*side)+Vector((0,0,.18))
+                tip=fork+lateral*(side*.20)+radial*.18+Vector((0,0,.21+(j%3)*.11))
+                tube([origin,fork,tip],[.05,.033,.009],7 if lod==0 else 5)
+                if not dead:
+                    for k in range(9 if lod==0 else 5):
+                        fraction=(k+.35)/10
+                        axis=lateral*(side*.6)+radial*(1 if k%2 else -1)
+                        leaf(fork.lerp(tip,fraction)+axis*.08,axis+Vector((0,0,-.26)),
+                             .066 if lod==0 else .09,.28,'LeavesLight' if (k+j)%5==0 else 'Leaves')
         if dead:
             continue
         if lod==2:
             stone(end+Vector((0,0,.22)),(1.2,1.2,1.05),seed*20+i,1,'Leaves')
         else:
-            for j in range(65 if lod==0 else 22):
+            for j in range(42 if lod==0 else 18):
                 theta=rng.uniform(0,math.tau)
                 r=rng.uniform(.05,.58)
                 position=end+Vector((math.cos(theta)*r,math.sin(theta)*r,rng.uniform(-.15,.65)))
@@ -243,7 +284,7 @@ def build(kind,lod):
         tree(int(kind[-2:])+2,lod,True)
     elif kind.startswith('Rock'):
         index=int(kind[-2:])
-        obj=stone((0,0,.5+index*.1),(1.5+index*.3,1.2+index*.2,1+index*.2),index,(3,2,1)[lod])
+        obj=stone((0,0,.5+index*.1),(1.5+index*.3,1.2+index*.2,1+index*.2),index,(4,2,1)[lod])
         low=min(v.co.z for v in obj.data.vertices)
         for vertex in obj.data.vertices:
             vertex.co.z-=low
@@ -254,8 +295,13 @@ def build(kind,lod):
             pos=(math.cos(a)*r,math.sin(a)*r,rng.uniform(.2,.6))
             leaf(pos,(math.cos(a),math.sin(a),.3),.1,.28,'LeavesLight' if i%6==0 else 'Leaves')
         tube([(0,0,0),(0,0,.5)],[.045,.02],(8,6,4)[lod],'Heartwood')
+        if lod<2:
+            for j in range(7 if lod==0 else 4):
+                a=j*2.399
+                tube([(0,0,0),(.16*math.cos(a),.16*math.sin(a),.24),
+                      (.48*math.cos(a),.48*math.sin(a),.44)],[.029,.021,.008],5,'Heartwood')
     elif kind.startswith('GrassClump'):
-        for i in range((55,24,8)[lod]):
+        for i in range((88,28,8)[lod]):
             a=rng.uniform(0,math.tau)
             r=rng.uniform(0,.35)
             x,y=math.cos(a)*r,math.sin(a)*r
@@ -265,13 +311,21 @@ def build(kind,lod):
     elif kind=='FallenLog01':
         tube([(-1.8,0,.37),(-.6,.04,.4),(.6,.06,.37),(1.8,.08,.34)],
              [.34,.37,.34,.28],(16,10,6)[lod])
+        if lod<2:
+            tube([(.64,.10,.47),(.76,.28,.66),(.89,.43,.83)],[.13,.089,.046],12)
+            tube([(-.80,-.10,.45),(-.89,-.34,.52),(-1.01,-.50,.56)],[.09,.061,.024],10)
         tube([(-1.81,0,.37),(-1.83,0,.37)],[.29,.29],(16,10,6)[lod],'Heartwood')
     elif kind=='Stump01':
+        if lod<2:
+            for j in range(6):
+                a=j*2.399
+                tube([(.20*math.cos(a),.20*math.sin(a),.32),(.39*math.cos(a),.39*math.sin(a),.12),
+                      (.56*math.cos(a),.56*math.sin(a),.02)],[.09,.074,.013],8)
         tube([(0,0,0),(.02,0,.3),(.04,0,.65)],[.4,.35,.31],(16,10,6)[lod])
         tube([(.04,0,.65),(.04,0,.66)],[.28,.28],(16,10,6)[lod],'Heartwood')
     elif kind=='CampCairn01':
         for i in range(3):
-            stone((0,0,.18+i*.28),(.9-i*.15,.7-i*.1,.4),i+11,(2,1,1)[lod])
+            stone((0,0,.18+i*.28),(.9-i*.15,.7-i*.1,.4),i+11,(3,1,1)[lod])
         # Three broad dark recess-like bars; neutral tier may overlay a UI icon later.
         for i in range(3 if lod==0 else 1):
             stone((0,.36,.15+i*.23),(.3,.08,.07),i,1,'Heartwood')
@@ -279,25 +333,41 @@ def build(kind,lod):
         for row in range(4):
             for col in range(3 if row<2 else 2 if row==2 else 1):
                 obj=stone((-1+col*.95+(.08 if row%2 else 0),0,.24+row*.43),
-                          (1,.68,.5),row*7+col,(2,1,1)[lod])
+                          (1,.68,.5),row*7+col,(3,1,1)[lod])
                 if row>=2:
                     moss_top(obj)
     elif kind=='RuinPillar01':
         for row in range(5):
             obj=stone((.025*math.sin(row),0,.22+row*.4),
-                      (.85 if row==0 else .63,.8 if row==0 else .63,.5),row+50,(2,1,1)[lod])
+                      (.85 if row==0 else .63,.8 if row==0 else .63,.5),row+50,(3,1,1)[lod])
             if row==4:
                 moss_top(obj)
     elif kind in ('ForestFloorTile','DirtPathTile'):
         # Flat visual surfaces, no added traversal height or collider.
         half_width=2 if kind=='ForestFloorTile' else 1.6
-        mesh_object(kind,[(-half_width,-2,0),(half_width,-2,0),(half_width,2,0),(-half_width,2,0)],[(0,1,2,3)],
-                    'ForestFloor' if kind=='ForestFloorTile' else 'DirtPath',uv=[(0,0),(1,0),(1,1),(0,1)])
+        uv=[(x/12,y/12) for y in range(13) for x in range(13)]
+        vertices=[((2*u-1)*half_width,4*v-2,.015*math.sin(math.pi*u)*math.sin(math.pi*v)*
+                   noise.noise(Vector((u*7,v*7,1)))) for u,v in uv]
+        faces=[(k,k+1,k+14,k+13) for y in range(12) for x in range(12) for k in [13*y+x]]
+        mesh_object(kind,vertices,faces,'ForestFloor' if kind=='ForestFloorTile' else 'DirtPath',True,uv)
     elif kind=='DistantTreeline':
         for i in range((7,5,3)[lod]):
             x=(i-3)*2
-            tube([(x,0,0),(x,0,5)],[.2,.08],5)
-            stone((x,0,5),(3,2,2),i,1,'Leaves')
+            h=4.65+1.13*math.sin(i*2.39)
+            tube([(x,0,0),(x+.07,0,h*.58),(x-.05,0,h)],[.19,.11,.02],6)
+            for j in range((7,5,3)[lod]):
+                t=j/(7,5,3)[lod]
+                z=h*(.32+.61*t)
+                radius=(1.36-.92*t)*(1+.09*math.cos(i+j))
+                sides=(25,17,12)[lod]
+                verts=[(x,0,z+.25),(x-.05,0,z+h*(.29-.06*t))]
+                for k in range(sides):
+                    a=k*math.tau/sides+i+j*.42
+                    r=radius*(.82+.17*math.cos(k*2.67+j))
+                    verts.append((x+r*math.cos(a),r*.78*math.sin(a),z-.20*(r/radius)+.12*math.sin(k*2.67)))
+                faces=[tri for k in range(sides) for tri in
+                       ((1,k+2,(k+1)%sides+2),(0,(k+1)%sides+2,k+2))]
+                mesh_object('Wind-torn boughs',verts,faces,'Leaves')
     else:
         raise ValueError(kind)
 
@@ -346,6 +416,7 @@ textures()
 assets=[]
 for kind in KINDS:
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.context.preferences.filepaths.save_version=0
     scene=bpy.context.scene
     scene.unit_settings.system='METRIC'
     scene.unit_settings.scale_length=1
@@ -400,7 +471,8 @@ for kind in KINDS:
     bpy.ops.object.select_all(action='DESELECT')
     lods[0].select_set(True)
     bpy.context.view_layer.objects.active=lods[0]
-    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/(name+'.blend')))
+    preserve_mesh_names(name, export)
+    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/(name+'.blend')),compress=True)
     export_collection(MODELS/(name+'.fbx'))
 
 # Independent look-development patch. It is not an alternate map layout.
@@ -480,11 +552,12 @@ manifest=dict(version=1,milestone=56,blender=bpy.app.version_string,
 (SOURCE/'AncientForest.manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 scene.world=bpy.data.worlds.new('OvercastFill')
 scene.world.use_nodes=True
-scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.5,.57,.65,1)
-scene.world.node_tree.nodes['Background'].inputs[1].default_value=.55
+scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.24,.30,.38,1)
+scene.world.node_tree.nodes['Background'].inputs[1].default_value=.48
 bpy.ops.object.light_add(type='AREA',location=(-4,-8,16))
 key=bpy.context.object
 key.data.energy=3200
+key.data.color=(1,.83,.64)
 key.data.shape='DISK'
 key.data.size=12
 key.rotation_euler=(Vector((0,3,0))-key.location).to_track_quat('-Z','Y').to_euler()
@@ -505,7 +578,8 @@ for name,pos,target in [('Overview',(29,-34,25),(0,2,1)),('PathView',(0,-11,2.1)
     views.append(camera)
 scene.camera=views[0]
 scene['M56_Status']=manifest['status']
-bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/'AncientForest_LookDev.blend'))
+bpy.context.preferences.filepaths.save_version=0
+bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/'AncientForest_LookDev.blend'),compress=True)
 for camera in views:
     scene.camera=camera
     scene.render.filepath=str(PREVIEW/(camera.name+'.png'))

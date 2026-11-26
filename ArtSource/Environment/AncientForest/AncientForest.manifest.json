@@ -9,23 +9,23 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_TreeAncient01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_TreeAncient01.fbx",
       "dimensionsUnity": [
-        3.18769,
-        6.26923,
-        3.19649
+        3.22554,
+        6.23565,
+        3.00985
       ],
       "minimumBlender": [
-        -1.5881890058517456,
-        -1.5975234508514404,
-        -0.03568273037672043
+        -1.610782504081726,
+        -1.5343053340911865,
+        -0.04401468485593796
       ],
       "maximumBlender": [
-        1.5994991064071655,
-        1.5989619493484497,
-        6.233547687530518
+        1.6147563457489014,
+        1.4755462408065796,
+        6.19163179397583
       ],
       "triangles": [
-        2824,
-        824,
+        8592,
+        2516,
         246
       ],
       "lodMaterials": [
@@ -65,23 +65,23 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_TreeAncient02.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_TreeAncient02.fbx",
       "dimensionsUnity": [
-        3.19278,
-        6.26272,
-        3.19423
+        3.12716,
+        6.24693,
+        3.01959
       ],
       "minimumBlender": [
-        -1.5948922634124756,
-        -1.5959126949310303,
-        -0.033850736916065216
+        -1.514453649520874,
+        -1.5255112648010254,
+        -0.05460793152451515
       ],
       "maximumBlender": [
-        1.5978899002075195,
-        1.598319411277771,
-        6.2288689613342285
+        1.612708568572998,
+        1.494079828262329,
+        6.19232177734375
       ],
       "triangles": [
-        2824,
-        824,
+        8592,
+        2516,
         246
       ],
       "lodMaterials": [
@@ -121,23 +121,23 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_DeadTree01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DeadTree01.fbx",
       "dimensionsUnity": [
-        2.35735,
-        6.83065,
-        2.30912
+        2.19683,
+        6.85756,
+        2.48442
       ],
       "minimumBlender": [
-        -1.1982347965240479,
-        -1.1826153993606567,
-        -0.02890108712017536
+        -1.106674313545227,
+        -1.2465057373046875,
+        -0.05505850166082382
       ],
       "maximumBlender": [
-        1.1591167449951172,
-        1.126507043838501,
-        6.801746845245361
+        1.0901598930358887,
+        1.2379106283187866,
+        6.802502632141113
       ],
       "triangles": [
-        744,
-        296,
+        3984,
+        1328,
         166
       ],
       "lodMaterials": [
@@ -167,23 +167,23 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_DeadTree02.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DeadTree02.fbx",
       "dimensionsUnity": [
-        2.35646,
-        6.83065,
-        2.38739
+        1.98969,
+        6.84414,
+        2.34017
       ],
       "minimumBlender": [
-        -1.1582667827606201,
-        -1.1824194192886353,
-        -0.02890108712017536
+        -0.9673073291778564,
+        -1.1748913526535034,
+        -0.03865107148885727
       ],
       "maximumBlender": [
-        1.1981905698776245,
-        1.2049659490585327,
-        6.801746845245361
+        1.0223788022994995,
+        1.1652770042419434,
+        6.805486679077148
       ],
       "triangles": [
-        744,
-        296,
+        3984,
+        1328,
         166
       ],
       "lodMaterials": [
@@ -213,22 +213,22 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_Rock01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Rock01.fbx",
       "dimensionsUnity": [
-        1.84263,
-        1.23709,
-        1.44895
+        1.9732,
+        1.23528,
+        1.49148
       ],
       "minimumBlender": [
-        -0.8970173597335815,
-        -0.7286112308502197,
+        -0.9676806330680847,
+        -0.7405468225479126,
         0.0
       ],
       "maximumBlender": [
-        0.9456093311309814,
-        0.720342755317688,
-        1.2370896339416504
+        1.0055238008499146,
+        0.7509294152259827,
+        1.2352758646011353
       ],
       "triangles": [
-        320,
+        1280,
         80,
         20
       ],
@@ -259,22 +259,22 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_Rock02.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Rock02.fbx",
       "dimensionsUnity": [
-        2.26666,
-        1.48946,
-        1.72207
+        2.16652,
+        1.50498,
+        1.70439
       ],
       "minimumBlender": [
-        -1.1008127927780151,
-        -0.8342539668083191,
+        -1.0710315704345703,
+        -0.8609941601753235,
         0.0
       ],
       "maximumBlender": [
-        1.1658521890640259,
-        0.8878133893013,
-        1.489459753036499
+        1.0954883098602295,
+        0.8433995246887207,
+        1.50498366355896
       ],
       "triangles": [
-        320,
+        1280,
         80,
         20
       ],
@@ -305,22 +305,22 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_Rock03.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Rock03.fbx",
       "dimensionsUnity": [
-        2.47914,
-        1.70339,
-        1.90922
+        2.63562,
+        1.70142,
+        1.8586
       ],
       "minimumBlender": [
-        -1.2596015930175781,
-        -0.9873074889183044,
+        -1.293502688407898,
+        -0.8995053768157959,
         0.0
       ],
       "maximumBlender": [
-        1.219533920288086,
-        0.9219139814376831,
-        1.7033894062042236
+        1.3421196937561035,
+        0.9590938687324524,
+        1.7014219760894775
       ],
       "triangles": [
-        320,
+        1280,
         80,
         20
       ],
@@ -351,24 +351,24 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_Bush01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Bush01.fbx",
       "dimensionsUnity": [
-        1.48369,
-        0.63706,
-        1.52172
+        1.50954,
+        0.63791,
+        1.54819
       ],
       "minimumBlender": [
-        -0.7593944072723389,
-        -0.7581601142883301,
-        0.0
+        -0.7727606296539307,
+        -0.7712446451187134,
+        -0.016085736453533173
       ],
       "maximumBlender": [
-        0.7242963314056396,
-        0.7635567784309387,
-        0.6370572447776794
+        0.7367831468582153,
+        0.7769415974617004,
+        0.6218284964561462
       ],
       "triangles": [
-        508,
-        200,
-        60
+        930,
+        394,
+        84
       ],
       "lodMaterials": [
         [
@@ -409,24 +409,24 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_Bush02.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Bush02.fbx",
       "dimensionsUnity": [
-        1.41396,
-        0.64021,
-        1.46158
+        1.43998,
+        0.64106,
+        1.48786
       ],
       "minimumBlender": [
-        -0.7082759141921997,
-        -0.7350925803184509,
-        0.0
+        -0.7209108471870422,
+        -0.7484576106071472,
+        -0.016085736453533173
       ],
       "maximumBlender": [
-        0.7056890726089478,
-        0.7264854907989502,
-        0.6402053833007812
+        0.719068169593811,
+        0.7394037246704102,
+        0.624976634979248
       ],
       "triangles": [
-        508,
-        200,
-        60
+        930,
+        394,
+        84
       ],
       "lodMaterials": [
         [
@@ -468,8 +468,8 @@
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_GrassClump01.fbx",
       "dimensionsUnity": [
         0.731,
-        0.21601,
-        0.64899
+        0.21962,
+        0.67377
       ],
       "minimumBlender": [
         -0.35046759247779846,
@@ -478,12 +478,12 @@
       ],
       "maximumBlender": [
         0.3805365264415741,
-        0.34048426151275635,
-        0.21600684523582458
+        0.3652556836605072,
+        0.2196166217327118
       ],
       "triangles": [
-        110,
-        48,
+        176,
+        56,
         16
       ],
       "lodMaterials": [
@@ -513,9 +513,9 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_GrassClump02.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_GrassClump02.fbx",
       "dimensionsUnity": [
-        0.71252,
+        0.73387,
         0.21809,
-        0.60221
+        0.66478
       ],
       "minimumBlender": [
         -0.36329591274261475,
@@ -523,13 +523,13 @@
         0.0
       ],
       "maximumBlender": [
-        0.3492237627506256,
-        0.25716519355773926,
+        0.3705713450908661,
+        0.31973159313201904,
         0.21809346973896027
       ],
       "triangles": [
-        110,
-        48,
+        176,
+        56,
         16
       ],
       "lodMaterials": [
@@ -560,22 +560,22 @@
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_FallenLog01.fbx",
       "dimensionsUnity": [
         3.63801,
-        0.75138,
-        0.75597
+        0.83339,
+        0.9818
       ],
       "minimumBlender": [
         -1.8300000429153442,
-        -0.35850098729133606,
+        -0.5148813128471375,
         0.030106186866760254
       ],
       "maximumBlender": [
         1.8080060482025146,
-        0.3974696099758148,
-        0.7814904451370239
+        0.4669179320335388,
+        0.8634912371635437
       ],
       "triangles": [
-        184,
-        112,
+        308,
+        236,
         64
       ],
       "lodMaterials": [
@@ -611,23 +611,23 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_Stump01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_Stump01.fbx",
       "dimensionsUnity": [
-        0.79823,
+        1.12506,
         0.6952,
-        0.8
+        1.01748
       ],
       "minimumBlender": [
-        -0.39911407232284546,
-        -0.421999990940094,
+        -0.5581331849098206,
+        -0.5647423267364502,
         -0.026607602834701538
       ],
       "maximumBlender": [
-        0.39911407232284546,
-        0.3779999911785126,
+        0.5669291615486145,
+        0.45274198055267334,
         0.6685919761657715
       ],
       "triangles": [
-        152,
-        92,
+        416,
+        356,
         52
       ],
       "lodMaterials": [
@@ -663,22 +663,22 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_CampCairn01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_CampCairn01.fbx",
       "dimensionsUnity": [
-        0.89404,
-        0.94768,
-        0.7248
+        0.9165,
+        0.9665,
+        0.76596
       ],
       "minimumBlender": [
-        -0.46314817667007446,
-        -0.3280390202999115,
-        -0.01771421730518341
+        -0.4828735888004303,
+        -0.36919593811035156,
+        -0.03287413716316223
       ],
       "maximumBlender": [
-        0.4308911859989166,
+        0.4336306154727936,
         0.3967653512954712,
-        0.9299613237380981
+        0.9336251020431519
       ],
       "triangles": [
-        300,
+        1020,
         80
       ],
       "lodMaterials": [
@@ -706,22 +706,22 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_RuinWall01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_RuinWall01.fbx",
       "dimensionsUnity": [
-        3.0124,
-        1.80962,
-        0.71472
+        3.0605,
+        1.80899,
+        0.72741
       ],
       "minimumBlender": [
-        -1.5287812948226929,
-        -0.33980023860931396,
-        -0.037362053990364075
+        -1.5414204597473145,
+        -0.3660295903682709,
+        -0.018119916319847107
       ],
       "maximumBlender": [
-        1.4836150407791138,
-        0.37492018938064575,
-        1.7722628116607666
+        1.5190844535827637,
+        0.3613850176334381,
+        1.7908748388290405
       ],
       "triangles": [
-        720,
+        2880,
         180
       ],
       "lodMaterials": [
@@ -749,22 +749,22 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_RuinPillar01.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_RuinPillar01.fbx",
       "dimensionsUnity": [
-        0.88163,
-        2.11328,
-        0.79036
+        0.88356,
+        2.10987,
+        0.82918
       ],
       "minimumBlender": [
-        -0.445914626121521,
-        -0.42820748686790466,
-        -0.02985219657421112
+        -0.4444057047367096,
+        -0.40886417031288147,
+        -0.04595503211021423
       ],
       "maximumBlender": [
-        0.4357178509235382,
-        0.36215633153915405,
-        2.0834243297576904
+        0.4391516447067261,
+        0.4203173518180847,
+        2.0639190673828125
       ],
       "triangles": [
-        400,
+        1600,
         100
       ],
       "lodMaterials": [
@@ -793,21 +793,21 @@
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_ForestFloorTile.fbx",
       "dimensionsUnity": [
         4.0,
-        0.0,
+        0.01148,
         4.0
       ],
       "minimumBlender": [
         -2.0,
         -2.0,
-        0.0
+        -0.0053388383239507675
       ],
       "maximumBlender": [
         2.0,
         2.0,
-        0.0
+        0.006143977865576744
       ],
       "triangles": [
-        2
+        288
       ],
       "lodMaterials": [
         [
@@ -825,21 +825,21 @@
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DirtPathTile.fbx",
       "dimensionsUnity": [
         3.2,
-        0.0,
+        0.01148,
         4.0
       ],
       "minimumBlender": [
         -1.600000023841858,
         -2.0,
-        0.0
+        -0.0053388383239507675
       ],
       "maximumBlender": [
         1.600000023841858,
         2.0,
-        0.0
+        0.006143977865576744
       ],
       "triangles": [
-        2
+        288
       ],
       "lodMaterials": [
         [
@@ -856,24 +856,24 @@
       "source": "ArtSource/Environment/AncientForest/SM_AF_DistantTreeline.blend",
       "fbx": "Assets/Art/Environment/Models/AncientForest/SM_AF_DistantTreeline.fbx",
       "dimensionsUnity": [
-        14.53246,
-        6.07246,
-        1.8551
+        14.81336,
+        6.23211,
+        2.25502
       ],
       "minimumBlender": [
-        -7.264010429382324,
-        -0.9359670877456665,
-        0.0
+        -7.408875942230225,
+        -1.121662974357605,
+        -0.006505911238491535
       ],
       "maximumBlender": [
-        7.2684478759765625,
-        0.9191332459449768,
-        6.072459697723389
+        7.404488563537598,
+        1.1333560943603516,
+        6.225605487823486
       ],
       "triangles": [
-        252,
-        180,
-        108
+        2674,
+        1010,
+        312
       ],
       "lodMaterials": [
         [
@@ -3069,50 +3069,50 @@
   "palette": [
     {
       "name": "M_AF_Bark",
-      "color": "A19C87",
-      "roughness": 0.87,
+      "color": "726E65",
+      "roughness": 0.86,
       "textured": true
     },
     {
       "name": "M_AF_Leaves",
-      "color": "657354",
+      "color": "475449",
       "roughness": 0.9,
       "textured": false
     },
     {
       "name": "M_AF_LeavesLight",
-      "color": "89936D",
+      "color": "7A805E",
       "roughness": 0.9,
       "textured": false
     },
     {
       "name": "M_AF_Rock",
-      "color": "8C9187",
-      "roughness": 0.9,
+      "color": "747974",
+      "roughness": 0.87,
       "textured": true
     },
     {
       "name": "M_AF_ForestFloor",
-      "color": "6C7058",
-      "roughness": 0.93,
+      "color": "555749",
+      "roughness": 0.9,
       "textured": true
     },
     {
       "name": "M_AF_DirtPath",
-      "color": "8E8165",
-      "roughness": 0.93,
+      "color": "807364",
+      "roughness": 0.89,
       "textured": true
     },
     {
       "name": "M_AF_Heartwood",
-      "color": "9A8464",
+      "color": "826448",
       "roughness": 0.85,
       "textured": false
     },
     {
       "name": "M_AF_Moss",
-      "color": "67774E",
-      "roughness": 0.95,
+      "color": "586348",
+      "roughness": 0.93,
       "textured": false
     }
   ],

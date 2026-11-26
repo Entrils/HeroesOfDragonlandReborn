@@ -1,5 +1,6 @@
 ﻿"""Run on the editable Border Scout file. Write the native-pose surface intersection report."""
 from itertools import combinations
+from hashlib import sha256
 import json
 from pathlib import Path
 
@@ -28,6 +29,8 @@ tested = {}
 
 def surface(obj, graph):
     evaluated = obj.evaluated_get(graph)
+    if evaluated.matrix_world.is_identity:
+        return BVHTree.FromObject(obj, graph)
     data = evaluated.data
     return BVHTree.FromPolygons([evaluated.matrix_world @ vertex.co for vertex in data.vertices],
                                 [list(face.vertices) for face in data.polygons])
@@ -66,6 +69,7 @@ for reference in bpy.data.actions:
 
 report = {
     "source": source.name, "blender": bpy.app.version_string, "nativeFPS": scene.render.fps,
+    "sourceSha256": sha256(source.read_bytes()).hexdigest(),
     "framesIncludingRest": 1 + sum(end - start + 1 for start, end in tested.values()),
     "inclusiveFrameRanges": tested, "rigidParts": sorted(obj.name for obj in armor.objects),
     "garmentPairs": layers, "loadout": "Complete adapted armor, hair hidden, neutral grip shapes",

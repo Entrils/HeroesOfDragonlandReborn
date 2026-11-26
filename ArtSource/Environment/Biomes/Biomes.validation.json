@@ -5,7 +5,7 @@
       "asset": "SM_BS_StrataOutcrop",
       "fbx": "PASS",
       "triangles": [
-        960,
+        3840,
         240,
         60
       ]
@@ -14,7 +14,7 @@
       "asset": "SM_BS_ShatteredStandard",
       "fbx": "PASS",
       "triangles": [
-        92,
+        312,
         28
       ]
     },
@@ -22,7 +22,7 @@
       "asset": "SM_BS_CorruptedSpire",
       "fbx": "PASS",
       "triangles": [
-        320,
+        1280,
         80,
         20
       ]
@@ -31,8 +31,8 @@
       "asset": "SM_BS_TwistedRoot",
       "fbx": "PASS",
       "triangles": [
-        744,
-        296,
+        3984,
+        1328,
         166
       ]
     },
@@ -40,7 +40,7 @@
       "asset": "SM_BS_TerrainTile",
       "fbx": "PASS",
       "triangles": [
-        2
+        288
       ]
     }
   ],

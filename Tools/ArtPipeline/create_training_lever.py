@@ -31,7 +31,7 @@ class TrainingLever(Chest):
     moving_name="Handle"
 
     def materials(self):
-        self.stone=stone_material("Lever_WeatheredLimestone",(.162,.146,.123),91,.88)
+        self.stone=stone_material("Lever_WeatheredLimestone",(.111,.105,.092),91,.83)
         self.edge_stone=stone_material("Lever_ChamferedLimestone",(.192,.168,.130),88,.85)
         self.slate=stone_material("Lever_DarkerRepairStone",(.122,.133,.132),94,.87)
         self.iron=material("Lever_OiledBlackIron",(.056,.064,.068),.82,.51,187,.00067,"steel")
@@ -54,7 +54,7 @@ class TrainingLever(Chest):
         obj=self.mesh(name,verts,faces,mat)
         self.bevel(obj,bevel)
 
-    def axle(self,name,center,sections,mat,n=28):
+    def axle(self,name,center,sections,mat,n=48):
         x,y,z=center
         verts=[(x+d,y+r*math.cos(j*math.tau/n),z+r*math.sin(j*math.tau/n))
                for d,r in sections for j in range(n)]
@@ -95,7 +95,8 @@ class TrainingLever(Chest):
                 (.044,.915),(-.041,.917),(-.074,.880),(-.094,.816),(-.148,.789)
             ],self.iron,.090,.139)
             self.axle("Stationary bronze bearing ring",(sign*.142,0,PIVOT[2]),
-                      [(-.006,.059),(-.003,.071),(.003,.073),(.006,.067)],self.brass,34)
+                      [(-.006,.059),(-.003,.071),(.001,.073),(.002,.070),
+                       (.003,.070),(.004,.073),(.006,.067)],self.brass)
             self.axle("Fixed keeper of the pin",(sign*.151,0,PIVOT[2]),
                       [(-.006,.027),(-.003,.038),(.016,.037),(.020,.031)],self.iron,22)
             self.nail((sign*.174,0,PIVOT[2]),(sign,0,0),.013,self.edge)
@@ -128,7 +129,8 @@ class TrainingLever(Chest):
     def build_lid(self):
         self.parts=self.lid_parts
         self.axle("Moving shaft barrel",(0,0,PIVOT[2]),
-                  [(-.091,.046),(-.081,.051),(.077,.053),(.091,.047)],self.iron,30)
+                  [(-.091,.046),(-.081,.051),(-.073,.051),(-.070,.048),
+                   (.067,.050),(.070,.053),(.077,.053),(.091,.047)],self.iron)
         outlines=(
             (-.025,.846,.030),(-.031,.902,.029),(-.026,.966,.028),(-.021,1.044,.025),
             (-.020,1.124,.022),(-.023,1.204,.021),(.022,1.204,.022),
@@ -153,8 +155,9 @@ class TrainingLever(Chest):
         ],self.leather,37)
         for x in (-.108,.108):
             self.axle("Warm brass end cap on grip",(x,0,1.218),[
-                (-.015,.031),(-.010,.038),(.010,.037),(.016,.031)
-            ],self.brass,36)
+                (-.015,.031),(-.010,.038),(-.006,.038),(-.004,.035),
+                (.005,.035),(.007,.037),(.010,.037),(.016,.031)
+            ],self.brass)
         coil=[]
         for i in range(141):
             u=i/140

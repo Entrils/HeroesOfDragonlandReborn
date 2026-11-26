@@ -14,6 +14,7 @@ from mathutils import Vector, noise
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
 from export_fbx import export_collection
+from environment_mesh_names import preserve_mesh_names
 
 ROOT=Path(sys.argv[sys.argv.index('--')+1]).resolve()
 SOURCE=ROOT/'ArtSource/Environment/Biomes'
@@ -24,10 +25,10 @@ for path in (SOURCE,MODELS,TEXTURES,PREVIEW):
     path.mkdir(parents=True,exist_ok=True)
 SIZE=512
 PALETTE={
-    'HighlandGravel':('96978C',.9),'BattlefieldPaving':('8E877A',.9),
-    'CorruptedAsh':('756F7D',.94),'StrataStone':('9A9E98',.88),
-    'WarIron':('545D61',.55),'OldCloth':('B3AA93',.95),
-    'CorruptedStone':('777080',.9),'PaleVein':('B1A4B8',.7),
+    'HighlandGravel':('797D78',.87),'BattlefieldPaving':('756F64',.88),
+    'CorruptedAsh':('625D68',.91),'StrataStone':('747C79',.86),
+    'WarIron':('444B50',.55),'OldCloth':('978970',.94),
+    'CorruptedStone':('574F5D',.87),'PaleVein':('9D94A3',.7),
 }
 PAIRS=[('Forest','Ruins'),('Highlands','Ruins'),('Forest','Corrupted'),
        ('Highlands','Corrupted'),('Ruins','Corrupted')]
@@ -64,21 +65,22 @@ def terrain(kind):
             broad=noise.noise(torus*2)
             fine=noise.noise(torus*23)
             if kind=='HighlandGravel':
-                h=.5+.05*broad+.025*fine
-                tone=1+.1*broad+.06*fine
+                chips=max(0,fine+.12)**1.5
+                h=.5+.09*broad+.12*chips
+                tone=1+.17*broad+.19*chips
             elif kind=='BattlefieldPaving':
                 # Broad worn courses; shallow seams, no noisy dark checkerboard.
                 row=int(v*4)
                 col=(u*4+(row%2)*.5)%1
                 edge=min(col,1-col,(v*4)%1,1-(v*4)%1)
                 seam=max(0,1-edge/.035)
-                h=.5-.055*seam+.015*broad
-                tone=1-.13*seam+.07*broad
+                h=.5-.13*seam+.034*broad+.03*fine
+                tone=1-.24*seam+.12*broad+.045*fine
             else:
                 # Dry cracked ash, no glowing poison pool or false hazard outline.
                 vein=max(0,1-abs(noise.noise(torus*4))/.035)
-                h=.5-.025*vein+.03*broad
-                tone=1-.10*vein+.07*broad
+                h=.5-.065*vein+.063*broad+.022*fine
+                tone=1-.19*vein+.13*broad+.044*fine
             height.append(h)
             colors.extend([max(0,min(1,c*tone)) for c in base]+[1])
     normal=[]
@@ -189,7 +191,20 @@ def asset_parts(kind,lod):
         parts.extend([box((0,0,1.6),(.12,.12,3.2),'WarIron'),box((0,0,.15),(.6,.6,.3),'StrataStone')])
         # Opaque torn banner, deliberately neutral. No ownership/interaction marker.
         mesh=bpy.data.meshes.new('TornNeutralCloth')
-        mesh.from_pydata([(0,0,2.9),(1.2,0,2.9),(1,0,2.6),(1.15,0,2.2),(.65,0,2.3),(0,0,2.1)],[],[(0,1,2,3,4,5)])
+        if lod==0:
+            verts=[]
+            cols,rows=18,6
+            for j in range(rows+1):
+                for i in range(cols+1):
+                    u,v=i/cols,j/rows
+                    hem=2.12+.19*abs(math.sin(3*math.pi*u))+.12*u
+                    verts.append((1.18*u,.065*u*math.sin(9*u+2*v)+.028*u*math.sin(19*u-v),
+                                  2.9+(hem-2.9)*v))
+            faces=[(k,k+1,k+cols+2,k+cols+1) for j in range(rows) for i in range(cols)
+                   for k in [j*(cols+1)+i]]
+            mesh.from_pydata(verts,[],faces)
+        else:
+            mesh.from_pydata([(0,0,2.9),(1.2,0,2.9),(1,0,2.6),(1.15,0,2.2),(.65,0,2.3),(0,0,2.1)],[],[(0,1,2,3,4,5)])
         mesh.materials.append(material('OldCloth'))
         obj=bpy.data.objects.new('NeutralWarRelic',mesh)
         bpy.context.scene.collection.objects.link(obj)
@@ -208,7 +223,8 @@ def asset_parts(kind,lod):
         # Pale upper facets, never an emissive attack-shaped ground ring.
         mesh.materials.append(material('PaleVein'))
         for face in mesh.polygons:
-            if face.index%7==0:
+            p=face.center
+            if abs(math.sin(4.7*p.z+2.2*p.x+.55*math.sin(6*p.y)))<.11:
                 face.material_index=1
         parts.append(obj)
     elif kind=='TwistedRoot':
@@ -224,7 +240,10 @@ def asset_parts(kind,lod):
         parts.append(obj)
     elif kind=='TerrainTile':
         mesh=bpy.data.meshes.new('SharedTerrainSurface')
-        mesh.from_pydata([(-2,-2,0),(2,-2,0),(2,2,0),(-2,2,0)],[],[(0,1,2,3)])
+        verts=[(x/3-2,y/3-2,.018*math.sin(math.pi*x/12)*math.sin(math.pi*y/12)*
+                math.sin(x*.82+y*.33)) for y in range(13) for x in range(13)]
+        mesh.from_pydata(verts,[],[(k,k+1,k+14,k+13) for y in range(12) for x in range(12)
+                                   for k in [13*y+x]])
         mesh.materials.append(material('HighlandGravel'))
         obj=bpy.data.objects.new('SharedTerrainSurface',mesh)
         bpy.context.scene.collection.objects.link(obj)
@@ -235,6 +254,7 @@ def asset_parts(kind,lod):
 assets=[]
 for kind in ('StrataOutcrop','ShatteredStandard','CorruptedSpire','TwistedRoot','TerrainTile'):
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.context.preferences.filepaths.save_version=0
     scene=bpy.context.scene
     scene.unit_settings.system='METRIC'
     scene.unit_settings.scale_length=1
@@ -302,7 +322,8 @@ for kind in ('StrataOutcrop','ShatteredStandard','CorruptedSpire','TwistedRoot',
     bpy.ops.object.select_all(action='DESELECT')
     lods[0].select_set(True)
     bpy.context.view_layer.objects.active=lods[0]
-    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/(name+'.blend')))
+    preserve_mesh_names(name, export)
+    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/(name+'.blend')),compress=True)
     export_collection(MODELS/(name+'.fbx'))
 
 # Shared-material comparison board; not a proposed replacement map layout.
@@ -420,8 +441,8 @@ manifest=dict(version=1,milestone=57,blender=bpy.app.version_string,
 (SOURCE/'Biomes.manifest.json').write_text(json.dumps(manifest,indent=2)+'\n')
 scene.world=bpy.data.worlds.new('SharedOvercast')
 scene.world.use_nodes=True
-scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.5,.57,.65,1)
-scene.world.node_tree.nodes['Background'].inputs[1].default_value=.7
+scene.world.node_tree.nodes['Background'].inputs[0].default_value=(.24,.30,.38,1)
+scene.world.node_tree.nodes['Background'].inputs[1].default_value=.51
 for item in manifest['accents']:
     cx,cy=centers[item['biome']]
     bpy.ops.object.light_add(type='POINT',location=(cx,cy,1.5))
@@ -433,6 +454,7 @@ for item in manifest['accents']:
 bpy.ops.object.light_add(type='AREA',location=(-4,-10,25))
 key=bpy.context.object
 key.data.energy=5000
+key.data.color=(1,.83,.64)
 key.data.shape='DISK'
 key.data.size=18
 key.rotation_euler=(Vector((0,0,0))-key.location).to_track_quat('-Z','Y').to_euler()
@@ -452,7 +474,8 @@ for name,pos,target in [('Overview',(34,-44,38),(0,3,0))]+[(name,(cx+12,cy-16,12
     views.append(camera)
 scene.camera=views[0]
 scene['M57_Status']=manifest['status']
-bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/'Biomes_LookDev.blend'))
+bpy.context.preferences.filepaths.save_version=0
+bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/'Biomes_LookDev.blend'),compress=True)
 for camera in views:
     scene.camera=camera
     scene.render.filepath=str(PREVIEW/(camera.name+'.png'))

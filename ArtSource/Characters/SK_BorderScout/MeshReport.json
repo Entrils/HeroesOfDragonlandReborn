@@ -2,20 +2,20 @@
   "triangles": {
     "Scout_ArmsCovered": 6160,
     "Scout_Belt": 5136,
-    "Scout_Breeches": 15696,
-    "Scout_Brows": 24810,
+    "Scout_Breeches": 11458,
+    "Scout_Brows": 11908,
     "Scout_Eyes": 8284,
     "Scout_Footwear": 7096,
-    "Scout_Hair": 77188,
+    "Scout_Hair": 57260,
     "Scout_Hands": 26636,
     "Scout_HeadNeck": 35292,
-    "Scout_Jerkin": 34268,
+    "Scout_Jerkin": 51460,
     "Scout_LegsCovered": 26876,
-    "Scout_Shirt": 25792,
+    "Scout_Shirt": 18828,
     "Scout_TrunkCovered": 12060
   },
-  "total": 305294,
-  "visibleBaseTriangles": 260198,
+  "total": 278454,
+  "visibleBaseTriangles": 233358,
   "restBones": [
     "Root",
     "Hips",
@@ -152,6 +152,14 @@
     "T_Scout_Twill_Normal.png": [
       1024,
       1024
+    ],
+    "T_Scout_BurnishedEdge_Normal": [
+      1024,
+      1024
+    ],
+    "T_Scout_BurnishedEdge_Mask": [
+      1024,
+      1024
     ]
   },
   "roundtrip": {
@@ -160,23 +168,23 @@
     "boundsMeters": [
       [
         -0.9800525903701782,
-        -0.14377868175506592,
-        0.003999963868409395
+        -0.16197237372398376,
+        0.0039999522268772125
       ],
       [
         0.9800525903701782,
-        0.23134104907512665,
-        1.8263906240463257
+        0.23134124279022217,
+        1.84678316116333
       ]
     ],
     "grips": {
       "Grip_Left": {
-        "verticesMoved": 6145,
-        "maxDisplacement_m": 0.1271393100715329
+        "verticesMoved": 6263,
+        "maxDisplacement_m": 0.1271393087312883
       },
       "Grip_Right": {
-        "verticesMoved": 6132,
-        "maxDisplacement_m": 0.12751523413538238
+        "verticesMoved": 6234,
+        "maxDisplacement_m": 0.12751523311692517
       }
     },
     "gripDefaults": {

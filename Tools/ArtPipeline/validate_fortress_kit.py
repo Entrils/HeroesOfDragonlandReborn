@@ -5,6 +5,7 @@ from pathlib import Path
 
 import bmesh
 import bpy
+import numpy as np
 from mathutils import Vector
 
 root = Path(sys.argv[sys.argv.index('--')+1]).resolve()
@@ -36,9 +37,31 @@ for entry in manifest['assets']:
         socket = next(o for o in bpy.context.scene.objects if o.name=='Socket_'+suffix)
         assert (socket.matrix_world.translation-Vector(expected)).length < .001, (entry['name'],suffix)
     results.append({'asset':entry['name'],'fbxRoundTrip':'PASS','triangles':entry['triangles']})
-report = dict(blender=bpy.app.version_string, assets=results,
+
+for surface in ('Stone','Wood','Iron'):
+    for suffix in ('BaseColor','Normal','Mask'):
+        path=root/f'Assets/Art/Textures/Environment/FortressRuins/T_FR_{surface}_{suffix}.png'
+        image=bpy.data.images.load(str(path),check_existing=False)
+        image.colorspace_settings.name='Non-Color'
+        image.alpha_mode='CHANNEL_PACKED'
+        assert tuple(image.size)==(1024,1024), path
+        pixels=np.empty(1024*1024*4,dtype=np.float32)
+        image.pixels.foreach_get(pixels)
+        pixels=pixels.reshape(-1,4)
+        if suffix=='Normal':
+            normal=pixels[:,:3]*2-1
+            assert np.max(abs(np.linalg.norm(normal,axis=1)-1))<.025 and normal[:,2].min()>0, path
+        elif suffix=='Mask':
+            metal,occlusion,unused,smooth=pixels.T
+            assert occlusion.min()>.99 and unused.max()<.01 and np.ptp(smooth)>.015, path
+            assert metal.max()>.85 if surface=='Iron' else metal.max()<.01, path
+        else:
+            assert np.ptp(pixels[:,0])>.04, path
+        bpy.data.images.remove(image)
+report = dict(blender=bpy.app.version_string, assets=results, textureMaps=9,
               checks=['21 FBX reimports','LOD triangle counts','nonzero triangle area','UV0',
-                      'closed manifold component shells','material slots','world bounds in meters','three basis markers'],
+                      'closed manifold component shells','material slots','world bounds in meters','three basis markers',
+                      '1024 square surfaces','tangent normals','metallic and smoothness packing'],
               limitation='Blender round-trip only; Unity import, prefabs, static MeshCollider cooking and Play Mode pending.')
 (root/'ArtSource/Environment/FortressRuins/FortressRuins.validation.json').write_text(json.dumps(report,indent=2)+'\n')
-print(f'[M55 RoundTrip] PASS {len(results)} FBXs',flush=True)
+print(f'[M55 RoundTrip] PASS {len(results)} FBXs and nine surface maps',flush=True)

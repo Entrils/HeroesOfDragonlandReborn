@@ -25,7 +25,7 @@ VARIANTS=("TeamA","TeamB","Breached")
 
 class Gates(Chest):
     def materials(self):
-        self.wood=[oak(f"Weathered vertical oak {i}",(.083*t,.043*t,.021*t),(4.7,5.1,.27))
+        self.wood=[oak(f"Weathered vertical oak {i}",(.062*t,.035*t,.022*t),(4.7,5.1,.27))
                    for i,t in enumerate((.79,1.07,.94,1.27,1.12))]
         self.beam_wood=oak("Old timber framing",(.046,.025,.012),(.26,4.5,5.2))
         self.fresh=oak("Exposed splintered oak",(.32,.172,.068),(6,6,.39))
@@ -139,6 +139,14 @@ class Gates(Chest):
                    (2.825,3.62),(2.10,3.72),(1.43,3.76),(.77,3.78),(.050,3.78)]
             self.plate_side("Forged cap following the top of the leaf",[(sign*x,z) for x,z in crown],
                             side,.279,.061,self.iron)
+            for j in range(3):
+                x=.51+.83*j
+                foliate=[(x-.16,3.79),(x-.08,3.66),(x-.06,3.55),
+                         (x,3.45),(x+.06,3.55),(x+.08,3.66),(x+.16,3.79)]
+                self.plate_side("Forged pendant under the cornice",[(sign*u,z) for u,z in foliate],
+                                side,.281,.051,self.iron,.009)
+                self.tube("Pendant central ridge",[(sign*x,side*.286,z) for z in (3.49,3.58,3.71,3.78)],
+                          .009,self.edge)
             self.tube("Worn cap edge",[(sign*x,side*.282,z) for x,z in crown[:5]],
                       .011,self.edge)
             for x,z in ((.27,3.87),(.82,3.86),(1.43,3.83),(2,3.80),(2.58,3.73)):
@@ -154,6 +162,11 @@ class Gates(Chest):
         for i,top in zip(range(4,8),heights):
             self.plank(sign,i,top,True)
         self.fitting(sign,True)
+        for side in (-1,1):
+            sheared=[(2.73,3.70),(2.47,3.49),(2.49,3.37),(2.41,3.29),
+                     (2.52,3.26),(2.63,3.39),(2.84,3.51)]
+            self.plate_side("Sheared cornice strap",[(sign*x,z) for x,z in sheared],
+                            side,.272,.036,self.iron,.008)
         for start,end in (
             ((sign*2.82,.27,.14),(sign*1.64,.58,.24)),
             ((sign*2.74,-.51,.085),(sign*1.94,-.85,.10)),

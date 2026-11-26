@@ -11,7 +11,7 @@ import bmesh
 from mathutils import Quaternion, Vector
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from character_art import bake_atlas, material, studio_camera
+from character_art import bake_atlas, material, preview_baked_coat, studio_camera
 from creature_mesh import CreatureMesh, ramp, select
 from export_fbx import export_collection
 
@@ -128,17 +128,17 @@ class Warden(CreatureMesh):
         self.rig.show_in_front=True
 
     def materials(self):
-        self.stone=stone_material("Warden_AshBasalt",(.071,.084,.092),68,.84)
-        self.light=stone_material("Warden_WornFreestone",(.161,.149,.114),91,.84)
-        self.dark=stone_material("Warden_DarkSeam",(.022,.030,.031),62,.86)
-        self.slate=stone_material("Warden_FracturedSlate",(.103,.123,.118),74,.90)
-        self.moss=stone_material("Warden_Lichen",(.077,.104,.039),139,.92)
-        self.bronze=material("Warden_AgedBronze",(.19,.093,.04),.67,.57,108,.0012,"steel")
-        self.patina=material("Warden_BronzePatina",(.085,.126,.100),.39,.71,170,.0011,"leather")
-        self.ember=material("Warden_SealedMineral",(.125,.286,.226),.14,.34,202,.00044,"steel")
+        self.stone=stone_material("Warden_AshBasalt",(.027,.034,.043),68,.73)
+        self.light=stone_material("Warden_WornFreestone",(.116,.103,.084),91,.79)
+        self.dark=stone_material("Warden_DarkSeam",(.012,.014,.018),62,.92)
+        self.slate=stone_material("Warden_FracturedSlate",(.053,.061,.067),74,.78)
+        self.moss=stone_material("Warden_Lichen",(.040,.048,.029),139,.93)
+        self.bronze=material("Warden_AgedBronze",(.138,.080,.042),.77,.50,108,.0012,"steel")
+        self.patina=material("Warden_BronzePatina",(.046,.058,.052),.52,.73,170,.0011,"leather")
+        self.ember=material("Warden_SealedMineral",(.43,.58,.56),.14,.34,202,.00044,"steel")
         shader=self.ember.node_tree.nodes.get("Principled BSDF")
-        shader.inputs["Emission Color"].default_value=(.28,.62,.45,1)
-        shader.inputs["Emission Strength"].default_value=.63
+        shader.inputs["Emission Color"].default_value=(.54,.72,.69,1)
+        shader.inputs["Emission Strength"].default_value=.34
 
     def recalc(self,obj):
         bm=bmesh.new()
@@ -239,6 +239,99 @@ class Warden(CreatureMesh):
         if chains:
             self.tube("Surface fracture",chains,width*.61,self.dark,bone,sides=5,taper=.56)
 
+    def moulding(self, name, bone, mat, stations):
+        """A solid pointed moulding with a keel, recessed flutes and turned edges.
+
+        Stations give centre x/y/z, half-width and forward projection in metres.
+        """
+        profile = ((-1,-.40),(-1,.08),(-.86,.39),(-.72,.23),(-.38,.32),
+                   (-.13,.81),(0,1),(.13,.81),(.38,.32),(.72,.23),
+                   (.86,.39),(1,.08),(1,-.40))
+        vertices = [(x + u*width, y + v*depth, z)
+                    for x,y,z,width,depth in stations for u,v in profile]
+        count = len(profile)
+        faces = []
+        for row in range(len(stations)-1):
+            for i in range(count):
+                a = row*count+i
+                b = row*count+(i+1)%count
+                faces.append((a,b,b+count,a+count))
+        faces += [tuple(range(count-1,-1,-1)),tuple(range(len(vertices)-count,len(vertices)))]
+        obj = self.surface(name,vertices,faces,smooth=False)
+        return self.finish(self.beveled(obj,.0045),mat,bone)
+
+    def chain(self, bone, points):
+        """Closed oval links alternate planes and overlap at the bearing ends."""
+        for i,center in enumerate(points):
+            axis = (points[min(i+1,len(points)-1)]-points[max(i-1,0)]).normalized()
+            across = axis.cross(FORWARD).normalized()
+            across = Quaternion(axis,.25 if i%2 else 1.32) @ across
+            path = [center + axis*(.045*math.cos(j*math.tau/20))
+                    + across*(.026*math.sin(j*math.tau/20)) for j in range(21)]
+            self.tube("Forged interlocking shackle",[path],.0085,self.bronze,bone,sides=8,taper=0)
+
+    def funerary_carving(self):
+        # A shattered ring of carved merlons, low over the eyes. The tallest
+        # surviving stone is off-centre; its neighbour ends in a shear plane.
+        for i, height in enumerate((.20,.105,.26,.14,.09,.21,.115,.155,.08)):
+            a = i*math.tau/9
+            x,y = .198*math.sin(a),.173*math.cos(a)+.018
+            self.block("Broken crown voussoir","Head",self.slate,(x,y,3.405),[
+                (0,.082,.062,0,0),(.083,.081,.063,.009*math.sin(a),0),
+                (height+.03,.045,.044,.044*math.sin(a),.041*math.cos(a)),
+                (height+.049,.019,.037,.051*math.sin(a)+.010,.044*math.cos(a))],
+                bevel=.008,worn=.089)
+        self.moulding("Keystone of the diadem","Head",self.light,[
+            (0,.307,3.286,.016,.032),(-.009,.291,3.37,.068,.053),
+            (-.018,.252,3.475,.088,.061),(-.027,.211,3.555,.051,.047),
+            (-.043,.186,3.622,.020,.032)])
+        # A recessed mandible and separate carved bars throw genuine shadows
+        # around the mouth. The eye minerals sit in the gap above the cheeks.
+        self.block("Hollow of the death mask","Head",self.dark,(0,.215,3.012),[
+            (0,.089,.053,0,0),(.054,.145,.063,0,0),(.133,.138,.077,0,0)],
+            bevel=.012)
+        chest_tree = self.bvh(next(obj for obj in self.parts if obj.name=="Monolithic chest"))
+        for side in (-1,1):
+            self.moulding("Sundered jaw","Head",self.light,[
+                (side*.057,.278,2.980,.017,.033),(side*.104,.287,3.039,.042,.041),
+                (side*.155,.281,3.128,.053,.059),(side*.197,.245,3.201,.043,.043),
+                (side*.232,.200,3.255,.012,.029)])
+            for i in range(2):
+                x=side*(.021+.040*i)
+                self.moulding("Carved mouth grille","Head",self.slate,[
+                    (x*.86,.282,3.026+i*.009,.008,.018),
+                    (x,.303,3.087,.014,.025),(x*1.08,.290,3.133,.012,.018)])
+
+            # Paired flying buttresses emerge behind the shoulders, tied into
+            # the breast and rear masonry rather than the swinging arm.
+            self.moulding("Fractured mantle buttress","Chest",self.stone,[
+                (side*.34,-.19,2.50,.136,.115),(side*.45,-.21,2.74,.151,.13),
+                (side*.52,-.19,2.98,.104,.115),(side*.57,-.205,3.14,.074,.088),
+                (side*.59,-.22,3.27 if side<0 else 3.19,.045,.073)])
+            self.moulding("Vault rib","Chest",self.slate,[
+                (side*.085,.337,2.245,.023,.055),(side*.223,.354,2.341,.056,.062),
+                (side*.377,.347,2.453,.057,.068),(side*.473,.292,2.587,.061,.072),
+                (side*.502,.245,2.730,.034,.045)])
+            self.moulding("Hip pendant","Hips",self.slate,[
+                (side*.258,.214,1.445,.022,.033),(side*.241,.261,1.573,.068,.060),
+                (side*.228,.272,1.739,.088,.064),(side*.225,.267,1.831,.071,.044)])
+            path=[]
+            for i in range(8):
+                t=i/7
+                x=side*(.19+.33*t)
+                z=2.839-.126*math.sin(math.pi*t)+.017*t
+                hit,_,_,_=chest_tree.ray_cast((x,1.1,z),-FORWARD)
+                y=hit.y if hit is not None else .21
+                path.append(Vector((x,y+.038,z)))
+            self.chain("Chest",path)
+            for link in (path[0],path[-1]):
+                self.rivet("Chest",link-FORWARD*.016,.033)
+            leg=("Left" if side<0 else "Right")+"LowerLeg"
+            self.moulding("Shin reliquary rib",leg,self.slate,[
+                (side*.31,.192,.296,.015,.034),(side*.307,.208,.429,.059,.043),
+                (side*.31,.221,.689,.085,.056),(side*.31,.195,.887,.062,.044),
+                (side*.31,.189,.952,.029,.032)])
+
     def rivet(self,bone,position,radius=.025):
         obj=self.ellipsoid("Weathered bronze pin",position,(radius,.012,radius),n=10,m=6)
         self.finish(obj,self.bronze,bone)
@@ -273,6 +366,9 @@ class Warden(CreatureMesh):
                              for i in range(len(contour)))
         if faces:
             patch=self.surface("Adhered patches of old lichen",vertices,faces)
+            # Lock the rock substrate beneath the thin lichen to its sampled
+            # surface. Otherwise erosion pulls it away under grazing light.
+            obj["lichen_substrate"] = True
             self.finish(patch,self.moss,bone)
 
     def body(self):
@@ -470,6 +566,12 @@ class Warden(CreatureMesh):
         self.head()
         self.arms()
         self.legs()
+        self.funerary_carving()
+        for part in self.parts:
+            if part.get("lichen_substrate") or part.data.materials[0] not in {self.stone,self.slate,self.light}:
+                continue
+            group=part.vertex_groups.new(name="Weathered stone only")
+            group.add(list(range(len(part.data.vertices))),1,"REPLACE")
         select(self.parts)
         bpy.ops.object.join()
         mesh=bpy.context.object
@@ -491,12 +593,29 @@ class Warden(CreatureMesh):
         for layer in list(mesh.data.uv_layers):
             if layer.name!="UV0":
                 mesh.data.uv_layers.remove(layer)
+        quarry = mesh.vertex_groups["Weathered stone only"]
+        assert all(abs(sum(g.weight for g in v.groups if g.group!=quarry.index)-1)<.0001
+                   for v in mesh.data.vertices)
+        # Subdivide after UV layout so the master and playable mesh share one
+        # atlas. Cut stone erodes in place; metal seals and eyes keep sharp edges.
+        detail = mesh.modifiers.new("Sculpt density","SUBSURF")
+        detail.subdivision_type = "SIMPLE"
+        detail.levels = detail.render_levels = 2
+        detail.uv_smooth = "NONE"
+        for name,size,depth in (("Quarried planes",.129,.048),("Spalled mineral grain",.036,.013)):
+            rock_noise = bpy.data.textures.new(name,type="CLOUDS")
+            rock_noise.noise_basis = "VORONOI_F2_F1" if size>.1 else "IMPROVED_PERLIN"
+            rock_noise.noise_scale = size
+            rock_noise.noise_depth = 1
+            erosion = mesh.modifiers.new(name,"DISPLACE")
+            erosion.texture = rock_noise
+            erosion.strength = depth
+            erosion.vertex_group = quarry.name
         tri=mesh.modifiers.new("Export triangulation","TRIANGULATE")
         tri.keep_custom_normals=True
         skin=mesh.modifiers.new("Stone fragment binding","ARMATURE")
         skin.object=self.rig
-        assert all(abs(sum(g.weight for g in v.groups)-1)<.0001 for v in mesh.data.vertices)
-        return mesh,tri
+        return mesh
 
     def actions(self):
         rig=self.rig
@@ -567,14 +686,14 @@ class Warden(CreatureMesh):
         stage=bpy.data.objects["Studio shadow floor"]
         stage.location.z=.006
         for name,power,position in (
-            ("Soft key",708,(2.75,3.9,5.4)),("Front fill",285,(-3.1,4.3,2.75)),
-            ("Rim",668,(3.2,-3.1,4.6)),("Back fill",198,(-3.7,-2.8,4.0)),
+            ("Soft key",780,(3.65,2.7,5.4)),("Front fill",135,(-3.1,4.3,2.75)),
+            ("Rim",880,(-2.6,-2.1,4.8)),("Back fill",210,(3.4,-2.8,3.8)),
         ):
             light=bpy.data.objects[name]
             light.location=position
             light.rotation_euler=(Vector((0,0,1.96))-light.location).to_track_quat("-Z","Y").to_euler()
             light.data.energy=power
-            light.data.size=2.8
+            light.data.size=2.2
         scene.render.resolution_x=940
         scene.render.resolution_y=1180
         scene.cycles.samples=32
@@ -583,6 +702,7 @@ class Warden(CreatureMesh):
             ("Detail",actions["Idle"],8,(2.41,5.56,3.64),(0,.13,2.83),2.04),
             ("Back",actions["Idle"],8,(-3.67,-8.2,3.72),(0,0,1.87),4.15),
             ("Cleave",actions["Cleave"],30,(3.97,7.8,3.63),(0,0,2.13),4.9),
+            ("Sweep",actions["Sweep"],46,(-3.5,7.5,3.4),(0,0,1.95),4.8),
             ("Stomp",actions["Stomp"],50,(3.97,7.1,3.85),(0,0,1.86),4.49),
         ]
         for suffix,action,frame,position,target,scale in rigs:
@@ -602,18 +722,38 @@ def main():
     parser.add_argument("--no-preview",action="store_true")
     args=parser.parse_args(sys.argv[sys.argv.index("--")+1:] if "--" in sys.argv else [])
     warden=Warden()
-    mesh,tri=warden.finalize()
+    mesh=warden.finalize()
     actions=warden.actions()
     OUTPUT.mkdir(parents=True,exist_ok=True)
     bpy.context.preferences.filepaths.save_version=0
-    bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT/(STEM+".blend")))
+    bpy.ops.wm.save_as_mainfile(filepath=str(OUTPUT/(STEM+".blend")),compress=True)
     select([mesh])
-    bpy.ops.object.modifier_apply(modifier=tri.name)
+    print("Master triangles:", len(mesh.evaluated_get(bpy.context.evaluated_depsgraph_get()).data.polygons),flush=True)
+    mesh.modifiers["Sculpt density"].levels=1
+    for modifier in list(mesh.modifiers):
+        if modifier.type=="ARMATURE":
+            continue
+        bpy.ops.object.modifier_apply(modifier=modifier.name)
+    mesh.vertex_groups.remove(mesh.vertex_groups["Weathered stone only"])
+    # Preserve dense editable stone in the master while collapsing coplanar
+    # triangles in the playable surface before baking its tangent normals.
+    reduction=mesh.modifiers.new("Gameplay stone density","DECIMATE")
+    reduction.ratio=.52
+    reduction.use_collapse_triangulate=True
+    bpy.ops.object.modifier_move_to_index(modifier=reduction.name,index=0)
+    bpy.ops.object.modifier_apply(modifier=reduction.name)
     if args.bake:
         bake_atlas(mesh,args.bake,GAME/"Textures/Characters/StoneWarden","T_StoneWarden","UV0")
     export_collection(GAME/"Characters/Models"/(STEM+".fbx"),bake_animation=False)
     print(f"{STEM}: {len(mesh.data.polygons)} triangles and {len(warden.rig.data.bones)} bones",flush=True)
     if not args.no_preview:
+        if args.bake:
+            preview_baked_coat(mesh,GAME/"Textures/Characters/StoneWarden","T_StoneWarden")
+            tree=mesh.material_slots[0].material.node_tree
+            mask=next(n for n in tree.nodes if n.type=="TEX_IMAGE" and "_Mask" in n.image.name)
+            split=tree.nodes.new("ShaderNodeSeparateColor")
+            tree.links.new(mask.outputs["Color"],split.inputs[0])
+            tree.links.new(split.outputs[0],tree.nodes["Principled BSDF"].inputs["Metallic"])
         warden.review(actions)
 
 

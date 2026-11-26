@@ -32,7 +32,7 @@ for y in range(256):
     for x in range(256):
         grain = .07 * math.sin(y * .44 + math.sin(x * .045) * 2) + .025 * math.sin(y * 1.7 + x * .14)
         seam = .16 if y % 64 < 3 else 0
-        pixels.extend((max(0, .42 + grain - seam), max(0, .23 + grain * .6 - seam), max(0, .09 + grain * .3 - seam * .4), 1))
+        pixels.extend((max(0, .35 + grain - seam), max(0, .25 + grain * .6 - seam), max(0, .16 + grain * .3 - seam * .4), 1))
 image.pixels = pixels
 texture_path = root / "Assets/Art/Textures/Environment/T_TestCrate_BaseColor.png"
 texture_path.parent.mkdir(parents=True, exist_ok=True)
@@ -61,6 +61,9 @@ for z in (.06, .94):
     for x in (-.44, .44): box("SideFrame", (x, 0, z), (.12, .76, .12))
 # Pipeline authoring front is Blender +Y, mapping to Unity +Z.
 box("FrontLatch", (0, .475, .60), (.16, .05, .22))
+for x in (-.23,0,.23):
+    for y in (-.444,.444):
+        box("Lapped stave", (x,y,.47),(.224,.014,.67))
 bpy.ops.object.select_all(action="DESELECT")
 for obj in pieces: obj.select_set(True)
 bpy.context.view_layer.objects.active = pieces[0]
@@ -73,6 +76,9 @@ crate.data.materials.clear(); crate.data.materials.append(material)
 bpy.ops.object.mode_set(mode="EDIT"); bpy.ops.mesh.select_all(action="SELECT")
 bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=.035)
 bpy.ops.object.mode_set(mode="OBJECT")
+bevel=crate.modifiers.new("Worn arrises","BEVEL")
+bevel.width=.006
+bevel.segments=3
 crate.modifiers.new("ExportTriangulation", "TRIANGULATE")
 front = bpy.data.objects.new("Socket_Front", None); export.objects.link(front)
 front.parent = crate; front.location = (0, .51, .5)
@@ -86,6 +92,7 @@ maximum = Vector((max(v.co.x for v in crate.data.vertices), max(v.co.y for v in 
 assert (maximum - minimum - Vector((1, 1, 1))).length < 1e-5
 assert abs(minimum.z) < 1e-5 and crate.location.length < 1e-5
 image.pack()  # Source .blend is self-contained; FBX still references no embedded textures.
+bpy.context.preferences.filepaths.save_version=0
 bpy.ops.wm.save_as_mainfile(filepath=str(source / "SM_TestCrate.blend"))
 export_collection(root / "Assets/Art/Environment/Models/SM_TestCrate.fbx")
 (source / "SM_TestCrate.pipeline.json").write_text(json.dumps({

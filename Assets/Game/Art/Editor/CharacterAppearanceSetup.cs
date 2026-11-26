@@ -11,6 +11,7 @@ namespace HeroesOfDragonland.Art.Editor
     {
         private const string Folder = "Assets/Art/Characters/Cosmetics";
         private const string ScoutPrefab = "Assets/Art/Characters/Prefabs/PV_BorderScout.prefab";
+        internal const string ScoutModel = "Assets/Art/Characters/Models/SK_BorderScout.fbx";
 
         [MenuItem("Heroes of Dragonland/Art/Install Border Scout Cosmetics")]
         public static void Install()
@@ -23,9 +24,9 @@ namespace HeroesOfDragonland.Art.Editor
                 var models = root.GetComponentsInChildren<SkinnedMeshRenderer>(true);
                 SkinnedMeshRenderer Find(string name) => models.Single(model => model.name == "Scout_" + name);
                 var torso = new[] { Find("TrunkCovered"), Find("Shirt"), Find("Jerkin") };
-                foreach (var model in torso) SetMorphMesh(model, AddTrim);
+                foreach (var model in torso) model.sharedMesh = BuildMorphMesh(model.name, AddTrim);
                 var face = Find("HeadNeck");
-                SetMorphMesh(face, AddFacePresets);
+                face.sharedMesh = BuildMorphMesh(face.name, AddFacePresets);
 
                 var appearance = root.GetComponent<CharacterAppearanceVisual>() ?? root.AddComponent<CharacterAppearanceVisual>();
                 var data = new SerializedObject(appearance);
@@ -48,12 +49,24 @@ namespace HeroesOfDragonland.Art.Editor
             for (int i = 0; i < models.Length; i++) property.GetArrayElementAtIndex(i).objectReferenceValue = models[i];
         }
 
-        private static void SetMorphMesh(SkinnedMeshRenderer renderer, Action<Mesh> addShapes)
+        internal static void RefreshImportedMeshes()
         {
-            var source = AssetDatabase.LoadAllAssetsAtPath("Assets/Art/Characters/Models/SK_BorderScout.fbx")
-                .OfType<Mesh>().Single(mesh => mesh.name == renderer.name);
+            foreach (var name in new[] { "Scout_TrunkCovered", "Scout_Shirt", "Scout_Jerkin", "Scout_HeadNeck" })
+            {
+                // The prefab overrides these meshes to add cosmetic morphs.
+                // Retain the GUID so existing renderer and prefab references survive a model reimport.
+                var mesh = BuildMorphMesh(name, name == "Scout_HeadNeck" ? AddFacePresets : AddTrim);
+                AssetDatabase.SaveAssetIfDirty(mesh);
+            }
+        }
+
+        private static Mesh BuildMorphMesh(string meshName, Action<Mesh> addShapes)
+        {
+            var model = AssetDatabase.LoadAssetAtPath<GameObject>(ScoutModel);
+            var source = model.GetComponentsInChildren<SkinnedMeshRenderer>(true)
+                .Single(renderer => renderer.name == meshName).sharedMesh;
             var copy = Object.Instantiate(source);
-            copy.name = source.name + "_Cosmetics";
+            copy.name = meshName + "_Cosmetics";
             addShapes(copy);
             var path = $"{Folder}/{copy.name}.asset";
             var existing = AssetDatabase.LoadAssetAtPath<Mesh>(path);
@@ -68,7 +81,7 @@ namespace HeroesOfDragonland.Art.Editor
                 EditorUtility.SetDirty(existing);
                 Object.DestroyImmediate(copy);
             }
-            renderer.sharedMesh = existing;
+            return existing;
         }
 
         private static void AddTrim(Mesh mesh) =>
@@ -101,6 +114,16 @@ namespace HeroesOfDragonland.Art.Editor
             var vertices = mesh.vertices;
             var deltas = Array.ConvertAll(vertices, vertex => offset(vertex));
             mesh.AddBlendShapeFrame(shape, 100f, deltas, null, null);
+        }
+    }
+
+    internal sealed class BorderScoutCosmeticMeshImporter : AssetPostprocessor
+    {
+        private static void OnPostprocessAllAssets(string[] importedAssets, string[] deletedAssets,
+            string[] movedAssets, string[] movedFromAssetPaths)
+        {
+            if (Array.IndexOf(importedAssets, CharacterAppearanceSetup.ScoutModel) >= 0)
+                CharacterAppearanceSetup.RefreshImportedMeshes();
         }
     }
 }

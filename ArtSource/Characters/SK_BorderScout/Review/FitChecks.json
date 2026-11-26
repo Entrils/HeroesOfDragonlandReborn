@@ -2,6 +2,7 @@
   "source": "SK_BorderScout.blend",
   "blender": "5.3.0",
   "nativeFPS": 30,
+  "sourceSha256": "5e92995e8e6247c4a23ba4243411c8c713c90696c605ae91ba9b9d5f5918f9ff",
   "framesIncludingRest": 436,
   "inclusiveFrameRanges": {
     "AN_PrototypeHumanoid_Attack": [

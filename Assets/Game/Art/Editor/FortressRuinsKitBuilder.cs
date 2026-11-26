@@ -92,20 +92,26 @@ namespace HeroesOfDragonland.Art.Editor
             string path = Materials + "/" + name + ".mat";
             var existing = AssetDatabase.LoadAssetAtPath<Material>(path);
             if (existing != null) return existing;
-            Color color;
-            switch (name)
-            {
-                case "M_FR_Stone": color = new Color(.59f, .596f, .545f); break;
-                case "M_FR_Wood": color = new Color(.396f, .349f, .294f); break;
-                case "M_FR_Iron": color = new Color(.27f, .29f, .31f); break;
-                default: throw new InvalidOperationException("Unknown kit material: " + name);
-            }
+            if (name != "M_FR_Stone" && name != "M_FR_Wood" && name != "M_FR_Iron")
+                throw new InvalidOperationException("Unknown kit material: " + name);
+            string stem = "Assets/Art/Textures/Environment/FortressRuins/T_" + name.Substring(2);
+            var albedo = AssetDatabase.LoadAssetAtPath<Texture2D>(stem + "_BaseColor.png");
+            var normal = AssetDatabase.LoadAssetAtPath<Texture2D>(stem + "_Normal.png");
+            var mask = AssetDatabase.LoadAssetAtPath<Texture2D>(stem + "_Mask.png");
+            if (!albedo || !normal || !mask)
+                throw new InvalidOperationException("Missing fortress surface maps for " + name);
             var shader = Shader.Find("Universal Render Pipeline/Lit");
             if (shader == null) throw new InvalidOperationException("URP Lit shader is unavailable.");
-            var material = new Material(shader) { name = name };
-            material.SetColor("_BaseColor", color);
-            material.SetFloat("_Metallic", name == "M_FR_Iron" ? .9f : 0);
-            material.SetFloat("_Smoothness", name == "M_FR_Iron" ? .5f : .15f);
+            var material = new Material(shader) { name = name, enableInstancing = true };
+            material.SetColor("_BaseColor", Color.white);
+            material.SetTexture("_BaseMap", albedo);
+            material.SetTexture("_BumpMap", normal);
+            material.SetTexture("_MetallicGlossMap", mask);
+            material.SetTexture("_OcclusionMap", mask);
+            material.SetFloat("_Smoothness", 1f);
+            material.EnableKeyword("_NORMALMAP");
+            material.EnableKeyword("_METALLICSPECGLOSSMAP");
+            material.EnableKeyword("_OCCLUSIONMAP");
             AssetDatabase.CreateAsset(material, path);
             return material;
         }

@@ -75,7 +75,7 @@ class Chest:
         self.materials()
 
     def materials(self):
-        self.woods = [oak("Oak plank "+str(i),(.091*t,.047*t,.021*t),(.34,5,8.0))
+        self.woods = [oak("Oak plank "+str(i),(.069*t,.037*t,.020*t),(.34,5,8.0))
                       for i,t in enumerate((.84,1,1.24,.91,1.12))]
         self.cross = oak("Oak lengthwise side",(.084,.041,.018),(6,.30,7))
         self.end = oak("Oak end grain",(.072,.035,.016),(5,4,1.6))
@@ -169,6 +169,10 @@ class Chest:
         self.front_plate("Cast brass escutcheon",outline,.545,.025,self.brass,.007)
         light = [(x*.882,.547,.68+(z-.68)*.871) for x,z in outline]
         self.tube("Engraved lock border",light,.0025,self.patina,True)
+        for sign in (-1,1):
+            self.tube("Chased lock leaf",[(sign*x,.547,z) for x,z in
+                      ((.046,.630),(.071,.653),(.064,.687),(.077,.716),(.047,.733),(.033,.719))],
+                      .0034,self.edge)
         hole = [(.020*math.sin(a),.680+.020*math.cos(a))
                 for a in (i*math.tau/32 for i in range(32)) if abs(a-math.pi)>.46]
         middle = len(hole)//2

@@ -5,6 +5,7 @@ Uses the project's shared FBX profile. No Unity YAML is authored.
 """
 import json
 import math
+import random
 import sys
 from pathlib import Path
 
@@ -14,6 +15,8 @@ from mathutils import Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from export_fbx import export_collection
+from environment_mesh_names import preserve_mesh_names
+from fortress_surfaces import make_surfaces, bind_surface
 
 ROOT = Path(sys.argv[sys.argv.index('--') + 1]).resolve()
 SOURCE = ROOT / 'ArtSource/Environment/FortressRuins'
@@ -21,6 +24,9 @@ MODELS = ROOT / 'Assets/Art/Environment/Models/FortressRuins'
 SOURCE.mkdir(parents=True, exist_ok=True)
 MODELS.mkdir(parents=True, exist_ok=True)
 PARTS = []
+COURSES = {}
+TEXTURES=ROOT/'Assets/Art/Textures/Environment/FortressRuins'
+make_surfaces(TEXTURES)
 
 
 def mat(name, rgb, metallic=0):
@@ -32,6 +38,7 @@ def mat(name, rgb, metallic=0):
     node.inputs['Base Color'].default_value = (*linear, 1)
     node.inputs['Roughness'].default_value = .5 if metallic else .85
     node.inputs['Metallic'].default_value = metallic
+    bind_surface(value,TEXTURES)
     return value
 
 
@@ -48,7 +55,57 @@ def box(pos, size, material='Stone', detail=False, collision=True, angle=0):
     obj = bpy.context.object
     obj.scale = size
     obj.rotation_euler.z = angle
-    return piece(obj, material, detail, collision)
+    original = piece(obj, material, detail, collision)
+    if not detail and not angle and material in ('Stone','Wood'):
+        COURSES[original] = dressed_blocks(pos,size,material)
+    return original
+
+
+def dressed_blocks(pos,size,kind):
+    """Closed staggered ashlar or stave panels inside the original block envelope."""
+    x,y,z=pos
+    w,d,h=size
+    along_x=w>=d
+    length,depth=(w,d) if along_x else (d,w)
+    rows=max(1,round(h/.52)) if kind=='Stone' else 1
+    columns=max(1,round(length/(1.16 if kind=='Stone' else .19)))
+    if rows*columns==1:
+        return None
+    rng=random.Random(repr((pos,size)))
+    vertices,faces=[],[]
+    levels=[0]+[(i+rng.uniform(-.13,.13))*h/rows for i in range(1,rows)]+[h]
+    for row in range(rows):
+        cuts=[0]+[(i-(.45 if row%2 else 0)+rng.uniform(-.09,.09))*length/columns
+                  for i in range(1,columns)]+[length]
+        for a,b in zip(cuts,cuts[1:]):
+            inset=rng.uniform(.002,.018)
+            first=len(vertices)
+            left,right=a+.006-length/2,b-.006-length/2
+            front,back=-depth/2+inset,depth/2-inset
+            ring=[(left,front),(right,front),(right,back),(left,back)]
+            if kind=='Stone' and rng.random()<.54:
+                # A spalled arris makes a broken plane large enough to catch side light.
+                cut=min((right-left)*.17,(back-front)*.2,rng.uniform(.035,.11))
+                ring=[(left+cut,front),(right,front),(right,back),(left,back),(left,front+cut)]
+                if row%2:
+                    ring=[(left+right-u,front+back-v) for u,v in ring]
+            count=len(ring)
+            for k in (0,1):
+                for lateral,normal in ring:
+                    vertices.append((x+(lateral if along_x else normal),y+(normal if along_x else lateral),
+                                     z-h/2+levels[row+k]+(.006 if k==0 else -.006)))
+            faces.append(tuple(first+i for i in reversed(range(count))))
+            faces.append(tuple(first+count+i for i in range(count)))
+            for i in range(count):
+                j=(i+1)%count
+                faces.append((first+i,first+j,first+count+j,first+count+i))
+    data=bpy.data.meshes.new('Coursed '+kind)
+    data.from_pydata(vertices,[],faces)
+    data.update()
+    obj=bpy.data.objects.new(data.name,data)
+    bpy.context.scene.collection.objects.link(obj)
+    data.materials.append(M[kind])
+    return obj
 
 
 def cylinder(pos, radius, depth, material='Stone', vertices=12, rotation=(0,0,0), detail=False):
@@ -175,6 +232,56 @@ def build(kind):
             box((x,.18,1.5),(.08,.4,.08),'Iron',detail=True,collision=False)
     else:
         raise ValueError(kind)
+    if kind in ('Gate','Arch','RuinedArch'):
+        radius=3 if kind=='Gate' else 1
+        spring=(6 if kind=='Gate' else 4)-radius-.5
+        # A second, stepped archivolt catches the low sun on both faces.
+        for side in (-1,1):
+            for i in range(12):
+                if kind=='RuinedArch' and 1<=i<=5:
+                    continue
+                wedge(0,side*.51,spring,radius+.13,.16,.12,
+                      (i+.014)*math.pi/12,(i+.986)*math.pi/12)
+                stone,_,_=PARTS[-1]
+                PARTS[-1]=(stone,True,False)
+            if kind!='RuinedArch':
+                box((0,side*.54,spring+radius+.27),(.34,.22,.48),detail=True,collision=False)
+    if kind=='Tower':
+        for sign in (-1,1):
+            for along_x in (True,False):
+                for p in (-1.48,-.52,.52,1.48):
+                    x,y=(p,sign*1.99) if along_x else (sign*1.99,p)
+                    box((x,y,5.56),(.24,.29,.44),detail=True,collision=False)
+                x,y=(0,sign*1.99) if along_x else (sign*1.99,0)
+                box((x,y,5.84),(4.05,.30,.19) if along_x else (.30,4.05,.19),detail=True,collision=False)
+        for sign in (-1,1):
+            for z in (3.88,4.77):
+                for dx in (-.10,.10):
+                    box((sign*1.50+dx,-2.027,z),(.082,.11,.43),detail=True,collision=False)
+                box((sign*1.50,-2.058,z+.216),(.32,.16,.075),detail=True,collision=False)
+    if kind=='Barrel':
+        for i in range(18):
+            a=i*math.tau/18
+            box((.415*math.cos(a),.415*math.sin(a),.60),(.036,.136,.94),'Wood',
+                detail=True,collision=False,angle=a)
+        for x in (-.20,0,.20):
+            box((x,0,1.201),(.184,2*math.sqrt(.385**2-x*x)-.07,.014),'Wood',detail=True,collision=False)
+    if kind in ('Gate','Arch','RuinedArch','Tower','Pillar','WallStraight','WallDamaged'):
+        width={'Gate':8,'Arch':4,'RuinedArch':4,'Tower':4,'Pillar':1}.get(kind,4)
+        depth=4 if kind=='Tower' else 1
+        offsets=[0] if kind=='Pillar' else [-(width/2-.38),width/2-.38]
+        for x in offsets:
+            height=1.85 if kind=='RuinedArch' and x>0 else 3.0 if kind in ('Gate','Tower') else 1.95
+            for side in (-1,1):
+                y=side*(depth/2+.035)
+                for lateral in (-.18,.18):
+                    box((x+lateral,y,height*.46),(.10,.13,height*.92),detail=True,collision=False)
+                    finial=box((x+lateral*.53,y,height*.985),(.094,.14,.30),detail=True,collision=False)
+                    # Tilt the moulding in its own frame to meet at a pointed apex.
+                    for vert in finial.data.vertices:
+                        vert.co.x-=lateral*.85*(vert.co.z-height*.985)/.30
+                box((x,y,.13),(.57,.22,.26),detail=True,collision=False)
+                box((x,y,height*.88),(.51,.19,.09),detail=True,collision=False)
 
 
 def joined(name, selected, collection, bevel=False):
@@ -194,8 +301,8 @@ def joined(name, selected, collection, bevel=False):
     bpy.ops.object.origin_set(type='ORIGIN_CURSOR')
     if bevel:
         modifier = obj.modifiers.new('BroadEdgeBevel', 'BEVEL')
-        modifier.width = .018
-        modifier.segments = 1
+        modifier.width = .005 if name=='SM_FR_Barrel_LOD0' else .018
+        modifier.segments = 1 if name=='SM_FR_Tower_LOD0' else 2
         bpy.ops.object.modifier_apply(modifier=modifier.name)
     bpy.ops.object.mode_set(mode='EDIT')
     bpy.ops.mesh.select_all(action='SELECT')
@@ -205,6 +312,13 @@ def joined(name, selected, collection, bevel=False):
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=.025)
     bpy.ops.mesh.quads_convert_to_tris(quad_method='BEAUTY', ngon_method='BEAUTY')
     bpy.ops.object.mode_set(mode='OBJECT')
+    if not name.startswith('COL_'):
+        uv=obj.data.uv_layers.active
+        for face in obj.data.polygons:
+            n=face.normal
+            for idx in face.loop_indices:
+                p=obj.data.vertices[obj.data.loops[idx].vertex_index].co
+                uv.data[idx].uv=((p.x,p.y) if abs(n.z)>.7 else (p.y,p.z) if abs(n.x)>abs(n.y) else (p.x,p.z))
     return obj
 
 
@@ -214,6 +328,7 @@ KINDS = ['WallStraight','WallDamaged','WallCorner','Tower','Gate','Arch','Stairs
 assets = []
 for kind in KINDS:
     bpy.ops.wm.read_factory_settings(use_empty=True)
+    bpy.context.preferences.filepaths.save_version=0
     scene = bpy.context.scene
     scene.unit_settings.system = 'METRIC'
     scene.unit_settings.scale_length = 1
@@ -221,13 +336,14 @@ for kind in KINDS:
          'Wood':mat('M_FR_Wood',(.396,.349,.294)),
          'Iron':mat('M_FR_Iron',(.27,.29,.31),.9)}
     PARTS.clear()
+    COURSES.clear()
     build(kind)
     name = 'SM_FR_' + kind
     export = bpy.data.collections.new('EXPORT')
     scene.collection.children.link(export)
     root_obj = bpy.data.objects.new(name, None)
     export.objects.link(root_obj)
-    lod0 = joined(name+'_LOD0',[p[0] for p in PARTS],export,True)
+    lod0 = joined(name+'_LOD0',[COURSES.get(p[0]) or p[0] for p in PARTS],export,True)
     lod1 = joined(name+'_LOD1',[p[0] for p in PARTS if not p[1]],export)
     collider = joined('COL_'+kind,[p[0] for p in PARTS if p[2]],export)
     for obj in (lod0,lod1,collider):
@@ -238,6 +354,9 @@ for kind in KINDS:
     collider.hide_set(True)
     for obj, _, _ in PARTS:
         bpy.data.objects.remove(obj, do_unlink=True)
+    for obj in COURSES.values():
+        if obj:
+            bpy.data.objects.remove(obj,do_unlink=True)
     for axis, loc in [('Front',(0,1,0)),('Right',(1,0,0)),('Up',(0,0,1))]:
         socket = bpy.data.objects.new('Socket_'+axis,None)
         export.objects.link(socket)
@@ -263,7 +382,8 @@ for kind in KINDS:
     bpy.ops.object.select_all(action='DESELECT')
     lod0.select_set(True)
     bpy.context.view_layer.objects.active = lod0
-    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/(name+'.blend')))
+    preserve_mesh_names(name, export)
+    bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/(name+'.blend')),compress=True)
     export_collection(MODELS/(name+'.fbx'))
 
 # Reopen sources for a linked-data demonstration; separate from export assets.
@@ -331,11 +451,12 @@ manifest = dict(version=1, milestone=55, blender=bpy.app.version_string,
 (SOURCE/'FortressRuins.manifest.json').write_text(json.dumps(manifest,indent=2)+'\n',encoding='utf-8')
 scene.world = bpy.data.worlds.new('Overcast')
 scene.world.use_nodes = True
-scene.world.node_tree.nodes['Background'].inputs[0].default_value = (.5,.57,.65,1)
-scene.world.node_tree.nodes['Background'].inputs[1].default_value = .7
+scene.world.node_tree.nodes['Background'].inputs[0].default_value = (.21,.27,.35,1)
+scene.world.node_tree.nodes['Background'].inputs[1].default_value = .57
 bpy.ops.object.light_add(type='AREA',location=(0,-6,18))
 light = bpy.context.object
 light.data.energy = 4500
+light.data.color = (1,.83,.63)
 light.data.shape = 'DISK'
 light.data.size = 12
 light.rotation_euler = (Vector((0,4,0))-light.location).to_track_quat('-Z','Y').to_euler()
@@ -351,7 +472,8 @@ scene.render.resolution_y = 1000
 scene.render.resolution_percentage = 100
 scene.view_settings.view_transform = 'Standard'
 scene['M55_Status'] = manifest['status']
-bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/'FortressRuins_TestSection.blend'))
+bpy.context.preferences.filepaths.save_version=0
+bpy.ops.wm.save_as_mainfile(filepath=str(SOURCE/'FortressRuins_TestSection.blend'),compress=True)
 preview = ROOT/'Documentation/FortressRuins'
 preview.mkdir(parents=True,exist_ok=True)
 scene.render.filepath = str(preview/'TestSection.png')

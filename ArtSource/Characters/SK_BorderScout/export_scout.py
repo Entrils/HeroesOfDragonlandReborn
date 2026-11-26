@@ -59,10 +59,53 @@ def evaluated_grips(body):
     return targets
 
 
+def simplify_plate_pattern(obj):
+    """Sample the source quad grid, preserving its turned hem and UV boundaries."""
+    original = obj.data
+    cols = obj["pattern_columns"]
+    rows = len(original.vertices) // (cols + 1) - 1
+    across = sorted({*range(0, cols, 2), cols})
+    along = sorted({*range(0, rows, 2), rows - 1, rows})
+    indices = [j * (cols + 1) + i for j in along for i in across]
+    width = len(across)
+    faces, original_faces = [], []
+    for j, row in enumerate(along[:-1]):
+        for i, column in enumerate(across[:-1]):
+            k = j * width + i
+            quad = (k, k + 1, k + width + 1, k + width)
+            face = original.polygons[row * cols + column]
+            faces.append(quad if face.vertices[0] == indices[k] else quad[::-1])
+            original_faces.append(face)
+    mesh = bpy.data.meshes.new(original.name + "_Game")
+    mesh.from_pydata([original.vertices[i].co for i in indices], [], faces)
+    mesh.update()
+    for mat in original.materials:
+        mesh.materials.append(mat)
+    bone_names = [group.name for group in obj.vertex_groups]
+    obj.data = mesh
+    groups = [obj.vertex_groups.get(name) or obj.vertex_groups.new(name=name) for name in bone_names]
+    uv = mesh.uv_layers.new(name="UV0")
+    for face, source_face in zip(mesh.polygons, original_faces):
+        face.use_smooth = True
+        face.material_index = source_face.material_index
+        for loop in face.loop_indices:
+            row, col = divmod(indices[mesh.loops[loop].vertex_index], cols + 1)
+            uv.data[loop].uv = (col / cols, row / rows)
+    for local, index in enumerate(indices):
+        for weight in original.vertices[index].groups:
+            groups[weight.group].add([local], weight.weight, "REPLACE")
+    obj.modifiers["Hammered bevel"].segments = 1
+
+
 def flatten_pattern(pattern):
     pieces = list(pattern.objects)
     for obj in pieces:
         select([obj])
+        if "pattern_columns" in obj:
+            simplify_plate_pattern(obj)
+        if obj.name in {"Groom_ContourFibres", "Brows_IndividualHairs"}:
+            reduction = obj.modifiers.new("Simplify subpixel fibre tubes", "DECIMATE")
+            reduction.ratio = 0.48
         for modifier in list(obj.modifiers):
             if modifier.type in {"MASK", "ARMATURE"}:
                 obj.modifiers.remove(modifier)
@@ -140,10 +183,15 @@ for obj in collection.all_objects:
     if obj.type != "MESH":
         continue
     select([obj])
-    bpy.ops.object.vertex_group_limit_total(group_select_mode="ALL", limit=4)
-    bpy.ops.object.vertex_group_normalize_all(lock_active=False)
     triangles = obj.modifiers.new("Game triangles", "TRIANGULATE")
     bpy.ops.object.modifier_apply(modifier=triangles.name)
+    if obj.name in {"Scout_Shirt", "Scout_Breeches"}:
+        reduction = obj.modifiers.new("Reduce flat garment interiors", "DECIMATE")
+        reduction.ratio = .73
+        reduction.use_collapse_triangulate = True
+        bpy.ops.object.modifier_apply(modifier=reduction.name)
+    bpy.ops.object.vertex_group_limit_total(group_select_mode="ALL", limit=4)
+    bpy.ops.object.vertex_group_normalize_all(lock_active=False)
     if obj.name == "Scout_Hands" and hand_shapes:
         obj.shape_key_add(name="Basis")
         for name, points in hand_shapes.items():
@@ -154,7 +202,7 @@ for obj in collection.all_objects:
 
 export_collection(project / "Assets/Art/Characters/Models/SK_BorderScout.fbx", bake_animation=False)
 
-for direction in ("StrafeLeft", "StrafeRight"):
+for direction in (() if "--model-only" in sys.argv else ("StrafeLeft", "StrafeRight")):
     name = "AN_BorderScout_" + direction
     action = bpy.data.actions[name]
     rig.animation_data_create()

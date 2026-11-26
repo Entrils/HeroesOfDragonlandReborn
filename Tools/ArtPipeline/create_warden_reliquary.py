@@ -26,7 +26,7 @@ class Reliquary(Chest):
     textures=ROOT/"Assets/Art/Textures/Environment/WardenReliquary"
 
     def materials(self):
-        self.stone=stone_material("Reliquary_AshBasalt",(.072,.083,.087),77,.86)
+        self.stone=stone_material("Reliquary_AshBasalt",(.038,.045,.049),77,.79)
         self.slate=stone_material("Reliquary_BlueSlate",(.097,.112,.114),88,.83)
         self.light=stone_material("Reliquary_CarvedFreestone",(.205,.178,.133),92,.81)
         self.dark=stone_material("Reliquary_RecessedBasalt",(.024,.031,.031),96,.89)
@@ -84,6 +84,10 @@ class Reliquary(Chest):
         self.front_plate("Buried basalt seal socket",[(x*1.13,.51+(z-.51)*1.08) for x,z in outline],
                          .524,.051,self.slate,.020)
         self.front_plate("Basalt seal inset",outline,.548,.036,self.dark,.011)
+        for sign in (-1,1):
+            tracery=[(.105,.361),(.158,.403),(.162,.447),(.183,.485),(.190,.529)]
+            self.tube("Chased tracery flanking the seal",[(sign*x,.555,z) for x,z in tracery],
+                      .0052,self.patina)
         for i,p in enumerate(outline):
             q=outline[(i+1)%len(outline)]
             a,b=Vector((p[0],.554,p[1])),Vector((q[0],.554,q[1]))

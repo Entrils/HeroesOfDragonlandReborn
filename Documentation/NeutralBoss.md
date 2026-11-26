@@ -1,5 +1,15 @@
 # Neutral Stone Warden
 
+## Character art
+
+The Warden wears a shattered basalt crown and a deeply cut funerary mask. Pale cheekstones and narrow mineral eyes frame the dark jaw. Ribbed buttresses behind the shoulders give the upper body a distinct outline during a windup. Interlocking bronze chains fasten the dragon seal to the chest. The crown raises the top of the resting mesh from 3.56 m to 3.71 m. [Full figure](../ArtSource/Characters/SK_StoneWarden/StoneWarden.png) · [Mask and seal](../ArtSource/Characters/SK_StoneWarden/StoneWardenDetail.png) · [Rear silhouette](../ArtSource/Characters/SK_StoneWarden/StoneWardenBack.png)
+
+Blender 5.3 evaluates the editable master at 927,000 triangles. The playable FBX contains 120,508 triangles and one skinned mesh. The exporter reduces the surface before baking a 2048² base color, tangent normal and metallic/smoothness atlas. The six review renders use the game geometry and baked maps. [Cleave](../ArtSource/Characters/SK_StoneWarden/StoneWardenCleave.png) · [Sweep](../ArtSource/Characters/SK_StoneWarden/StoneWardenSweep.png) · [Stomp](../ArtSource/Characters/SK_StoneWarden/StoneWardenStomp.png)
+
+Rebuild with `blender -b --python-exit-code 1 --python Tools/ArtPipeline/create_stone_warden.py` from the project root. The script writes the master and review images under `ArtSource/Characters/SK_StoneWarden/`, the playable `Assets/Art/Characters/Models/SK_StoneWarden.fbx` and the three `T_StoneWarden_*.png` maps under `Assets/Art/Textures/Characters/StoneWarden/`. The sweep review is new. The existing Battlefield BossKnight prefab references the model and material by their original GUIDs.
+
+A Blender round trip matched the previous FBX's 22 bone names, parent relationships and rest matrices, mesh name and eight ordered material slots. Skin weights summed to one. The exported mesh deformed with the existing Idle, Cleave, Sweep and Stomp FBX clips at nine sampled frames each. Unity reimport, Console, runtime bounds and attack readability at the Battlefield camera distance remain to be checked on the Editor machine.
+
 The center contested camp now spawns one boss using the existing NetworkCamp, NetworkEnemy, EnemyBrain, Targetable, DamageReceiver and loot chest lifecycle. The previous BossBear assets are retained but no longer spawned by this camp.
 
 The boss has 1,800 HP, 250 stagger resistance, 2.8m/s chase speed, 10m detection, and a 14m leash. It is visibly larger than ordinary enemies. It has no team allegiance or fortress guard component. The existing server targeting policy accepts living, admitted players from either team in the same runner. Sight acquires a nearby player; taking damage changes aggro to the attacker. Aggro changes during a windup affect the next action, while the current danger area remains fixed. Death, lost target, return, stagger and disabled simulation still cancel attacks.

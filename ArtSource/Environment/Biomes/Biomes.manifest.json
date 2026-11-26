@@ -8,24 +8,24 @@
       "name": "SM_BS_StrataOutcrop",
       "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_StrataOutcrop.fbx",
       "triangles": [
-        960,
+        3840,
         240,
         60
       ],
       "minimumBlender": [
-        -1.541137933731079,
-        -1.001104712486267,
+        -1.4994442462921143,
+        -1.0331929922103882,
         0.0
       ],
       "maximumBlender": [
-        1.6321930885314941,
-        1.0653760433197021,
-        2.1936757564544678
+        1.5336836576461792,
+        1.0120794773101807,
+        2.2029902935028076
       ],
       "dimensionsUnity": [
-        3.1733310222625732,
-        2.1936757564544678,
-        2.0664807558059692
+        3.0331279039382935,
+        2.2029902935028076,
+        2.045272469520569
       ],
       "lod0Materials": [
         "M_BS_StrataStone"
@@ -41,7 +41,7 @@
       "name": "SM_BS_ShatteredStandard",
       "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_ShatteredStandard.fbx",
       "triangles": [
-        92,
+        312,
         28
       ],
       "minimumBlender": [
@@ -50,12 +50,12 @@
         0.0
       ],
       "maximumBlender": [
-        1.2000000476837158,
+        1.1799999475479126,
         0.30000001192092896,
         3.200000047683716
       ],
       "dimensionsUnity": [
-        1.5000000596046448,
+        1.4799999594688416,
         3.200000047683716,
         0.6000000238418579
       ],
@@ -74,24 +74,24 @@
       "name": "SM_BS_CorruptedSpire",
       "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_CorruptedSpire.fbx",
       "triangles": [
-        320,
+        1280,
         80,
         20
       ],
       "minimumBlender": [
-        -0.44473496079444885,
-        -0.39283981919288635,
+        -0.45307523012161255,
+        -0.3658415377140045,
         0.0
       ],
       "maximumBlender": [
-        0.5737671852111816,
-        0.3858855366706848,
-        4.088134765625
+        0.6181785464286804,
+        0.39563530683517456,
+        4.0834126472473145
       ],
       "dimensionsUnity": [
-        1.0185021460056305,
-        4.088134765625,
-        0.7787253558635712
+        1.071253776550293,
+        4.0834126472473145,
+        0.7614768445491791
       ],
       "lod0Materials": [
         "M_BS_CorruptedStone",
@@ -110,24 +110,24 @@
       "name": "SM_BS_TwistedRoot",
       "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_TwistedRoot.fbx",
       "triangles": [
-        744,
-        296,
+        3984,
+        1328,
         166
       ],
       "minimumBlender": [
-        -1.338894009590149,
-        -1.1824194192886353,
-        -0.013005489483475685
+        -1.4888137578964233,
+        -1.1748913526535034,
+        -0.01739298179745674
       ],
       "maximumBlender": [
-        0.8940425515174866,
-        1.2049659490585327,
-        3.060786008834839
+        0.8274291157722473,
+        1.1652770042419434,
+        3.062469005584717
       ],
       "dimensionsUnity": [
-        2.2329365611076355,
-        3.0737914983183146,
-        2.387385368347168
+        2.3162428736686707,
+        3.0798619873821735,
+        2.3401683568954468
       ],
       "lod0Materials": [
         "M_BS_CorruptedStone"
@@ -143,21 +143,21 @@
       "name": "SM_BS_TerrainTile",
       "fbx": "Assets/Art/Environment/Models/Biomes/SM_BS_TerrainTile.fbx",
       "triangles": [
-        2
+        288
       ],
       "minimumBlender": [
         -2.0,
         -2.0,
-        0.0
+        -0.01470218226313591
       ],
       "maximumBlender": [
         2.0,
         2.0,
-        0.0
+        0.017230844125151634
       ],
       "dimensionsUnity": [
         4.0,
-        0.0,
+        0.031933026388287544,
         4.0
       ],
       "lod0Materials": [
@@ -842,49 +842,49 @@
   "palette": [
     {
       "name": "M_BS_HighlandGravel",
-      "color": "96978C",
-      "roughness": 0.9,
+      "color": "797D78",
+      "roughness": 0.87,
       "stem": "BS_HighlandGravel"
     },
     {
       "name": "M_BS_BattlefieldPaving",
-      "color": "8E877A",
-      "roughness": 0.9,
+      "color": "756F64",
+      "roughness": 0.88,
       "stem": "BS_BattlefieldPaving"
     },
     {
       "name": "M_BS_CorruptedAsh",
-      "color": "756F7D",
-      "roughness": 0.94,
+      "color": "625D68",
+      "roughness": 0.91,
       "stem": "BS_CorruptedAsh"
     },
     {
       "name": "M_BS_StrataStone",
-      "color": "9A9E98",
-      "roughness": 0.88,
+      "color": "747C79",
+      "roughness": 0.86,
       "stem": ""
     },
     {
       "name": "M_BS_WarIron",
-      "color": "545D61",
+      "color": "444B50",
       "roughness": 0.55,
       "stem": ""
     },
     {
       "name": "M_BS_OldCloth",
-      "color": "B3AA93",
-      "roughness": 0.95,
+      "color": "978970",
+      "roughness": 0.94,
       "stem": ""
     },
     {
       "name": "M_BS_CorruptedStone",
-      "color": "777080",
-      "roughness": 0.9,
+      "color": "574F5D",
+      "roughness": 0.87,
       "stem": ""
     },
     {
       "name": "M_BS_PaleVein",
-      "color": "B1A4B8",
+      "color": "9D94A3",
       "roughness": 0.7,
       "stem": ""
     }

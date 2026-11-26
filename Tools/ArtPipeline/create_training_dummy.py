@@ -28,7 +28,7 @@ class TrainingDummy(Chest):
     def materials(self):
         self.wood=oak("Dummy_WeatheredOak",(.104,.056,.029),(5.4,5.2,.27))
         self.base=oak("Dummy_BaseHeartwood",(.084,.041,.022),(.32,6,7.7))
-        self.canvas=material("Dummy_StainedSackcloth",(.172,.118,.065),0,.87,311,.00137,"cloth")
+        self.canvas=material("Dummy_StainedSackcloth",(.129,.103,.073),0,.87,311,.00178,"cloth")
         self.patch=material("Dummy_CoarseRepairCanvas",(.106,.075,.043),0,.90,323,.00102,"cloth")
         self.red=material("Dummy_FadedIronOxidePaint",(.147,.023,.015),0,.90,339,.00101,"cloth")
         self.dark=material("Dummy_DarkTornCloth",(.033,.019,.011),0,.91,291,.00089,"cloth")
@@ -41,7 +41,7 @@ class TrainingDummy(Chest):
 
     def sack(self,name,origin,widths,mat,axis=0,phase=0):
         vertices=[]
-        n=48
+        n=72
         for j,(level,rx,ry) in enumerate(widths):
             for i in range(n):
                 a=i*math.tau/n

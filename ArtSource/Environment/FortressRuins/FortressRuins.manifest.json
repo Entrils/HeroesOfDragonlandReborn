@@ -15,21 +15,21 @@
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_WallStraight.fbx",
       "dimensionsUnity": [
         4.0,
-        3.0,
-        1.12
+        2.994,
+        1.29
       ],
       "minimumBlender": [
         -2.0,
-        -0.5600000023841858,
+        -0.6450000405311584,
         0.0
       ],
       "maximumBlender": [
         2.0,
-        0.5600000023841858,
-        3.0
+        0.6450000405311584,
+        2.99399995803833
       ],
       "triangles": [
-        396,
+        6032,
         48,
         48
       ],
@@ -46,22 +46,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_WallDamaged.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_WallDamaged.fbx",
       "dimensionsUnity": [
-        4.0,
-        3.0,
-        1.035
+        3.988,
+        2.994,
+        1.29
       ],
       "minimumBlender": [
-        -2.0,
-        -0.5,
+        -1.99399995803833,
+        -0.6450000405311584,
         0.0
       ],
       "maximumBlender": [
-        2.0,
-        0.5349999666213989,
-        3.0
+        1.99399995803833,
+        0.6450000405311584,
+        2.99399995803833
       ],
       "triangles": [
-        308,
+        5628,
         48,
         48
       ],
@@ -78,22 +78,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_WallCorner.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_WallCorner.fbx",
       "dimensionsUnity": [
-        4.0,
-        3.0,
-        4.0
+        3.9919,
+        2.988,
+        3.9907
       ],
       "minimumBlender": [
-        0.0,
-        0.0,
-        0.0
+        0.002137294737622142,
+        0.003301295218989253,
+        0.006000000052154064
       ],
       "maximumBlender": [
-        4.0,
-        4.0,
-        3.0
+        3.99399995803833,
+        3.99399995803833,
+        2.99399995803833
       ],
       "triangles": [
-        88,
+        4364,
         24,
         24
       ],
@@ -110,22 +110,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_Tower.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Tower.fbx",
       "dimensionsUnity": [
-        4.0,
-        6.8,
-        4.0
+        4.28,
+        6.794,
+        4.29
       ],
       "minimumBlender": [
-        -2.0,
-        -2.0,
+        -2.140000104904175,
+        -2.1449999809265137,
         0.0
       ],
       "maximumBlender": [
-        2.0,
-        2.0,
-        6.800000190734863
+        2.140000104904175,
+        2.1449999809265137,
+        6.794000148773193
       ],
       "triangles": [
-        748,
+        9116,
         204,
         204
       ],
@@ -143,21 +143,21 @@
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Gate.fbx",
       "dimensionsUnity": [
         8.0,
-        6.0,
-        1.12
+        6.01,
+        1.3
       ],
       "minimumBlender": [
         -4.0,
-        -0.5600000023841858,
+        -0.6500000357627869,
         0.0
       ],
       "maximumBlender": [
         4.0,
-        0.5600000023841858,
-        6.0
+        0.6500000357627869,
+        6.009999752044678
       ],
       "triangles": [
-        528,
+        7756,
         120,
         120
       ],
@@ -175,21 +175,21 @@
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Arch.fbx",
       "dimensionsUnity": [
         4.0,
-        4.0,
-        1.12
+        4.01,
+        1.3
       ],
       "minimumBlender": [
         -2.0,
-        -0.5600000023841858,
+        -0.6500000357627869,
         0.0
       ],
       "maximumBlender": [
         2.0,
-        0.5600000023841858,
-        4.0
+        0.6500000357627869,
+        4.009999752044678
       ],
       "triangles": [
-        528,
+        7700,
         120,
         120
       ],
@@ -206,22 +206,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_Stairs.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Stairs.fbx",
       "dimensionsUnity": [
-        2.0,
-        2.0,
-        4.0
+        1.988,
+        1.988,
+        3.9879
       ],
       "minimumBlender": [
-        -1.0,
-        -2.0,
-        0.0
+        -0.9940000176429749,
+        -1.9899362325668335,
+        0.006000000052154064
       ],
       "maximumBlender": [
-        1.0,
-        2.0,
-        2.0
+        0.9940000176429749,
+        1.9979509115219116,
+        1.99399995803833
       ],
       "triangles": [
-        440,
+        5424,
         120,
         120
       ],
@@ -238,22 +238,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_Battlement.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Battlement.fbx",
       "dimensionsUnity": [
-        4.0,
-        1.4,
-        1.0
+        3.9918,
+        1.388,
+        0.9955
       ],
       "minimumBlender": [
-        -2.0,
-        -0.5,
-        0.0
+        -1.9978132247924805,
+        -0.4977318346500397,
+        0.006000000052154064
       ],
       "maximumBlender": [
-        2.0,
-        0.5,
-        1.399999976158142
+        1.99399995803833,
+        0.4977318346500397,
+        1.3940000534057617
       ],
       "triangles": [
-        176,
+        1168,
         48,
         48
       ],
@@ -272,20 +272,20 @@
       "dimensionsUnity": [
         1.0,
         3.0,
-        1.0
+        1.29
       ],
       "minimumBlender": [
         -0.5,
-        -0.5,
+        -0.6450000405311584,
         0.0
       ],
       "maximumBlender": [
         0.5,
-        0.5,
+        0.6450000405311584,
         3.0
       ],
       "triangles": [
-        132,
+        2000,
         36,
         36
       ],
@@ -302,22 +302,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_FloorSection.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_FloorSection.fbx",
       "dimensionsUnity": [
-        4.0,
-        0.25,
-        4.0
+        3.988,
+        0.238,
+        3.9952
       ],
       "minimumBlender": [
-        -2.0,
-        -2.0,
-        -0.25
+        -1.99399995803833,
+        -1.9975953102111816,
+        -0.24400000274181366
       ],
       "maximumBlender": [
-        2.0,
-        2.0,
-        0.0
+        1.99399995803833,
+        1.9975953102111816,
+        -0.006000000052154064
       ],
       "triangles": [
-        44,
+        352,
         12,
         12
       ],
@@ -334,22 +334,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_BrokenWall.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_BrokenWall.fbx",
       "dimensionsUnity": [
-        4.0,
-        2.3,
+        3.994,
+        2.294,
         1.035
       ],
       "minimumBlender": [
-        -2.0,
+        -1.99399995803833,
         -0.5,
         0.0
       ],
       "maximumBlender": [
         2.0,
         0.5349999666213989,
-        2.299999952316284
+        2.2939999103546143
       ],
       "triangles": [
-        308,
+        1572,
         48,
         48
       ],
@@ -366,22 +366,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_RuinedArch.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_RuinedArch.fbx",
       "dimensionsUnity": [
-        4.0,
+        3.988,
         3.9965,
-        1.0
+        1.29
       ],
       "minimumBlender": [
-        -2.0,
-        -0.5,
+        -1.99399995803833,
+        -0.6450000405311584,
         0.0
       ],
       "maximumBlender": [
-        2.0,
-        0.5,
+        1.99399995803833,
+        0.6450000405311584,
         3.996488332748413
       ],
       "triangles": [
-        308,
+        5620,
         84,
         84
       ],
@@ -398,22 +398,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_CollapsedPillar.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_CollapsedPillar.fbx",
       "dimensionsUnity": [
-        2.6,
-        1.0,
-        1.0
+        2.5979,
+        0.994,
+        0.988
       ],
       "minimumBlender": [
-        -1.399999976158142,
-        -0.5,
+        -1.3979028463363647,
+        -0.49399998784065247,
         -5.871057595641105e-08
       ],
       "maximumBlender": [
         1.2000000476837158,
-        0.5,
-        1.0
+        0.49399998784065247,
+        0.9940000176429749
       ],
       "triangles": [
-        136,
+        384,
         56,
         56
       ],
@@ -445,7 +445,7 @@
         0.30000001192092896
       ],
       "triangles": [
-        44,
+        108,
         12,
         12
       ],
@@ -477,7 +477,7 @@
         0.41999998688697815
       ],
       "triangles": [
-        88,
+        216,
         24,
         24
       ],
@@ -494,22 +494,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_Rubble03.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Rubble03.fbx",
       "dimensionsUnity": [
-        1.6885,
+        1.6914,
         0.54,
-        0.927
+        0.9299
       ],
       "minimumBlender": [
         -0.7250000238418579,
-        -0.4543919265270233,
+        -0.4572274088859558,
         0.0
       ],
       "maximumBlender": [
-        0.9635161757469177,
+        0.9663516283035278,
         0.472652405500412,
         0.5400000214576721
       ],
       "triangles": [
-        132,
+        324,
         36,
         36
       ],
@@ -541,7 +541,7 @@
         1.0
       ],
       "triangles": [
-        440,
+        1512,
         60,
         60
       ],
@@ -560,7 +560,7 @@
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_Barrel.fbx",
       "dimensionsUnity": [
         0.89,
-        1.2,
+        1.208,
         0.89
       ],
       "minimumBlender": [
@@ -571,10 +571,10 @@
       "maximumBlender": [
         0.4449999928474426,
         0.4449999928474426,
-        1.2000000476837158
+        1.2079999446868896
       ],
       "triangles": [
-        372,
+        2832,
         60,
         60
       ],
@@ -592,22 +592,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_TorchHolder.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_TorchHolder.fbx",
       "dimensionsUnity": [
-        0.2662,
+        0.2719,
         0.81,
-        0.4831
+        0.4871
       ],
       "minimumBlender": [
-        -0.13311170041561127,
+        -0.13596490025520325,
         0.0,
         0.0
       ],
       "maximumBlender": [
-        0.13311170041561127,
-        0.483111709356308,
+        0.13596490025520325,
+        0.48714679479599,
         0.8100000619888306
       ],
       "triangles": [
-        280,
+        608,
         96,
         96
       ],
@@ -626,22 +626,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_WoodenBarricade.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_WoodenBarricade.fbx",
       "dimensionsUnity": [
-        3.0,
+        2.988,
         1.6,
-        1.0
+        0.988
       ],
       "minimumBlender": [
-        -1.5,
-        -0.5,
+        -1.49399995803833,
+        -0.49399998784065247,
         0.0
       ],
       "maximumBlender": [
-        1.5,
-        0.5,
+        1.49399995803833,
+        0.49399998784065247,
         1.600000023841858
       ],
       "triangles": [
-        352,
+        5400,
         96,
         96
       ],
@@ -658,22 +658,22 @@
       "source": "ArtSource/Environment/FortressRuins/SM_FR_WeaponRack.blend",
       "fbx": "Assets/Art/Environment/Models/FortressRuins/SM_FR_WeaponRack.fbx",
       "dimensionsUnity": [
-        2.0,
+        1.9902,
         1.8,
-        1.0
+        0.988
       ],
       "minimumBlender": [
-        -1.0,
-        -0.5,
+        -0.9940000176429749,
+        -0.49399998784065247,
         0.0
       ],
       "maximumBlender": [
-        1.0,
-        0.5,
+        0.9962086081504822,
+        0.49399998784065247,
         1.7999999523162842
       ],
       "triangles": [
-        440,
+        4104,
         72,
         72
       ],
